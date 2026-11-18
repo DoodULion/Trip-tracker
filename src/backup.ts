@@ -1,5 +1,5 @@
 /** Backup (JSON) and CSV export/import for all trips. Pure functions, no UI or storage. */
-import { type CardCharge, type CashBought, type CashPurchase, type Category, type Data, type Trip } from './calc';
+import { CATEGORIES, type CardCharge, type CashBought, type CashPurchase, type Category, type Data, type Trip } from './calc';
 import { centsToInput, newId } from './money';
 
 /** Stable file identifier. Kept as 'japan-trip' (the app's original name) so older backups still import. */
@@ -17,16 +17,16 @@ export interface Backup {
   version: number;
   exportedAt: string;
   trips: BackupTrip[];
-  /** The owner's own categories (shared by every trip). Empty in older backups. */
+  /** The categories offered on every trip, in order (built-ins the owner kept plus their own). */
   categories: string[];
 }
 
-export function buildBackup(items: BackupTrip[], now = new Date(), categories: string[] = []): unknown {
+export function buildBackup(items: BackupTrip[], now = new Date(), categories: readonly string[] = CATEGORIES): unknown {
   return {
     app: BACKUP_APP,
     version: BACKUP_VERSION,
     exportedAt: now.toISOString(),
-    categories,
+    categoryList: categories,
     trips: items.map(({ trip, data }) => ({ ...trip, data })),
   };
 }
@@ -155,9 +155,11 @@ export function parseBackup(text: string): Backup {
       return { trip: parseTripFields(t, id, name, where), data: parseData(t.data, where) };
     });
   }
-  const categories = Array.isArray(raw.categories)
-    ? [...new Set(raw.categories.filter((c): c is string => typeof c === 'string').map((c) => c.trim()).filter((c) => c !== '' && c.length <= 40))]
-    : [];
+  const names = (v: unknown): string[] =>
+    Array.isArray(v) ? [...new Set(v.filter((c): c is string => typeof c === 'string').map((c) => c.trim()).filter((c) => c !== '' && c.length <= 40))] : [];
+  // categoryList = the full list; older backups had only the owner's extras under "categories", or nothing.
+  const listed = names(raw.categoryList);
+  const categories = listed.length > 0 ? listed : [...new Set([...CATEGORIES, ...names(raw.categories)])];
   return { app: BACKUP_APP, version: raw.version, exportedAt, trips, categories };
 }
 

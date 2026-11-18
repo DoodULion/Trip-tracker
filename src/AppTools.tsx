@@ -4,6 +4,7 @@ import { CATEGORIES } from './calc';
 import { getLastExport, setLastExport } from './db';
 import NameSheet from './NameSheet';
 import { Roundel } from './Roundel';
+import SheetBackdrop from './SheetBackdrop';
 import { saveFile } from './download';
 import { todayLocal } from './money';
 import { EMPTY_DATA, type App } from './store';
@@ -28,6 +29,7 @@ export default function AppTools({ app }: { app: App }) {
   const [theme, setTheme] = useState<ThemeChoice>(getThemeChoice);
   const [lastExport, setLastExportState] = useState<string | undefined>();
   const [naming, setNaming] = useState(false);
+  const [deleting, setDeleting] = useState<string | null>(null);
 
   useEffect(() => {
     void getLastExport().then(setLastExportState);
@@ -76,6 +78,14 @@ export default function AppTools({ app }: { app: App }) {
     setMsg('All data deleted.');
   }
 
+  /** How many entries, across all trips, are filed under a category. */
+  const usedBy = (category: string) =>
+    Object.values(app.data).reduce(
+      (t, d) => t + d.cardCharges.filter((e) => e.category === category).length + d.cashPurchases.filter((e) => e.category === category).length,
+      0,
+    );
+  const missingBuiltIns = CATEGORIES.filter((c) => !app.categories.includes(c));
+
   const describe = (list: BackupTrip[]) =>
     `${plural(list.length, 'trip', 'trips')}, ${plural(list.reduce((t, i) => t + entryCount(i.data), 0), 'entry', 'entries')}`;
 
@@ -105,34 +115,59 @@ export default function AppTools({ app }: { app: App }) {
 
       <section className="card">
         <h2>Categories</h2>
-        <p className="muted small">The six built-in categories are always there. Your own show on every trip; removing one keeps past entries in it.</p>
+        <p className="muted small">These are offered on every trip. Deleting one stops offering it; past entries keep their category.</p>
         <ul className="cat-list">
-          {CATEGORIES.map((c) => (
-            <li key={c}>
-              <Roundel category={c} small />
-              <span>{c}</span>
-            </li>
-          ))}
           {app.categories.map((c) => (
             <li key={c}>
               <Roundel category={c} small />
               <span>{c}</span>
-              <button type="button" className="link-danger" onClick={() => void app.removeCategory(c)} aria-label={`Remove ${c}`}>
-                Remove
-              </button>
+              {app.categories.length > 1 && (
+                <button type="button" className="link-danger" onClick={() => setDeleting(c)} aria-label={`Delete ${c}`}>
+                  Delete
+                </button>
+              )}
             </li>
           ))}
         </ul>
         <button type="button" className="secondary" onClick={() => setNaming(true)}>Add a category</button>
+        {missingBuiltIns.length > 0 && (
+          <button type="button" className="secondary" onClick={() => void app.restoreBuiltInCategories()}>
+            Restore {missingBuiltIns.length === 1 ? missingBuiltIns[0] : `${missingBuiltIns.length} built-in categories`}
+          </button>
+        )}
         {naming && (
           <NameSheet
             title="New category"
             label="Category name"
             hint="It's added for every trip."
-            existing={[...CATEGORIES, ...app.categories]}
+            existing={app.categories}
             onClose={() => setNaming(false)}
             onSave={(name) => app.addCategory(name)}
           />
+        )}
+        {deleting && (
+          <SheetBackdrop onClose={() => setDeleting(null)}>
+            <div className="sheet menu" role="alertdialog" aria-modal="true" aria-label={`Delete ${deleting}`}>
+              <h2>Delete “{deleting}”?</h2>
+              <p className="muted small">
+                {usedBy(deleting) > 0
+                  ? `It won't be offered for new entries. Your ${plural(usedBy(deleting), 'entry', 'entries')} in ${deleting} ${usedBy(deleting) === 1 ? 'keeps it and still counts' : 'keep it and still count'} in totals.`
+                  : `It won't be offered for new entries.`}{' '}
+                {(CATEGORIES as readonly string[]).includes(deleting) ? 'You can restore it here later.' : 'You can add it again here later.'}
+              </p>
+              <button
+                type="button"
+                className="danger armed"
+                onClick={async () => {
+                  await app.removeCategory(deleting);
+                  setDeleting(null);
+                }}
+              >
+                Delete category
+              </button>
+              <button type="button" className="secondary" onClick={() => setDeleting(null)}>Cancel</button>
+            </div>
+          </SheetBackdrop>
         )}
       </section>
 

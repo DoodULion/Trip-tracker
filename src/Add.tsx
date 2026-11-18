@@ -25,7 +25,7 @@ export default function Add({ store }: { store: Store }) {
   const [mode, setMode] = useState<Mode>('card');
   const [date, setDate] = useState(() => clampDate(todayLocal(), settings.tripStart, settings.tripEnd));
   const [category, setCategory] = useState<Category>(() =>
-    store.categories.includes(prefs.lastCategory ?? '') ? (prefs.lastCategory as Category) : 'Food',
+    store.categories.includes(prefs.lastCategory ?? '') ? (prefs.lastCategory as Category) : (store.categories[0] ?? 'Food'),
   );
   const [naming, setNaming] = useState<'category' | 'card' | null>(null);
   const [card, setCard] = useState(() =>
@@ -141,9 +141,6 @@ export default function Add({ store }: { store: Store }) {
                 {c}
               </button>
             ))}
-            <button type="button" className={card === '' ? 'on' : ''} aria-pressed={card === ''} onClick={() => setCard('')}>
-              None
-            </button>
             <button type="button" className="chip-new" onClick={() => setNaming('card')}>
               <Icon name="add" />
               New card

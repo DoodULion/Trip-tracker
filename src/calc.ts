@@ -7,18 +7,18 @@
  * when displayed.
  */
 
-/** The six built-in categories, in display order. The owner can add more (shared by every trip). */
+/** The six built-in categories, in their default order. The owner can delete any of them and add their own. */
 export const CATEGORIES = ['Food', 'Shopping', 'Suica', 'Activities', 'Transportation', 'Misc'] as const;
 /** A category name: one of the built-ins or one the owner added. */
 export type Category = string;
 
-/** Built-ins first, then the owner's own categories, then any other name found on entries (e.g. one since removed). */
-export function allCategories(data: Data | undefined, custom: readonly string[] = []): string[] {
-  const out: string[] = [...CATEGORIES];
+/** The given category list (the owner's, or the built-ins), then any other name found on entries (e.g. one since deleted). */
+export function allCategories(data: Data | undefined, list: readonly string[] = CATEGORIES): string[] {
+  const out: string[] = [];
   const add = (c: string) => {
     if (c && !out.includes(c)) out.push(c);
   };
-  custom.forEach(add);
+  list.forEach(add);
   if (data) {
     data.cardCharges.forEach((c) => add(c.category));
     data.cashPurchases.forEach((c) => add(c.category));
@@ -317,7 +317,7 @@ export function daysLeft(today: string, s: Settings): number {
  * hand use everything entered (cash bought is real money no matter its date).
  * Entries outside the trip dates are returned in `outside`.
  */
-export function computeSummary(data: Data, s: Settings, today: string): Summary {
+export function computeSummary(data: Data, s: Settings, today: string, categories: readonly string[] = CATEGORIES): Summary {
   const days = computeDays(data, s);
   const length = tripLength(s);
   const limit = dailyLimitCents(s);
@@ -355,7 +355,7 @@ export function computeSummary(data: Data, s: Settings, today: string): Summary 
         : 'On pace';
 
   // By category
-  const byCategory: CategoryTotal[] = allCategories(data).map((category) => {
+  const byCategory: CategoryTotal[] = allCategories(data, categories).map((category) => {
     const cc = trip.cardCharges.filter((c) => c.category === category);
     const ch = trip.cashPurchases.filter((c) => c.category === category);
     const chYen = sum(ch.map((c) => c.yen));

@@ -88,14 +88,18 @@ describe('toCsv', () => {
   });
 });
 
-describe('custom categories', () => {
-  it('keeps entries in the custom categories and the category list', () => {
+describe('category list', () => {
+  it('keeps the owner\u2019s list (built-ins deleted, own added) and entries in any category', () => {
     const withGift: BackupTrip = { ...japan, data: { ...japan.data, cashPurchases: [{ id: 'c', date: '2026-11-27', category: 'Gifts', yen: 3200 }] } };
-    const back = parseBackup(JSON.stringify(buildBackup([withGift], new Date(), ['Gifts', 'Snacks'])));
-    expect(back.categories).toEqual(['Gifts', 'Snacks']);
+    const back = parseBackup(JSON.stringify(buildBackup([withGift], new Date(), ['Food', 'Gifts', 'Snacks'])));
+    expect(back.categories).toEqual(['Food', 'Gifts', 'Snacks']);
     expect(back.trips[0].data.cashPurchases[0].category).toBe('Gifts');
   });
-  it('reads older backups with no category list', () => {
-    expect(parseBackup(JSON.stringify(buildBackup([japan]))).categories).toEqual([]);
+  it('gives older backups the six built-ins, plus any extras they listed', () => {
+    const plain = JSON.parse(JSON.stringify(buildBackup([japan])));
+    delete plain.categoryList;
+    expect(parseBackup(JSON.stringify(plain)).categories).toEqual(['Food', 'Shopping', 'Suica', 'Activities', 'Transportation', 'Misc']);
+    plain.categories = ['Gifts'];
+    expect(parseBackup(JSON.stringify(plain)).categories).toEqual(['Food', 'Shopping', 'Suica', 'Activities', 'Transportation', 'Misc', 'Gifts']);
   });
 });

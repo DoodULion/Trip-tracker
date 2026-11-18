@@ -10,7 +10,7 @@ import type { Store } from './store';
 export default function Summary({ store }: { store: Store }) {
   const { data, settings } = store;
   const today = useToday();
-  const s = useMemo(() => computeSummary(store.calcData, settings, today), [store.calcData, settings, today]);
+  const s = useMemo(() => computeSummary(store.calcData, settings, today, store.categories), [store.calcData, settings, today]);
 
   const outsideCount = s.outside.cardCharges.length + s.outside.cashPurchases.length + s.outside.cashBought.length;
   const badge = statusBadge(s, store.trip, today);
@@ -115,7 +115,7 @@ export default function Summary({ store }: { store: Store }) {
         <section className="card span-all" aria-label="By category">
           <h2>By category</h2>
           <div className="cats">
-            {s.byCategory.map((c) => (
+            {s.byCategory.filter((c) => store.categories.includes(c.category) || c.cents > 0 || c.yen > 0).map((c) => (
               <div key={c.category} className="cat">
                 <Roundel category={c.category} />
                 <div>

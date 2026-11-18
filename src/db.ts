@@ -1,5 +1,5 @@
 import { openDB, type DBSchema, type IDBPDatabase, type IDBPTransaction } from 'idb';
-import { DEFAULT_SETTINGS, type CardCharge, type CashBought, type CashPurchase, type Data, type Trip } from './calc';
+import { CATEGORIES, DEFAULT_SETTINGS, type CardCharge, type CashBought, type CashPurchase, type Data, type Trip } from './calc';
 import { newId } from './money';
 
 /** Entries are stored with the id of the trip they belong to. */
@@ -252,20 +252,32 @@ export async function setLastExport(iso: string): Promise<void> {
   await d.put('meta', iso, LAST_EXPORT);
 }
 
-const CATEGORIES_KEY = 'categories';
+const CATEGORY_LIST_KEY = 'categoryList';
+const LEGACY_EXTRAS_KEY = 'categories';
 
-/** The owner's own categories, shared by every trip. */
+function stringList(raw: string | undefined): string[] | undefined {
+  if (raw === undefined) return undefined;
+  try {
+    const v = JSON.parse(raw);
+    return Array.isArray(v) ? v.filter((x): x is string => typeof x === 'string' && x.trim() !== '') : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+/** The categories offered on every trip, in order: the built-ins the owner kept plus the ones they added. */
 export async function loadCategories(): Promise<string[]> {
   const d = await db();
-  try {
-    const v = JSON.parse((await d.get('meta', CATEGORIES_KEY)) ?? '[]');
-    return Array.isArray(v) ? v.filter((x): x is string => typeof x === 'string') : [];
-  } catch {
-    return [];
-  }
+  const list = stringList(await d.get('meta', CATEGORY_LIST_KEY));
+  if (list && list.length > 0) return list;
+  const extras = stringList(await d.get('meta', LEGACY_EXTRAS_KEY)) ?? [];
+  return [...new Set([...CATEGORIES, ...extras])];
 }
 
 export async function saveCategories(list: string[]): Promise<void> {
   const d = await db();
-  await d.put('meta', JSON.stringify(list), CATEGORIES_KEY);
+  const tx = d.transaction('meta', 'readwrite');
+  void tx.store.put(JSON.stringify(list), CATEGORY_LIST_KEY);
+  void tx.store.delete(LEGACY_EXTRAS_KEY);
+  await tx.done;
 }

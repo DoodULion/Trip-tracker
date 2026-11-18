@@ -11,6 +11,7 @@ import {
   formatYen,
   tripDates,
   tripLength,
+  allCategories,
   applyEstimates,
   estimateRateFor,
   type Data,
@@ -338,5 +339,14 @@ describe('estimates for card charges missing dollars', () => {
   it('falls back to the owner\'s card rate offline', () => {
     const est = applyEstimates(pending, {});
     expect(est.cardCharges.find((c) => c.id === 'p')!.cents).toBe(9375); // 15000 ÷ 160
+  });
+});
+
+describe('category list', () => {
+  it('follows the owner\u2019s list and keeps names still used by entries', () => {
+    const d: Data = { ...data, cashPurchases: [...data.cashPurchases, { id: 'z', date: '2026-11-26', category: 'Gifts', yen: 100 }] };
+    expect(allCategories(d, ['Food', 'Transportation'])).toEqual(['Food', 'Transportation', 'Shopping', 'Suica', 'Activities', 'Gifts']);
+    const s2 = computeSummary(d, S, today, ['Food', 'Transportation']);
+    expect(s2.byCategory.map((x) => x.category).slice(0, 2)).toEqual(['Food', 'Transportation']);
   });
 });

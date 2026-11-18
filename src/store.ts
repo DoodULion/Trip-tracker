@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { allCategories, applyEstimates, type CardCharge, type CashBought, type CashPurchase, type Data, type Settings, type Trip } from './calc';
+import { CATEGORIES, applyEstimates, type CardCharge, type CashBought, type CashPurchase, type Data, type Settings, type Trip } from './calc';
 import * as db from './db';
 import { todayLocal } from './money';
 import { fetchSpotRate } from './rates';
@@ -13,10 +13,12 @@ export interface App {
   trips: Trip[];
   data: Record<string, Data>;
   prefs: Record<string, Prefs>;
-  /** The owner's own categories, shared by every trip (after the six built-ins). */
+  /** The categories offered on every trip, in order: the built-ins the owner kept plus their own. */
   categories: string[];
   addCategory(name: string): Promise<void>;
   removeCategory(name: string): Promise<void>;
+  /** Put back any deleted built-in categories (in their usual order, ahead of the owner's own). */
+  restoreBuiltInCategories(): Promise<void>;
   /** Market rates fetched for days with card charges still missing dollars (YYYY-MM-DD → yen per $). */
   spot: Record<string, number>;
   /** A trip's entries with estimated dollars filled in for card charges still missing them (for totals only). */
@@ -41,7 +43,7 @@ export interface Store {
   calcData: Data;
   /** Cached market rates (YYYY-MM-DD → yen per $) used for estimates. */
   spot: Record<string, number>;
-  /** Categories to offer: the built-ins, the owner's own, then any other name already used in this trip. */
+  /** Categories to offer for new entries (deleted ones are not offered; past entries keep theirs). */
   categories: string[];
   addCategory(name: string): Promise<void>;
   prefs: Prefs;
@@ -64,7 +66,7 @@ export function useApp(): App {
   const [data, setData] = useState<Record<string, Data>>({});
   const [prefs, setPrefsState] = useState<Record<string, Prefs>>({});
   const [spot, setSpot] = useState<Record<string, number>>({});
-  const [categories, setCategories] = useState<string[]>([]);
+  const [categories, setCategories] = useState<string[]>([...CATEGORIES]);
   const tried = useRef(new Set<string>());
 
   useEffect(() => {
@@ -150,11 +152,18 @@ export function useApp(): App {
 
   const removeCategory = useCallback(async (name: string) => {
     const next = categories.filter((c) => c !== name);
+    if (next.length === 0) return; // always keep at least one
     await db.saveCategories(next);
     setCategories(next);
   }, [categories]);
 
-  const replaceAll = useCallback(async (items: TripWithData[], cats: string[] = []) => {
+  const restoreBuiltInCategories = useCallback(async () => {
+    const next = [...CATEGORIES, ...categories.filter((c) => !(CATEGORIES as readonly string[]).includes(c))];
+    await db.saveCategories(next);
+    setCategories(next);
+  }, [categories]);
+
+  const replaceAll = useCallback(async (items: TripWithData[], cats: string[] = [...CATEGORIES]) => {
     await db.replaceAll(items);
     await db.saveCategories(cats);
     setCategories(cats);
@@ -165,7 +174,7 @@ export function useApp(): App {
 
   const deleteAll = useCallback(() => replaceAll([]), [replaceAll]);
 
-  return { ready, trips, data, prefs, categories, addCategory, removeCategory, spot, calcData, saveEntry, removeEntry, setPrefs, saveTrip, deleteTrip, replaceAll, deleteAll };
+  return { ready, trips, data, prefs, categories, addCategory, removeCategory, restoreBuiltInCategories, spot, calcData, saveEntry, removeEntry, setPrefs, saveTrip, deleteTrip, replaceAll, deleteAll };
 }
 
 /** A view of the app scoped to one trip, in the shape the trip screens expect. */
@@ -177,7 +186,7 @@ export function tripStore(app: App, trip: Trip): Store {
     data: app.data[id] ?? EMPTY_DATA,
     calcData: app.calcData(id),
     spot: app.spot,
-    categories: allCategories(app.data[id], app.categories),
+    categories: app.categories,
     addCategory: app.addCategory,
     prefs: app.prefs[id] ?? {},
     addCardCharge: (e) => app.saveEntry('cardCharges', id, e),
