@@ -17,8 +17,8 @@ export default function Payments({ store }: { store: Store }) {
 
       {cashMissing && <p className="banner">Add the cash you bought. Cash dollars stay blank until you do.</p>}
 
-      <div className="cols">
-        <section className="card" aria-label="By payment">
+      <div className="pay-grid">
+        <section className="card pay" aria-label="By payment">
           <h2>By payment</h2>
           <dl className="kv">
             {Object.entries(s.byPayment.cards).map(([name, cents]) => (
@@ -29,7 +29,7 @@ export default function Payments({ store }: { store: Store }) {
           </dl>
         </section>
 
-        <section className="card" aria-label="Cash and rates">
+        <section className="card rates" aria-label="Cash and rates">
           <h2>Cash and rates</h2>
           <dl className="kv">
             <Pair k="Cash on hand" v={formatYen(s.cashOnHandYen)} />
@@ -44,7 +44,7 @@ export default function Payments({ store }: { store: Store }) {
           </dl>
         </section>
 
-        <section className="card" aria-label="Days">
+        <section className="card days" aria-label="Days">
           <h2>Days</h2>
           <dl className="kv">
             <Pair k="With spending" v={String(s.daysWithSpending)} />

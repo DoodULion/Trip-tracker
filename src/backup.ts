@@ -1,5 +1,5 @@
 /** Backup (JSON) and CSV export/import for all trips. Pure functions, no UI or storage. */
-import { CATEGORIES, type CardCharge, type CashBought, type CashPurchase, type Category, type Data, type Trip } from './calc';
+import { type CardCharge, type CashBought, type CashPurchase, type Category, type Data, type Trip } from './calc';
 import { centsToInput, newId } from './money';
 
 /** Stable file identifier. Kept as 'japan-trip' (the app's original name) so older backups still import. */
@@ -17,13 +17,16 @@ export interface Backup {
   version: number;
   exportedAt: string;
   trips: BackupTrip[];
+  /** The owner's own categories (shared by every trip). Empty in older backups. */
+  categories: string[];
 }
 
-export function buildBackup(items: BackupTrip[], now = new Date()): unknown {
+export function buildBackup(items: BackupTrip[], now = new Date(), categories: string[] = []): unknown {
   return {
     app: BACKUP_APP,
     version: BACKUP_VERSION,
     exportedAt: now.toISOString(),
+    categories,
     trips: items.map(({ trip, data }) => ({ ...trip, data })),
   };
 }
@@ -61,8 +64,8 @@ function date(o: Obj, where: string): string {
   return DATE_RE.test(d) ? d : fail(`${where}: bad date "${d}".`);
 }
 function category(o: Obj, where: string): Category {
-  const c = str(o, 'category', where);
-  return (CATEGORIES as readonly string[]).includes(c) ? (c as Category) : fail(`${where}: unknown category "${c}".`);
+  const c = typeof o.category === 'string' ? o.category.trim() : '';
+  return c !== '' && c.length <= 40 ? c : fail(`${where}: missing category.`);
 }
 function list(v: unknown, name: string, where: string): Obj[] {
   if (!Array.isArray(v)) return fail(`${where} is missing the ${name} list.`);
@@ -152,7 +155,10 @@ export function parseBackup(text: string): Backup {
       return { trip: parseTripFields(t, id, name, where), data: parseData(t.data, where) };
     });
   }
-  return { app: BACKUP_APP, version: raw.version, exportedAt, trips };
+  const categories = Array.isArray(raw.categories)
+    ? [...new Set(raw.categories.filter((c): c is string => typeof c === 'string').map((c) => c.trim()).filter((c) => c !== '' && c.length <= 40))]
+    : [];
+  return { app: BACKUP_APP, version: raw.version, exportedAt, trips, categories };
 }
 
 // ---------- CSV ----------

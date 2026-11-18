@@ -1,6 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
 import { buildBackup, parseBackup, toCsv, type Backup, type BackupTrip } from './backup';
+import { CATEGORIES } from './calc';
 import { getLastExport, setLastExport } from './db';
+import NameSheet from './NameSheet';
+import { Roundel } from './Roundel';
 import { saveFile } from './download';
 import { todayLocal } from './money';
 import { EMPTY_DATA, type App } from './store';
@@ -24,6 +27,7 @@ export default function AppTools({ app }: { app: App }) {
   const [confirmText, setConfirmText] = useState('');
   const [theme, setTheme] = useState<ThemeChoice>(getThemeChoice);
   const [lastExport, setLastExportState] = useState<string | undefined>();
+  const [naming, setNaming] = useState(false);
 
   useEffect(() => {
     void getLastExport().then(setLastExportState);
@@ -35,7 +39,7 @@ export default function AppTools({ app }: { app: App }) {
 
   async function exportBackup() {
     setMsg('');
-    await saveFile(`trip-tracker-backup-${todayLocal()}.json`, JSON.stringify(buildBackup(items()), null, 2), 'application/json');
+    await saveFile(`trip-tracker-backup-${todayLocal()}.json`, JSON.stringify(buildBackup(items(), new Date(), app.categories), null, 2), 'application/json');
     const now = new Date().toISOString();
     await setLastExport(now);
     setLastExportState(now);
@@ -61,7 +65,7 @@ export default function AppTools({ app }: { app: App }) {
 
   async function confirmImport() {
     if (!pending) return;
-    await app.replaceAll(pending.backup.trips);
+    await app.replaceAll(pending.backup.trips, pending.backup.categories);
     setPending(null);
     setMsg('Backup restored.');
   }
@@ -76,7 +80,7 @@ export default function AppTools({ app }: { app: App }) {
     `${plural(list.length, 'trip', 'trips')}, ${plural(list.reduce((t, i) => t + entryCount(i.data), 0), 'entry', 'entries')}`;
 
   return (
-    <div className="cols">
+    <div className="cols settings-cols">
       <section className="card">
         <h2>Appearance</h2>
         <p className="muted small">System follows your phone's light or dark setting.</p>
@@ -97,6 +101,39 @@ export default function AppTools({ app }: { app: App }) {
             </button>
           ))}
         </div>
+      </section>
+
+      <section className="card">
+        <h2>Categories</h2>
+        <p className="muted small">The six built-in categories are always there. Your own show on every trip; removing one keeps past entries in it.</p>
+        <ul className="cat-list">
+          {CATEGORIES.map((c) => (
+            <li key={c}>
+              <Roundel category={c} small />
+              <span>{c}</span>
+            </li>
+          ))}
+          {app.categories.map((c) => (
+            <li key={c}>
+              <Roundel category={c} small />
+              <span>{c}</span>
+              <button type="button" className="link-danger" onClick={() => void app.removeCategory(c)} aria-label={`Remove ${c}`}>
+                Remove
+              </button>
+            </li>
+          ))}
+        </ul>
+        <button type="button" className="secondary" onClick={() => setNaming(true)}>Add a category</button>
+        {naming && (
+          <NameSheet
+            title="New category"
+            label="Category name"
+            hint="It's added for every trip."
+            existing={[...CATEGORIES, ...app.categories]}
+            onClose={() => setNaming(false)}
+            onSave={(name) => app.addCategory(name)}
+          />
+        )}
       </section>
 
       <section className="card">

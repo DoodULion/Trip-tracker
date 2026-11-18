@@ -1,5 +1,7 @@
 import { useState, type FormEvent } from 'react';
-import { CATEGORIES, applyEstimates, computeDays, dailyLimitCents, formatDollars, formatYen, type Category, type Data } from './calc';
+import { applyEstimates, computeDays, dailyLimitCents, formatDollars, formatYen, type Category, type Data } from './calc';
+import Icon from './icons';
+import NameSheet from './NameSheet';
 import { Roundel } from './Roundel';
 import type { EntryStore } from './db';
 import { clampDate, dayLabel, newId, parseCents, parseYen, todayLocal } from './money';
@@ -23,8 +25,9 @@ export default function Add({ store }: { store: Store }) {
   const [mode, setMode] = useState<Mode>('card');
   const [date, setDate] = useState(() => clampDate(todayLocal(), settings.tripStart, settings.tripEnd));
   const [category, setCategory] = useState<Category>(() =>
-    (CATEGORIES as readonly string[]).includes(prefs.lastCategory ?? '') ? (prefs.lastCategory as Category) : 'Food',
+    store.categories.includes(prefs.lastCategory ?? '') ? (prefs.lastCategory as Category) : 'Food',
   );
+  const [naming, setNaming] = useState<'category' | 'card' | null>(null);
   const [card, setCard] = useState(() =>
     prefs.lastCard !== undefined && settings.cards.includes(prefs.lastCard) ? prefs.lastCard : settings.cards[0] ?? '',
   );
@@ -82,6 +85,7 @@ export default function Add({ store }: { store: Store }) {
   }
 
   return (
+    <>
     <form className="screen" onSubmit={submit}>
       <div className="seg" role="tablist" aria-label="Entry type">
         {MODES.map((m) => (
@@ -115,12 +119,16 @@ export default function Add({ store }: { store: Store }) {
       <div className="field">
         <span>Category</span>
         <div className="chips">
-          {CATEGORIES.map((c) => (
+          {store.categories.map((c) => (
             <button key={c} type="button" className={category === c ? 'on' : ''} aria-pressed={category === c} onClick={() => setCategory(c)}>
               <Roundel category={c} small />
               {c}
             </button>
           ))}
+          <button type="button" className="chip-new" onClick={() => setNaming('category')}>
+            <Icon name="add" />
+            New category
+          </button>
         </div>
       </div>
 
@@ -135,6 +143,10 @@ export default function Add({ store }: { store: Store }) {
             ))}
             <button type="button" className={card === '' ? 'on' : ''} aria-pressed={card === ''} onClick={() => setCard('')}>
               None
+            </button>
+            <button type="button" className="chip-new" onClick={() => setNaming('card')}>
+              <Icon name="add" />
+              New card
             </button>
           </div>
         </div>
@@ -151,9 +163,36 @@ export default function Add({ store }: { store: Store }) {
       </label>
 
       {error && <p className="error" role="alert">{error}</p>}
-      <div className="save-dock">
-        <button type="submit" className="primary">Save</button>
-      </div>
+      <button type="submit" className="primary">Save</button>
+
     </form>
+    {naming === 'category' && (
+      <NameSheet
+        title="New category"
+        label="Category name"
+        hint="It's added for every trip. Remove it any time in App settings."
+        existing={store.categories}
+        onClose={() => setNaming(null)}
+        onSave={async (name) => {
+          await store.addCategory(name);
+          setCategory(name);
+        }}
+      />
+    )}
+    {naming === 'card' && (
+      <NameSheet
+        title="New card"
+        label="Card name"
+        hint={`It's added to ${store.trip.name}. Rename or remove it in Edit trip.`}
+        existing={settings.cards}
+        onClose={() => setNaming(null)}
+        onSave={async (name) => {
+          await store.saveTrip({ ...store.trip, cards: [...settings.cards, name] }, []);
+          setCard(name);
+        }}
+      />
+    )}
+
+    </>
   );
 }

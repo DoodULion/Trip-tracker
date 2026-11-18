@@ -18,6 +18,13 @@
   --cat-activities: #1f74c7;
   --cat-transport: #6b46c1;
   --cat-misc: #78716c;
+  /* colors for the owner's own categories */
+  --cat-x1: #0e7c86;
+  --cat-x2: #a16207;
+  --cat-x3: #be185d;
+  --cat-x4: #4338ca;
+  --cat-x5: #4d7c0f;
+  --cat-x6: #9a3412;
   --scrim: rgba(43, 36, 32, 0.45);
   --float: 0 12px 32px -10px rgba(70, 40, 20, 0.32), 0 2px 6px rgba(70, 40, 20, 0.08);
   --r-hero: 28px;
@@ -47,6 +54,12 @@
     --cat-activities: #5aa9f0;
     --cat-transport: #a88bf5;
     --cat-misc: #b5ada6;
+    --cat-x1: #4fd1d9;
+    --cat-x2: #f2c14e;
+    --cat-x3: #f472b6;
+    --cat-x4: #a5b4fc;
+    --cat-x5: #a3d65c;
+    --cat-x6: #fb923c;
     --scrim: rgba(0, 0, 0, 0.6);
     --float: 0 12px 32px -10px rgba(0, 0, 0, 0.7), 0 2px 6px rgba(0, 0, 0, 0.4);
 }
@@ -405,10 +418,6 @@ html[data-nav] .band-in { animation: none; } /* the whole screen is already slid
 .alert-act p { margin: 0; }
 .alert-act button { align-self: flex-start; min-height: 44px; padding: 0 16px; border: 0; border-radius: 12px; background: var(--red); color: var(--on-red); font: inherit; font-weight: 800; }
 
-/* Add: Save rides just above the tab bar so it is always in reach */
-.save-dock { position: sticky; bottom: calc(env(safe-area-inset-bottom) + 92px); z-index: 4; padding-top: 4px; }
-.save-dock .primary { width: 100%; box-shadow: var(--float); }
-
 /* trips list: hold and drag to reorder */
 .trips li.trip { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; transition: transform 160ms var(--spring), box-shadow 160ms ease-out; }
 .trips li.trip.lifted { transform: scale(1.02); box-shadow: var(--float); position: relative; z-index: 2; }
@@ -416,5 +425,30 @@ html[data-nav] .band-in { animation: none; } /* the whole screen is already slid
 .hint { text-align: center; width: auto !important; margin: -4px auto 0; }
 .last-export { margin: 0 0 4px; font-weight: 700; color: var(--ink); }
 .last-export.never { color: var(--red); }
+
+/* "+ New category" / "+ New card" chips: dashed, so they read as an action, not a choice */
+.chips button.chip-new { background: transparent; border: 2px dashed var(--line); color: var(--mute); padding-left: 12px; }
+.chips button.chip-new .ic { width: 18px; height: 18px; }
+
+/* App settings: category list */
+.cat-list { list-style: none; margin: 6px 0 4px; padding: 0; display: flex; flex-direction: column; }
+.cat-list li { display: flex; align-items: center; gap: 10px; min-height: 44px; border-bottom: 1.5px solid var(--line); font-weight: 700; }
+.cat-list li:last-child { border-bottom: 0; }
+.cat-list li span:not(.rd) { flex: 1; }
+.link-danger { border: 0; background: none; color: var(--red); font: inherit; font-weight: 800; min-height: 44px; padding: 0 4px; }
+
+/* Payments: one column on a phone; on wide screens Cash and rates stands beside By payment + Days, no holes */
+.pay-grid { display: grid; grid-template-columns: 1fr; gap: 14px; }
+@media (min-width: 700px) {
+  .pay-grid { grid-template-columns: 1fr 1fr; grid-template-areas: 'pay rates' 'days rates'; grid-template-rows: auto 1fr; align-items: start; }
+  .pay-grid .pay { grid-area: pay; }
+  .pay-grid .rates { grid-area: rates; }
+  .pay-grid .days { grid-area: days; }
+}
+/* App settings: cards flow in two balanced columns on wide screens instead of rows with gaps */
+@media (min-width: 700px) {
+  .settings-cols { display: block; columns: 2; column-gap: 14px; }
+  .settings-cols > .card { break-inside: avoid; margin-bottom: 14px; }
+}
 
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }

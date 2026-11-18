@@ -251,3 +251,21 @@ export async function setLastExport(iso: string): Promise<void> {
   const d = await db();
   await d.put('meta', iso, LAST_EXPORT);
 }
+
+const CATEGORIES_KEY = 'categories';
+
+/** The owner's own categories, shared by every trip. */
+export async function loadCategories(): Promise<string[]> {
+  const d = await db();
+  try {
+    const v = JSON.parse((await d.get('meta', CATEGORIES_KEY)) ?? '[]');
+    return Array.isArray(v) ? v.filter((x): x is string => typeof x === 'string') : [];
+  } catch {
+    return [];
+  }
+}
+
+export async function saveCategories(list: string[]): Promise<void> {
+  const d = await db();
+  await d.put('meta', JSON.stringify(list), CATEGORIES_KEY);
+}

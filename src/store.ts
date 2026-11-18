@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { applyEstimates, type CardCharge, type CashBought, type CashPurchase, type Data, type Settings, type Trip } from './calc';
+import { allCategories, applyEstimates, type CardCharge, type CashBought, type CashPurchase, type Data, type Settings, type Trip } from './calc';
 import * as db from './db';
 import { todayLocal } from './money';
 import { fetchSpotRate } from './rates';
@@ -13,6 +13,10 @@ export interface App {
   trips: Trip[];
   data: Record<string, Data>;
   prefs: Record<string, Prefs>;
+  /** The owner's own categories, shared by every trip (after the six built-ins). */
+  categories: string[];
+  addCategory(name: string): Promise<void>;
+  removeCategory(name: string): Promise<void>;
   /** Market rates fetched for days with card charges still missing dollars (YYYY-MM-DD → yen per $). */
   spot: Record<string, number>;
   /** A trip's entries with estimated dollars filled in for card charges still missing them (for totals only). */
@@ -23,7 +27,7 @@ export interface App {
   /** Create or update a trip. `renames` are [oldCard, newCard] pairs applied to its existing charges. */
   saveTrip(trip: Trip, renames: [string, string][]): Promise<void>;
   deleteTrip(id: string): Promise<void>;
-  replaceAll(items: TripWithData[]): Promise<void>;
+  replaceAll(items: TripWithData[], categories?: string[]): Promise<void>;
   deleteAll(): Promise<void>;
 }
 
@@ -37,6 +41,9 @@ export interface Store {
   calcData: Data;
   /** Cached market rates (YYYY-MM-DD → yen per $) used for estimates. */
   spot: Record<string, number>;
+  /** Categories to offer: the built-ins, the owner's own, then any other name already used in this trip. */
+  categories: string[];
+  addCategory(name: string): Promise<void>;
   prefs: Prefs;
   addCardCharge(e: CardCharge): Promise<void>;
   addCashPurchase(e: CashPurchase): Promise<void>;
@@ -57,11 +64,13 @@ export function useApp(): App {
   const [data, setData] = useState<Record<string, Data>>({});
   const [prefs, setPrefsState] = useState<Record<string, Prefs>>({});
   const [spot, setSpot] = useState<Record<string, number>>({});
+  const [categories, setCategories] = useState<string[]>([]);
   const tried = useRef(new Set<string>());
 
   useEffect(() => {
     void db.requestPersistence();
-    Promise.all([db.loadApp(), db.loadSpotRates()]).then(([r, rates]) => {
+    Promise.all([db.loadApp(), db.loadSpotRates(), db.loadCategories()]).then(([r, rates, cats]) => {
+      setCategories(cats);
       setTrips(r.trips);
       setData(r.data);
       setPrefsState(r.prefs);
@@ -133,8 +142,22 @@ export function useApp(): App {
     setPrefsState((all) => Object.fromEntries(Object.entries(all).filter(([k]) => k !== id)));
   }, []);
 
-  const replaceAll = useCallback(async (items: TripWithData[]) => {
+  const addCategory = useCallback(async (name: string) => {
+    const next = [...categories, name];
+    await db.saveCategories(next);
+    setCategories(next);
+  }, [categories]);
+
+  const removeCategory = useCallback(async (name: string) => {
+    const next = categories.filter((c) => c !== name);
+    await db.saveCategories(next);
+    setCategories(next);
+  }, [categories]);
+
+  const replaceAll = useCallback(async (items: TripWithData[], cats: string[] = []) => {
     await db.replaceAll(items);
+    await db.saveCategories(cats);
+    setCategories(cats);
     setTrips(items.map((i) => i.trip));
     setData(Object.fromEntries(items.map((i) => [i.trip.id, i.data])));
     setPrefsState({});
@@ -142,7 +165,7 @@ export function useApp(): App {
 
   const deleteAll = useCallback(() => replaceAll([]), [replaceAll]);
 
-  return { ready, trips, data, prefs, spot, calcData, saveEntry, removeEntry, setPrefs, saveTrip, deleteTrip, replaceAll, deleteAll };
+  return { ready, trips, data, prefs, categories, addCategory, removeCategory, spot, calcData, saveEntry, removeEntry, setPrefs, saveTrip, deleteTrip, replaceAll, deleteAll };
 }
 
 /** A view of the app scoped to one trip, in the shape the trip screens expect. */
@@ -154,6 +177,8 @@ export function tripStore(app: App, trip: Trip): Store {
     data: app.data[id] ?? EMPTY_DATA,
     calcData: app.calcData(id),
     spot: app.spot,
+    categories: allCategories(app.data[id], app.categories),
+    addCategory: app.addCategory,
     prefs: app.prefs[id] ?? {},
     addCardCharge: (e) => app.saveEntry('cardCharges', id, e),
     addCashPurchase: (e) => app.saveEntry('cashPurchases', id, e),

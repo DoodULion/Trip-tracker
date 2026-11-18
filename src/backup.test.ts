@@ -38,7 +38,7 @@ describe('backup round trip (v2)', () => {
       return JSON.stringify(b);
     };
     expect(() => parseBackup(mut((b) => (b.trips[0].data.cashPurchases[0].date = '2026/11/27')))).toThrow(/bad date/);
-    expect(() => parseBackup(mut((b) => (b.trips[0].data.cashPurchases[0].category = 'Snacks')))).toThrow(/unknown category/);
+    expect(() => parseBackup(mut((b) => (b.trips[0].data.cashPurchases[0].category = '  ')))).toThrow(/missing category/);
     expect(() => parseBackup(mut((b) => b.trips[0].data.cashBought.push(b.trips[0].data.cashBought[0])))).toThrow(/duplicate id/);
     expect(() => parseBackup(mut((b) => (b.trips[0].data.cashBought[0].cents = 12.5)))).toThrow(/whole number/);
     expect(() => parseBackup(mut((b) => (b.trips[1].id = 't1')))).toThrow(/duplicate id/);
@@ -85,5 +85,17 @@ describe('toCsv', () => {
   it('quotes commas and quotes, and defuses formulas', () => {
     expect(csv[2]).toBe('Japan,Card,2026-11-26,Misc,,500,,"gift, ""nice"""');
     expect(csv[3]).toBe("Japan,Cash bought,2026-11-26,,,30000,200.00,'=ATM");
+  });
+});
+
+describe('custom categories', () => {
+  it('keeps entries in the custom categories and the category list', () => {
+    const withGift: BackupTrip = { ...japan, data: { ...japan.data, cashPurchases: [{ id: 'c', date: '2026-11-27', category: 'Gifts', yen: 3200 }] } };
+    const back = parseBackup(JSON.stringify(buildBackup([withGift], new Date(), ['Gifts', 'Snacks'])));
+    expect(back.categories).toEqual(['Gifts', 'Snacks']);
+    expect(back.trips[0].data.cashPurchases[0].category).toBe('Gifts');
+  });
+  it('reads older backups with no category list', () => {
+    expect(parseBackup(JSON.stringify(buildBackup([japan]))).categories).toEqual([]);
   });
 });

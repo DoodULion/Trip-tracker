@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react';
-import { CATEGORIES, type CardCharge, type CashBought, type CashPurchase, type Category } from './calc';
+import { type CardCharge, type CashBought, type CashPurchase, type Category } from './calc';
 import { centsToInput, parseCents, parseYen } from './money';
 import { Roundel } from './Roundel';
 import SheetBackdrop from './SheetBackdrop';
@@ -81,7 +81,7 @@ export default function EditSheet({ row, store, onClose }: { row: Row; store: St
           <div className="field">
             <span>Category</span>
             <div className="chips">
-              {CATEGORIES.map((c) => (
+              {[...new Set([...store.categories, category])].map((c) => (
                 <button key={c} type="button" className={category === c ? 'on' : ''} aria-pressed={category === c} onClick={() => setCategory(c)}>
                   <Roundel category={c} small />
                   {c}

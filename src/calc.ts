@@ -7,8 +7,24 @@
  * when displayed.
  */
 
+/** The six built-in categories, in display order. The owner can add more (shared by every trip). */
 export const CATEGORIES = ['Food', 'Shopping', 'Suica', 'Activities', 'Transportation', 'Misc'] as const;
-export type Category = (typeof CATEGORIES)[number];
+/** A category name: one of the built-ins or one the owner added. */
+export type Category = string;
+
+/** Built-ins first, then the owner's own categories, then any other name found on entries (e.g. one since removed). */
+export function allCategories(data: Data | undefined, custom: readonly string[] = []): string[] {
+  const out: string[] = [...CATEGORIES];
+  const add = (c: string) => {
+    if (c && !out.includes(c)) out.push(c);
+  };
+  custom.forEach(add);
+  if (data) {
+    data.cardCharges.forEach((c) => add(c.category));
+    data.cashPurchases.forEach((c) => add(c.category));
+  }
+  return out;
+}
 
 export interface Settings {
   tripStart: string; // YYYY-MM-DD
@@ -187,8 +203,8 @@ export interface DayRow {
   runningLimitCents: number;
 }
 
-function emptyCategoryMap(): Record<Category, number> {
-  return Object.fromEntries(CATEGORIES.map((c) => [c, 0])) as Record<Category, number>;
+function emptyCategoryMap(names: string[]): Record<Category, number> {
+  return Object.fromEntries(names.map((c) => [c, 0])) as Record<Category, number>;
 }
 
 export function dailyLimitCents(s: Settings): number {
@@ -197,6 +213,7 @@ export function dailyLimitCents(s: Settings): number {
 
 export function computeDays(data: Data, s: Settings): DayRow[] {
   const limit = dailyLimitCents(s);
+  const names = allCategories(data);
   let running = 0;
   return tripDates(s).map((date, i) => {
     const charges = data.cardCharges.filter((c) => c.date === date);
@@ -208,7 +225,7 @@ export function computeDays(data: Data, s: Settings): DayRow[] {
     const hasEntries = charges.length + cash.length > 0;
     const totalYen = cardYen + cashYen;
     const totalCents = cardCents + (cashCents ?? 0);
-    const yenByCategory = emptyCategoryMap();
+    const yenByCategory = emptyCategoryMap(names);
     for (const c of charges) yenByCategory[c.category] += c.yen ?? 0;
     for (const c of cash) yenByCategory[c.category] += c.yen;
     running += totalCents;
@@ -338,7 +355,7 @@ export function computeSummary(data: Data, s: Settings, today: string): Summary 
         : 'On pace';
 
   // By category
-  const byCategory: CategoryTotal[] = CATEGORIES.map((category) => {
+  const byCategory: CategoryTotal[] = allCategories(data).map((category) => {
     const cc = trip.cardCharges.filter((c) => c.category === category);
     const ch = trip.cashPurchases.filter((c) => c.category === category);
     const chYen = sum(ch.map((c) => c.yen));
