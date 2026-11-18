@@ -1,0 +1,375 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-17T00:00:00Z",
+  "title": "Design System: Trip Tracker",
+  "extensions": {
+    "colorMeta": {
+      "orange-line": {
+        "role": "primary",
+        "displayName": "Orange Line",
+        "canonical": "#f39700",
+        "tonalRamp": [
+          "#492d00",
+          "#7a4c00",
+          "#aa6a00",
+          "#d68500",
+          "#f39700",
+          "#f7b64c",
+          "#fad08c",
+          "#fdeacc"
+        ]
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Ink",
+        "canonical": "#1a1a1a",
+        "tonalRamp": [
+          "#080808",
+          "#0d0d0d",
+          "#121212",
+          "#171717",
+          "#1a1a1a",
+          "#5f5f5f",
+          "#989898",
+          "#d1d1d1"
+        ]
+      },
+      "enamel-ground": {
+        "role": "neutral",
+        "displayName": "Enamel Ground",
+        "canonical": "#f4f4f1",
+        "tonalRamp": [
+          "#494948",
+          "#7a7a78",
+          "#ababa9",
+          "#d7d7d4",
+          "#f4f4f1",
+          "#f7f7f5",
+          "#fafaf9",
+          "#fdfdfc"
+        ]
+      },
+      "enamel-sign": {
+        "role": "neutral",
+        "displayName": "Enamel Sign",
+        "canonical": "#ffffff",
+        "tonalRamp": [
+          "#4d4d4d",
+          "#808080",
+          "#b2b2b2",
+          "#e0e0e0",
+          "#ffffff",
+          "#ffffff",
+          "#ffffff",
+          "#ffffff"
+        ]
+      },
+      "mute": {
+        "role": "neutral",
+        "displayName": "Mute",
+        "canonical": "#5c5c57",
+        "tonalRamp": [
+          "#1c1c1a",
+          "#2e2e2c",
+          "#40403d",
+          "#51514d",
+          "#5c5c57",
+          "#8d8d89",
+          "#b6b6b3",
+          "#dededd"
+        ]
+      },
+      "hairline": {
+        "role": "neutral",
+        "displayName": "Hairline",
+        "canonical": "#d6d6d0",
+        "tonalRamp": [
+          "#40403e",
+          "#6b6b68",
+          "#969692",
+          "#bcbcb7",
+          "#d6d6d0",
+          "#e2e2de",
+          "#ededea",
+          "#f7f7f6"
+        ]
+      },
+      "over-red": {
+        "role": "semantic",
+        "displayName": "Over Red",
+        "canonical": "#d4261c",
+        "tonalRamp": [
+          "#400b08",
+          "#6a130e",
+          "#941b14",
+          "#bb2119",
+          "#d4261c",
+          "#e16760",
+          "#ec9d99",
+          "#f6d4d2"
+        ]
+      },
+      "shopping-purple": {
+        "role": "secondary",
+        "displayName": "Shopping Purple",
+        "canonical": "#9c5e9b",
+        "tonalRamp": [
+          "#2f1c2f",
+          "#4e2f4e",
+          "#6d426c",
+          "#895388",
+          "#9c5e9b",
+          "#ba8eb9",
+          "#d2b7d2",
+          "#ebdfeb"
+        ]
+      },
+      "suica-green": {
+        "role": "secondary",
+        "displayName": "Suica Green",
+        "canonical": "#00a260",
+        "tonalRamp": [
+          "#00311d",
+          "#005130",
+          "#007143",
+          "#008f54",
+          "#00a260",
+          "#4cbe90",
+          "#8cd5b7",
+          "#ccecdf"
+        ]
+      },
+      "activities-blue": {
+        "role": "secondary",
+        "displayName": "Activities Blue",
+        "canonical": "#009bbf",
+        "tonalRamp": [
+          "#002f39",
+          "#004e60",
+          "#006c86",
+          "#0088a8",
+          "#009bbf",
+          "#4cb9d2",
+          "#8cd2e2",
+          "#ccebf2"
+        ]
+      },
+      "transport-magenta": {
+        "role": "secondary",
+        "displayName": "Transport Magenta",
+        "canonical": "#b6007a",
+        "tonalRamp": [
+          "#370025",
+          "#5b003d",
+          "#7f0055",
+          "#a0006b",
+          "#b6007a",
+          "#cc4ca2",
+          "#de8cc3",
+          "#f0cce4"
+        ]
+      },
+      "misc-silver": {
+        "role": "secondary",
+        "displayName": "Misc Silver",
+        "canonical": "#6f6f6a",
+        "tonalRamp": [
+          "#212120",
+          "#383835",
+          "#4e4e4a",
+          "#62625d",
+          "#6f6f6a",
+          "#9a9a97",
+          "#bebebc",
+          "#e2e2e1"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display",
+        "purpose": "The spent figure on the budget card."
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "Trips-list band title."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "Band titles, trip names, sheet headings."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Rows, inputs, table cells."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Field labels, table heads, tab labels."
+      }
+    },
+    "shadows": [],
+    "motion": [
+      {
+        "name": "route-ease",
+        "value": "0.8s cubic-bezier(0.22, 1, 0.36, 1)",
+        "purpose": "Route fill and train ride on trip cards."
+      },
+      {
+        "name": "toast-fade",
+        "value": "opacity 0.2s",
+        "purpose": "Saved confirmation."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "wide",
+        "value": "700px"
+      },
+      {
+        "name": "container",
+        "value": "900px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Orange shell action; one per view.",
+      "html": "<button class=\"ds-btn-primary\">Save</button>",
+      "css": ".ds-btn-primary{min-height:52px;padding:0 16px;border-radius:10px;font-family:inherit;font-size:17px;font-weight:700;border:0;background:var(--or);color:var(--on-or)}.ds-btn-primary:active{filter:brightness(.92)}.ds-btn-primary:focus-visible{outline:3px solid var(--or);outline-offset:2px}"
+    },
+    {
+      "name": "Secondary Button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "White sign with ink keyline.",
+      "html": "<button class=\"ds-btn-sec\">Discard changes</button>",
+      "css": ".ds-btn-sec{min-height:52px;padding:0 16px;border-radius:10px;font-family:inherit;font-size:17px;font-weight:700;border:2px solid var(--ink);background:var(--sign);color:var(--ink)}.ds-btn-sec:focus-visible{outline:3px solid var(--or);outline-offset:2px}"
+    },
+    {
+      "name": "Danger Button",
+      "kind": "button",
+      "refersTo": "button-danger",
+      "description": "Destructive action; red keyline.",
+      "html": "<button class=\"ds-btn-danger\">Delete</button>",
+      "css": ".ds-btn-danger{min-height:52px;padding:0 16px;border-radius:10px;font-family:inherit;font-size:17px;font-weight:700;border:2px solid var(--red);background:var(--sign);color:var(--red)}.ds-btn-danger:focus-visible{outline:3px solid var(--or);outline-offset:2px}"
+    },
+    {
+      "name": "Text Input",
+      "kind": "input",
+      "refersTo": "input-field",
+      "description": "48px field with ink keyline; orange focus.",
+      "html": "<label class=\"ds-field\"><span>Yen</span><input class=\"ds-input\" inputmode=\"numeric\" placeholder=\"1,600\"></label>",
+      "css": ".ds-field{display:flex;flex-direction:column;gap:5px}.ds-field span{font-size:.8rem;font-weight:700;color:var(--mute)}.ds-input{font:inherit;font-size:16px;min-height:48px;padding:8px 12px;width:100%;background:var(--sign);color:var(--ink);border:2px solid var(--ink);border-radius:8px}.ds-input:focus{border-color:var(--or);outline:3px solid var(--or);outline-offset:0}"
+    },
+    {
+      "name": "Roundel",
+      "kind": "custom",
+      "refersTo": "roundel",
+      "description": "Category station-sign badge.",
+      "html": "<span class=\"ds-rd\" style=\"--c:var(--cat-suica)\">IC</span>",
+      "css": ".ds-rd{width:34px;height:34px;border-radius:50%;background:var(--sign);border:5px solid var(--c);color:var(--ink);display:inline-grid;place-items:center;font-size:.75rem;font-weight:700;line-height:1}"
+    },
+    {
+      "name": "Sign Panel",
+      "kind": "card",
+      "refersTo": "sign-panel",
+      "description": "Budget card: big figure, pill, ruled stats.",
+      "html": "<div class=\"ds-card\"><div class=\"ds-head\"><span class=\"ds-lbl\">Spent</span><span class=\"ds-pill\">On pace</span></div><div class=\"ds-big\">$197.33</div><div class=\"ds-rule\"><div><b>$9,802</b><span>Remaining</span></div><div><b>$400</b><span>Daily limit</span></div><div><b>$408</b><span>Left/day</span></div></div></div>",
+      "css": ".ds-card{background:var(--sign);border:3px solid var(--ink);border-radius:10px;padding:12px 14px;display:flex;flex-direction:column;gap:4px;color:var(--ink)}.ds-head{display:flex;justify-content:space-between;align-items:center}.ds-lbl{font-size:.8rem;font-weight:700;color:var(--mute)}.ds-pill{display:inline-flex;align-items:center;gap:6px;background:var(--ink);color:var(--bg);font-size:.75rem;font-weight:700;padding:3px 10px;border-radius:14px}.ds-pill::before{content:'';width:8px;height:8px;border-radius:50%;background:var(--or)}.ds-big{font-size:2.75rem;font-weight:700;line-height:1.1;letter-spacing:-.01em}.ds-rule{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:8px;padding-top:8px;border-top:2px solid var(--ink)}.ds-rule b{display:block}.ds-rule span{font-size:.8rem;color:var(--mute)}"
+    },
+    {
+      "name": "Chip",
+      "kind": "chip",
+      "refersTo": "chip",
+      "description": "Category and card picker.",
+      "html": "<button class=\"ds-chip on\">Food</button> <button class=\"ds-chip\">Suica</button>",
+      "css": ".ds-chip{min-height:44px;padding:0 14px;border-radius:22px;border:2px solid var(--line);background:var(--sign);color:var(--ink);font-family:inherit;font-size:15px;font-weight:700}.ds-chip.on{background:var(--ink);border-color:var(--ink);color:var(--bg)}.ds-chip:focus-visible{outline:3px solid var(--or);outline-offset:2px}"
+    },
+    {
+      "name": "Entry Row",
+      "kind": "custom",
+      "refersTo": "row",
+      "description": "Entry with roundel, note, right-aligned amount.",
+      "html": "<div class=\"ds-row\"><span class=\"ds-rd2\" style=\"--c:var(--cat-food)\">F</span><div class=\"ds-main\"><strong>Food</strong><span>Apple Card</span></div><div class=\"ds-amt\">&yen;1,600<span>$10.00</span></div></div>",
+      "css": ".ds-row{min-height:58px;padding:6px 12px;display:flex;align-items:center;gap:10px;background:var(--sign);border:1px solid var(--line);border-radius:10px;color:var(--ink)}.ds-rd2{width:28px;height:28px;border-radius:50%;background:var(--sign);border:4px solid var(--c);display:grid;place-items:center;font-size:.7rem;font-weight:700}.ds-main{flex:1;display:flex;flex-direction:column}.ds-main span{font-size:.8rem;color:var(--mute)}.ds-amt{display:flex;flex-direction:column;align-items:flex-end;font-weight:700}.ds-amt span{font-size:.8rem;font-weight:400;color:var(--mute)}"
+    },
+    {
+      "name": "Top Band",
+      "kind": "nav",
+      "refersTo": "top-band",
+      "description": "Orange shell with title.",
+      "html": "<div class=\"ds-band\"><b>Japan Trip</b><span>Day 3 of 25</span></div>",
+      "css": ".ds-band{display:flex;align-items:center;justify-content:space-between;min-height:56px;padding:6px 16px;background:var(--or);color:var(--on-or)}.ds-band b{font-size:1.2rem}.ds-band span{font-size:.8rem;font-weight:700}"
+    },
+    {
+      "name": "Tab Bar",
+      "kind": "nav",
+      "refersTo": "tab-bar",
+      "description": "Fixed bottom tabs; orange bar marks active.",
+      "html": "<div class=\"ds-tabs\"><button class=\"on\">Summary</button><button>Add</button><button>Days</button></div>",
+      "css": ".ds-tabs{display:flex;background:var(--sign);border-top:3px solid var(--ink)}.ds-tabs button{position:relative;flex:1;min-height:60px;border:0;background:none;color:var(--mute);font:inherit;font-size:.8rem}.ds-tabs button.on{color:var(--ink);font-weight:700}.ds-tabs button.on::before{content:'';position:absolute;top:-3px;left:22%;right:22%;height:5px;background:var(--or)}"
+    }
+  ],
+  "narrative": {
+    "northStar": "Station Line",
+    "overview": "A trip is a rail line. Each day is a numbered station, each category a line color, each budget a sign panel. Surfaces are white enamel signs with heavy ink keylines set on a warm light-grey ground; the single orange line is the shell around everything (top band, primary action, the day line). The look is made for a sunlit street and one-handed use: large numerals, hard edges, full-strength color, nothing translucent or soft.\n\nThe system refuses the grey-cards-plus-one-accent finance default and the cherry-blossom-and-torii Japan costume. Japan is present only in the transit-signage grammar and in two authored SVG motifs (seigaiha wave scales on the trips-list band, a bullet train riding each trip's route bar). Dark mode is an enamel-black ground with the same line colors.",
+    "keyCharacteristics": [
+      "Heavy ink keylines (3px panels, 2px controls) instead of shadows.",
+      "Category = line color + roundel code; color is never the only signal because the name and code always sit beside it.",
+      "One typeface, tabular numerals, no display face.",
+      "The one number you need today is set large (44px), like a sign band.",
+      "Running totals right-aligned and tight to the margin."
+    ],
+    "rules": [
+      {
+        "name": "The Red Means Over Rule",
+        "body": "Red marks over-limit, missing data, errors and destruction only; it is never decoration and never a category.",
+        "section": "colors"
+      },
+      {
+        "name": "The Fixed Lines Rule",
+        "body": "A category keeps its line color on every screen, every trip, in both schemes. Do not recolor categories per context.",
+        "section": "colors"
+      },
+      {
+        "name": "The Ink On Orange Rule",
+        "body": "Text on the orange shell is ink, not white.",
+        "section": "colors"
+      },
+      {
+        "name": "The Tabular Rule",
+        "body": "Every figure aligns on tabular numerals; amounts right-align.",
+        "section": "typography"
+      },
+      {
+        "name": "The Sixteen Rule",
+        "body": "Inputs never fall below 16px.",
+        "section": "typography"
+      },
+      {
+        "name": "The Keyline Not Shadow Rule",
+        "body": "Separation is a heavy ink line, never a blur.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "**Do** separate surfaces with a 3px ink keyline and 10px corners.",
+      "**Do** code every category with its fixed line color and roundel letter, beside its name.",
+      "**Do** put ink text on the orange shell and use orange for the primary action only once per view.",
+      "**Do** keep tap targets at 44px or more and inputs at 16px or more.",
+      "**Do** show blanks, not zeros, and flag missing data with a red border plus text.",
+      "**Do** honor `prefers-reduced-motion`; the only motion is the route fill and train ride (0.8s) and the toast fade.",
+      "**Do** draw new imagery as authored SVG in the 2px line vocabulary."
+    ],
+    "donts": [
+      "**Don't** use red for anything but over-limit, missing data, errors or destruction.",
+      "**Don't** introduce a display face, shadows, gradients as fills, or translucent glass.",
+      "**Don't** put cherry blossom, torii or Fuji costume on any surface.",
+      "**Don't** recolor a category, or let color be the only over/under or error signal.",
+      "**Don't** add a third column to the category grid."
+    ]
+  }
+}
