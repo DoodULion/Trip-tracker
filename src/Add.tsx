@@ -133,15 +133,6 @@ export default function Add({ store }: { store: Store }) {
         ))}
       </div>
 
-      {/* Cash: getting cash (ATM or exchange) lives here too, beside spending it. */}
-      {mode === 'cash' && (
-        <button type="button" className="more-row add-cash" onClick={() => setAddingCash(true)}>
-          <Icon name="add" />
-          <span>Add cash</span>
-          <span className="muted">from an ATM or exchange</span>
-        </button>
-      )}
-
       <div className="grid2">
         <label className="field">
           <span>{cur.name}</span>
@@ -161,6 +152,15 @@ export default function Add({ store }: { store: Store }) {
             {formatDollars(Math.abs(preview.left))}
           </b>
         </p>
+      )}
+
+      {/* Cash: getting cash (ATM or exchange) lives here too, beside spending it. */}
+      {mode === 'cash' && (
+        <button type="button" className="more-row add-cash" onClick={() => setAddingCash(true)}>
+          <Icon name="add" />
+          <span>Add cash</span>
+          <span className="muted">from an ATM or exchange</span>
+        </button>
       )}
 
       <div className="field">
