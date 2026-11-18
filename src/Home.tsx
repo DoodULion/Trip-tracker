@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { computeSummary, formatDollars, tripFraction, tripLength, tripPhase } from './calc';
 import AppTools from './AppTools';
+import Backdrop from './Backdrop';
 import { findCountry, flagEmoji, tripTheme } from './countries';
 import Icon from './icons';
 import Seigaiha from './Seigaiha';
@@ -33,6 +34,7 @@ export default function Home({ app, onOpen }: { app: App; onOpen: (id: string) =
   if (view === 'settings') {
     return (
       <div className="app">
+        <Backdrop />
         <header className="band">
           <div className="band-in">
             <button type="button" className="hit" onClick={() => setView('trips')} aria-label="Back to trips">
@@ -52,6 +54,7 @@ export default function Home({ app, onOpen }: { app: App; onOpen: (id: string) =
 
   return (
     <div className="app">
+      <Backdrop />
       <header className="band">
         <Seigaiha />
         <div className="band-in root">

@@ -51,7 +51,8 @@
 }
 
 * { box-sizing: border-box; }
-html, body { margin: 0; background: var(--bg); color: var(--ink); }
+html { background: var(--bg); }
+html, body { margin: 0; color: var(--ink); }
 body {
   font-family: 'BIZ UDPGothic', 'Hiragino Sans', 'Yu Gothic', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   font-size: 16px;
@@ -292,6 +293,17 @@ tfoot th, tfoot td { font-weight: 700; border-bottom: 0; border-top: 2px solid v
 .sheet.menu { gap: 10px; }
 .sheet.menu .secondary, .sheet.menu .danger { width: 100%; }
 .menu-title { margin: 0; font-weight: 700; }
+
+/* travel pattern behind the page: neutral on the trips list, the country color inside a trip */
+.backdrop { position: fixed; inset: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none; color: var(--ink); opacity: 0.12; }
+.themed .backdrop { color: var(--or); opacity: 0.26; }
+
+/* text that sits straight on the page (not on a card) gets a quiet backing so the pattern never crosses it */
+.screen > .muted, .note, .empty p, .day-group h2 { background: var(--bg); border-radius: 8px; }
+.screen > .muted { width: fit-content; padding: 6px 10px; }
+.day-group h2 { width: fit-content; padding: 2px 8px; margin-left: 0; }
+.field > span { background: var(--bg); width: fit-content; padding: 0 6px; margin-left: -6px; border-radius: 6px; }
+.error { background: var(--bg); width: fit-content; padding: 4px 8px; margin-left: -2px; border-radius: 6px; }
 
 /* undo toast */
 .undo {
