@@ -13,6 +13,8 @@ export default function Days({ store }: { store: Store }) {
   const today = useToday();
   const days = useMemo(() => computeDays(store.calcData, settings), [store.calcData, settings]);
   const [open, setOpen] = useState<string | null>(null);
+  // Days whose total includes an estimate (a card charge still missing its dollars) are marked with ≈.
+  const estimatedDays = useMemo(() => new Set(store.calcData.cardCharges.filter((c) => c.estimated).map((c) => c.date)), [store.calcData]);
   const listRef = useRef<HTMLOListElement>(null);
 
   // Open on today: scroll so today's day sits near the top (a little of yesterday still shows above it).
@@ -50,7 +52,7 @@ export default function Days({ store }: { store: Store }) {
                   {d.date === today && <em>today</em>}
                 </span>
                 <span className="st-amt">
-                  {d.hasEntries ? formatDollars(d.totalCents) : ''}
+                  {d.hasEntries ? `${estimatedDays.has(d.date) ? '≈' : ''}${formatDollars(d.totalCents)}` : ''}
                   {over !== undefined &&
                     (over > 0 ? (
                       <small className="over">

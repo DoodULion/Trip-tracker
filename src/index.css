@@ -165,7 +165,7 @@ input[type="date"]::-webkit-calendar-picker-indicator { margin: 0; }
 .chips { display: flex; flex-wrap: wrap; gap: 8px; }
 .chips button {
   min-height: 44px; padding: 0 16px; border-radius: 999px;
-  border: 0; background: var(--sign); color: var(--ink); font: inherit; font-size: 15px; font-weight: 700;
+  border: 0; background: var(--sign); color: var(--ink); font: inherit; font-size: 0.95rem; font-weight: 700;
   display: inline-flex; align-items: center; gap: 8px;
   transition: transform 160ms var(--spring), background-color 160ms ease-out;
 }
@@ -238,7 +238,7 @@ input[type="date"]::-webkit-calendar-picker-indicator { margin: 0; }
 .pill.red { background: color-mix(in srgb, var(--red) 14%, var(--sign)); color: var(--red); }
 .need { color: var(--red); font-size: 0.85rem; font-weight: 800; }
 .banner, .alert {
-  min-height: 48px; padding: 12px 16px; text-align: left; font: inherit; font-size: 15px; font-weight: 700;
+  min-height: 48px; padding: 12px 16px; text-align: left; font: inherit; font-size: 0.95rem; font-weight: 700;
   color: color-mix(in oklab, var(--red) 78%, var(--ink)); background: color-mix(in srgb, var(--red) 10%, var(--sign)); border: 0; border-radius: var(--r-row); margin: 0;
 }
 .note { margin: 0; padding: 12px 16px; border-radius: var(--r-row); background: var(--sign); color: var(--mute); font-size: 0.9rem; }
@@ -270,7 +270,7 @@ input[type="date"]::-webkit-calendar-picker-indicator { margin: 0; }
 .row-sub .row-note { flex: 0 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; color: var(--ink); font-weight: 500; }
 .row-amt { display: flex; flex-direction: column; align-items: flex-end; font-weight: 800; }
 .row-amt .muted { font-weight: 600; font-size: 0.85rem; }
-.more { flex: none; width: 40px; min-height: 44px; border: 0; border-radius: 12px; background: none; color: var(--mute); display: grid; place-items: center; padding: 0; }
+.more { flex: none; width: 44px; min-height: 44px; border: 0; border-radius: 12px; background: none; color: var(--mute); display: grid; place-items: center; padding: 0; }
 .more:active { background: var(--field); }
 
 /* trips list */

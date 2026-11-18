@@ -56,7 +56,7 @@ Put these in a pure TypeScript module (`src/calc.ts`) with no UI code, and test 
 - **Cash rate** = sum of CashBought yen ÷ sum of CashBought dollars (a weighted average over all cash bought). If no cash has been bought yet, the cash rate is undefined.
 - **Cash purchase in dollars** = its own USD paid when entered, otherwise yen ÷ cash rate. If the cash rate is undefined, show a banner ("Add the cash you bought") and leave cash dollars blank. Never guess a rate.
 - **Card rate** (overall, and for each card) = sum of yen ÷ sum of dollars, counting only charges that have both yen and real (not estimated) dollars.
-- **Estimated card dollars**: a card charge with yen but no dollars counts at that day's market rate (the closest earlier day with a rate if that day has none; the owner's own card rate when no market rate has been fetched). Estimates feed totals, today's spending and left amounts, and are shown with ≈; they never change the entry or the card and overall rates.
+- **Estimated card dollars**: a card charge with yen but no dollars counts at that day's market rate (the closest earlier day with a rate if that day has none; the owner's own card rate when no market rate has been fetched). Estimates feed totals, today's spending and left amounts, and are shown with ≈ (also on a day's total on Days and on a card's total on Payments); they never change the entry or the card and overall rates.
 - **Overall rate** = (card yen with dollars + cash yen spent) ÷ (card dollars with yen + cash dollars).
 
 **Per trip day** (each date from tripStart through tripEnd, inclusive):
