@@ -111,6 +111,9 @@ const WHITE = '#ffffff';
 export const DARK_PANEL = '#1e1e1e';
 /** The app's orange, used inside trips that have no country set. */
 export const DEFAULT_BRAND = '#f39700';
+/** Main color of a trip with no country: the app's ink in light mode, its warm white in dark mode. */
+export const NEUTRAL_LIGHT = '#2b2420';
+export const NEUTRAL_DARK = '#f3ece7';
 
 function mix(hex: string, target: [number, number, number], t: number): string {
   const [r, g, b] = rgb(hex);
@@ -172,10 +175,20 @@ export function isReddish(hex: string): boolean {
 
 /**
  * Inline CSS variables that retheme a trip (used with the `.themed` class). A trip with no (known)
- * country gets the default orange.
+ * country gets the neutral main color.
  */
 export function tripTheme(code: string | undefined): CSSProperties {
-  const base = findCountry(code)?.color ?? DEFAULT_BRAND;
+  const country = findCountry(code);
+  if (!country) {
+    // No country: the neutral main color of the home page (near-black in light mode, warm white in dark mode).
+    return {
+      '--brand': NEUTRAL_LIGHT,
+      '--on-brand': '#ffffff',
+      '--brand-dark': NEUTRAL_DARK,
+      '--on-brand-dark': '#1b1715',
+    } as CSSProperties;
+  }
+  const base = country.color;
   const light = forLight(base);
   const dark = forDark(base);
   return {

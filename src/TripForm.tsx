@@ -79,7 +79,7 @@ export default function TripForm({ initial, saveLabel, discardLabel = 'Discard c
       <label className="field">
         <span>Country (sets the flag and main color)</span>
         <select value={country} onChange={(e) => setCountry(e.target.value)}>
-          <option value="">No country (orange)</option>
+          <option value="">No country (neutral)</option>
           {COUNTRIES.map((c) => (
             <option key={c.code} value={c.code}>
               {flagEmoji(c.code)} {c.name}

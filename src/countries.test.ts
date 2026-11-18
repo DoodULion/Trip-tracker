@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { COUNTRIES, DARK_PANEL, DEFAULT_BRAND, contrast, findCountry, flagEmoji, forDark, forLight, isReddish, onColor, tripTheme } from './countries';
+import { COUNTRIES, DARK_PANEL, DEFAULT_BRAND, NEUTRAL_LIGHT, NEUTRAL_DARK, contrast, findCountry, flagEmoji, forDark, forLight, isReddish, onColor, tripTheme } from './countries';
 
 describe('flagEmoji', () => {
   it('builds a flag from the ISO code', () => {
@@ -61,9 +61,10 @@ describe('tripTheme', () => {
     expect(t['--on-brand']).toBe('#ffffff');
     expect(t['--brand-dark']).toMatch(/^#[0-9a-f]{6}$/i);
   });
-  it('falls back to the default orange with no or an unknown country', () => {
-    expect((tripTheme(undefined) as Record<string, string>)['--brand']).toBe(DEFAULT_BRAND);
-    expect((tripTheme('ZZ') as Record<string, string>)['--brand']).toBe(DEFAULT_BRAND);
+  it('falls back to the neutral colors with no or an unknown country', () => {
+    expect((tripTheme(undefined) as Record<string, string>)['--brand']).toBe(NEUTRAL_LIGHT);
+    expect((tripTheme('ZZ') as Record<string, string>)['--brand']).toBe(NEUTRAL_LIGHT);
+    expect((tripTheme(undefined) as Record<string, string>)['--brand-dark']).toBe(NEUTRAL_DARK);
   });
 });
 
