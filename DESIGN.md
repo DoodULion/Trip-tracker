@@ -189,11 +189,11 @@ Warm, low-chroma neutrals carry the page; one swappable trip color carries actio
 
 ### Primary
 - **Trip Color** (set per trip): the country's representative national color, computed by `tripTheme()` into `--brand` (light) and `--brand-dark` (dark). In light mode it is nudged toward black only until ink or white text on it reaches 4.5:1; in dark mode it is lightened until it stands 3:1 off a dark panel and carries readable text. Its text color (`--on-brand`) is whichever of ink or white reads better. Inside a trip it fills primary buttons, the selected chip, the active tab icon and its 16% tint, input focus borders, the caret, the meter fill, the day-timeline dots and line, and the jet's tail and stripe.
-- **Default Trip Orange** (#f39700): the trip color when a trip has no country.
+- **No-country neutral**: a trip with no country uses the same neutral as outside a trip (ink #2b2420 in light, warm white #f3ece7 in dark). The old default orange (#f39700) is kept only as a token for reference.
 - **Main Outside Trip** (#ffffff light, #f3ece7 dark): the main color on the trips list and App settings. Primary buttons there are white on the stone ground with a hairline border; focused inputs take an ink border instead.
 
 ### Tertiary (category hues, fixed for every trip)
-- **Food Orange** (#d9480f), **Shopping Magenta** (#b83280), **Suica Green** (#0f8a5f), **Activities Blue** (#1f74c7), **Transport Violet** (#6b46c1), **Misc Stone** (#78716c). Dark mode lifts each (night-food through night-misc). Used for the letter in category tiles (on an 18% tint of the same hue) and the stacked daily chart.
+- **Food Orange** (#d9480f), **Shopping Magenta** (#b83280), **Suica Green** (#0f8a5f), **Activities Blue** (#1f74c7), **Transport Violet** (#6b46c1), **Misc Stone** (#78716c). Dark mode lifts each (night-food through night-misc). Used for the letter in category tiles (on an 18% tint of the same hue), and for a category's slice or bar in Summary charts so it always matches its tile.
 
 ### Neutral
 - **Warm Stone** (#f1edea): the ground outside a trip, the theme-color and manifest background. Night Stone (#1b1715) in dark.
@@ -303,6 +303,15 @@ Card-white strip, 16px radius, 62px minimum. Category tile, then the name in 800
 
 ### Day Timeline
 Days sit in one 22px card with a 4px line in a 30% trip tint running down the left. Each day is a 28px numbered dot: white with a 3px trip-color ring, filled with the trip color for today, hairline ring and mute number for a day with no spending. Over or under shows in red or green under the day's total.
+
+### Live Left-Today Line (Add)
+A white 16px-radius strip under the amount fields: a mute caption ("Left today", or "After this, left today" once an amount is typed) and a 1.25rem 800 figure, ≈ when the dollars are estimated. When the purchase would go over the daily limit the whole strip turns the warning red with on-red text. In Cash mode the dashed **Add cash** row sits right below it.
+
+### Folded Row and Scrolling Chips (Add, Entries)
+Rarely changed fields wait behind one 52px row (2px hairline, 14px radius): "Today · Change date, add a note" with a chevron; tapping it reveals Date and Note side by side. On a phone, long chip rows (categories, cards, Entries filters) scroll sideways in one line with a soft fade at each edge instead of wrapping; from 700px they wrap again.
+
+### Summary Cards and Charts
+The Summary is a column of cards the owner arranges (pencil in the header, then Edit; hold and drag to reorder, with the card lifting and following the finger while the others slide aside). Built-ins: Today (hero), Budget, By category. Custom cards show chosen numbers or calculations as Numbers, Tiles, a Bar chart (one bar per figure, scaled within its unit), a Pie chart (category or chart-order colors, legend with value and percent, 6 slices then Other) or a Daily chart (bars per day with a dashed daily-limit line and red over-limit days, or lines for running totals and day rates; tap a day to read it). Chart slice colors (--chart-1..6) are a fixed, color-blind-checked order. Stats uses the same figure language: a large figure per card over a three-up rule of smaller figures.
 
 ### Sheets and Undo
 Sheets float clear of every edge on the ground color, 28px radius, Float shadow, rising 56px into place over 420ms (a 16px rise plus slight scale from 700px). The undo toast inverts: ink background, ground-colored text, 18px radius, with its own Undo button, sitting above the tab bar.

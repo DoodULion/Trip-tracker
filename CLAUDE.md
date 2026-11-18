@@ -4,7 +4,7 @@ This file is the spec for the app. Read it fully before writing code, and keep t
 
 ## What the app does
 
-This is a personal spending tracker for trips (the first is a trip to Japan, Nov 26 – Dec 20, 2026; the app holds as many trips as I create). I'll use it on my iPhone, added to the Home Screen from Safari. I log each card charge and each cash purchase with its category, and every time I get yen (ATM withdrawal or exchange). The app shows daily totals, budget pace, totals by category, and my real exchange rates, worked out from the amounts I actually paid. It never uses online or default exchange rates for real amounts. The one exception (approved by me): a card charge still missing its dollars is counted at that day's market rate as a clearly marked estimate (≈) until I enter the real dollars.
+This is a personal spending tracker for trips (the first is a trip to Japan, Nov 26 – Dec 20, 2026; the app holds as many trips as I create). I'll use it on my iPhone, added to the Home Screen from Safari. I log each card charge and each cash purchase with its category, and every time I get cash (ATM withdrawal or exchange). The app shows daily totals, budget pace, totals by category, and my real exchange rates, worked out from the amounts I actually paid. It never uses online or default exchange rates for real amounts. The one exception (approved by me): a card charge still missing its dollars is counted at that day's market rate as a clearly marked estimate (≈) until I enter the real dollars.
 
 It replaces a spreadsheet I built, and its behavior should match that spreadsheet.
 
@@ -148,5 +148,23 @@ Deploy to GitHub Pages with a GitHub Actions workflow that builds on every push 
 ## How to work
 
 - I'm on Windows using PowerShell. Give commands that work there.
-- Build in small steps, each one runnable: (1) project setup and the calculation module, with the tests passing; (2) storage and the Add flow; (3) the Entries list; (4) the Summary and Days screens and the chart; (5) Settings with backup, import, and CSV; (6) PWA setup (manifest, icons, offline) and deploying to GitHub Pages; (7) polish for iPhone and the wide unfolded screen.
+- Build in small, runnable steps. (The original seven build steps are all done; the app is deployed and in daily use.)
 - After each step, run the tests and the build, then tell me exactly what to check. For testing on my phone during development, run the dev server with `--host` and tell me the address to open in Safari on the same Wi-Fi.
+
+## Where things stand (for picking the work back up)
+
+**Status (Nov 2026):** feature-complete for the owner's trips and deployed. Latest work: per-trip categories learned from past trips, a live "left today" line on Add, the Stats redesign, rate units, per-country currencies, custom Summary cards with charts, and animated hold-and-drag. The last design critique scored 28/40 before that round of fixes; the remaining ideas it raised (first-launch guidance, a repeat-purchase shortcut) were declined or deferred by the owner.
+
+**Repo and deploy:** GitHub `DoodULion/Trip-tracker`, branch `main`. Pushing to `main` runs `.github/workflows/deploy.yml` and publishes to GitHub Pages. The owner runs `git push` themselves in PowerShell; Claude commits only when asked (end commit messages with the attribution line from the session). After a push the phone picks up the new version the next time the app is opened online.
+
+**Where the code lives (`src/`):**
+- Logic (pure, tested): `calc.ts` (all money math, days, summary, categories per trip), `currency.ts` (country to currency, minor-unit formatting and parsing, the current trip's currency), `summaryCards.ts` (custom-card figures, formulas, daily series, layout parsing), `backup.ts` (JSON backup v2 and CSV), `money.ts` (input parsing, dates), `countries.ts` (country list, colors, trip theme), `status.ts`.
+- Data: `db.ts` (IndexedDB `japan-trip` v2: trips, cardCharges, cashPurchases, cashBought, and meta for prefs, the category list, the spot-rate cache `spot:USD<CODE>:<date>` and the last export date), `store.ts` (`useApp` state plus `tripStore` per trip), `rates.ts` (Frankfurter lookup).
+- Screens: `App.tsx` (trip view, tabs, launch into the current trip), `Home.tsx` (trips list, tabs, trip sheets), `Summary.tsx`, `Add.tsx`, `Entries.tsx`, `Days.tsx`, `Stats.tsx`, `AppTools.tsx` (App settings). Sheets: `TripForm.tsx`, `EditSheet.tsx`, `CashBoughtSheet.tsx`, `NameSheet.tsx`, `CardSheet.tsx`, `SheetBackdrop.tsx` (fits above the keyboard). Pieces: `CardCharts.tsx`, `Figures.tsx`, `Roundel.tsx`, `Jet.tsx`, `icons.tsx`, `useHoldDrag.ts`, `useSummaryLayout.ts`, `navMotion.ts`, `theme.ts`, `undo.tsx`, `useToday.ts`.
+- Styles: one stylesheet, `index.css` (tokens on `:root`, dark under `[data-theme="dark"]`, trip theming via `.themed`). Design system and the closed type and radius scale: `DESIGN.md`. Product context: `PRODUCT.md`.
+
+**Per-device preferences (localStorage, not in backups):** `trip-tracker-theme` (light, dark or system) and `trip-tracker-summary-cards` (the Summary card layout, shared by all trips).
+
+**Checking work:** `npm test` and `npm run build` (the build type-checks). In the Claude desktop browser pane, seed test data with `await import('/src/db.ts')` (`saveTrip(trip, [])`, `putEntry(store, tripId, entry)`), always delete it afterwards, and reset the viewport. The pane pauses animations and view transitions when hidden (inject `*{animation:none!important;transition:none!important}` and set `document.startViewTransition = undefined`), cannot show real keyboard focus or open a keyboard, and the dev server has occasionally served a stale file after scripted edits (restart it). Avoid `tsc -b` (it writes stray `.js` files into `src/`); use `npx tsc --noEmit -p tsconfig.json`.
+
+**Design tooling:** the Impeccable plugin's files live in `.impeccable/` (critique snapshots, design sidecar); `.impeccable/live/` is scratch and is never committed.
