@@ -30,4 +30,4 @@ The PNG icons in `public/icons/` were rendered from `scripts/icon.svg` (see the 
 
 ## Font
 
-BIZ UDPGothic (Latin subset), SIL Open Font License, bundled in `public/fonts/` so the app works offline.
+No font files ship: the app uses the device's rounded system face (SF Pro Rounded on iPhone), so it works offline. See `DESIGN.md`.

@@ -33,16 +33,16 @@ Every rate shown (cash, each card, per day, overall) is worked out from the loca
 ## Capabilities and Constraints
 
 - Platform: installable web app (PWA) in iOS Safari and as a Home Screen app; no Mac or Xcode in the workflow. Developed on Windows.
-- Stack: Vite, React, TypeScript, IndexedDB via `idb`, `vite-plugin-pwa` (manifest, icons, offline service worker), Vitest. Charts are plain SVG, no chart library. Ask before adding dependencies.
+- Stack: Vite, React 19, TypeScript, IndexedDB via `idb`, `vite-plugin-pwa` (manifest, icons, offline service worker), Vitest. Charts are plain SVG, no chart library. Ask before adding dependencies.
 - Money is stored as integer local-currency minor units (whole yen, euro cents) and integer dollar cents; rates are rounded only for display (2 decimals). Dates are local `YYYY-MM-DD` strings.
-- Hosting: GitHub Pages over HTTPS, deployed by GitHub Actions (`.github/workflows/deploy.yml`) on push to `main`.
+- Hosting: GitHub Pages over HTTPS, deployed by GitHub Actions (`.github/workflows/deploy.yml`) on push to `main`. Installed and in use on the owner's iPhone.
 - Calculations are a pure module with tests; the spec in CLAUDE.md is the behavior authority.
 - Layout: one column on a normal phone; two columns around 700px and up (unfolded foldable). Light mode by default; Dark or System can be chosen in App settings (a per-device preference).
 - Interaction decisions already made by the owner: tapping an entry does nothing; each entry has a ⋮ button for Edit / Delete; edit sheets end in "Save changes" / "Discard changes"; no field is ever focused automatically (not on opening a trip, tapping Add, switching Card / Cash, or after saving); cash bought is logged from the **Add cash** row in Add > Cash; the home page shows only trips, with app settings behind a gear button; the Summary is a set of cards the owner arranges and can extend with their own figures, formulas and charts.
 
 ## Brand Commitments
 
-- Each trip can be set to a country: its flag shows on the trips list and inside the trip, and the country's color becomes that trip's main color (near-black in light mode and warm white in dark mode with no country). Outside a trip the main color is white. Flags are the system's flag emoji.
+- Each trip can be set to a country: its flag shows on the trips list and inside the trip, and the country's color becomes that trip's main color (near-black in light mode and warm white in dark mode with no country). Outside a trip the main color is white. Red-flag countries draw money meters in ink, so red on a meter always means "over". Flags are the system's flag emoji.
 
 - App name: **"Trip Tracker"** (renamed from "Japan Trip" because the app now holds many trips). It is applied to the page title, the Home Screen title, backup and CSV file names, and the spec. The internal identifiers `japan-trip` (backup file marker and IndexedDB name) intentionally stay as they were so older backups and stored data keep working; the npm package name is `trip-tracker`. The owner's first trip is still named "Japan Trip" inside the app.
 - Voice: plain, direct, money-literate. Short labels, no cheerleading.
