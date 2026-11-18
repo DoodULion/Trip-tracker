@@ -4,3 +4,4 @@ dist
 
 # Personal desktop shortcuts and local tool state
 *.lnk
+.claude/settings.local.json
