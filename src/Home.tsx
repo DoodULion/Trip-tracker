@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react';
+import { useMemo, useState } from 'react';
+import { useHoldDrag } from './useHoldDrag';
 import { computeSummary, formatDollars, tripFraction, tripPhase, type Trip } from './calc';
 import AppTools from './AppTools';
 import Backdrop from './Backdrop';
@@ -18,7 +19,6 @@ type Overlay = { step: 'new' } | { step: 'menu' | 'edit' | 'confirm'; id: string
 
 const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : many}`;
 const md = (d: string) => dayLabel(d).slice(4);
-const HOLD_MS = 400;
 type Bucket = 'now' | 'past';
 /** Remembered while the app is open, so coming back from a trip lands on the tab it was opened from. */
 let lastBucket: Bucket | undefined;
@@ -237,92 +237,15 @@ function TripList({ trips, app, today, onOpen, onMenu, onReorder }: {
   onMenu: (id: string) => void;
   onReorder: (ids: string[]) => void;
 }) {
-  const [draft, setDraft] = useState<string[] | null>(null);
-  const [dragId, setDragId] = useState<string | null>(null);
-  const listRef = useRef<HTMLUListElement>(null);
-  const press = useRef<{ id: string; x: number; y: number; timer: ReturnType<typeof setTimeout> } | null>(null);
-  const suppressClick = useRef(false);
-  const order = draft ?? trips.map((t) => t.id);
+  const { order, dragId, listRef, bind, justDragged } = useHoldDrag(
+    trips.map((t) => t.id),
+    onReorder,
+    'li.trip',
+  );
   const byId = new Map(trips.map((t) => [t.id, t]));
 
-  // While dragging, stop the page from scrolling under the finger (iOS needs a non-passive listener).
-  useEffect(() => {
-    const el = listRef.current;
-    if (!el) return;
-    const block = (e: TouchEvent) => {
-      if (dragId) e.preventDefault();
-    };
-    el.addEventListener('touchmove', block, { passive: false });
-    return () => el.removeEventListener('touchmove', block);
-  }, [dragId]);
-
-  function cancelPress() {
-    if (press.current) clearTimeout(press.current.timer);
-    press.current = null;
-  }
-
-  function onPointerDown(e: ReactPointerEvent<HTMLLIElement>, id: string) {
-    if (e.button !== 0 || (e.target as HTMLElement).closest('.more')) return;
-    cancelPress();
-    const li = e.currentTarget;
-    const pointerId = e.pointerId;
-    press.current = {
-      id,
-      x: e.clientX,
-      y: e.clientY,
-      timer: setTimeout(() => {
-        setDragId(id);
-        setDraft(trips.map((t) => t.id));
-        try {
-          li.setPointerCapture(pointerId);
-        } catch {
-          /* pointer already gone */
-        }
-        navigator.vibrate?.(12);
-      }, HOLD_MS),
-    };
-  }
-
-  function onPointerMove(e: ReactPointerEvent<HTMLLIElement>) {
-    if (!dragId) {
-      const p = press.current;
-      if (p && Math.hypot(e.clientX - p.x, e.clientY - p.y) > 8) cancelPress(); // it's a scroll, not a hold
-      return;
-    }
-    const items = [...(listRef.current?.querySelectorAll<HTMLLIElement>('li.trip') ?? [])];
-    const others = items.filter((li) => li.dataset.id !== dragId);
-    let index = 0;
-    // A card counts as "before" the finger in reading order. One column (phone): the finger is past its middle.
-    // Two-up grid (wide): the finger is below its row, or on its row and right of its middle.
-    const grid = listRef.current ? getComputedStyle(listRef.current).display === 'grid' : false;
-    for (const li of others) {
-      const r = li.getBoundingClientRect();
-      const before = grid
-        ? e.clientY > r.bottom || (e.clientY >= r.top && e.clientX > r.left + r.width / 2)
-        : e.clientY > r.top + r.height / 2;
-      if (before) index++;
-    }
-    setDraft((cur) => {
-      const ids = (cur ?? order).filter((x) => x !== dragId);
-      ids.splice(index, 0, dragId);
-      return ids.join() === (cur ?? order).join() ? cur : ids;
-    });
-  }
-
-  function onPointerUp() {
-    cancelPress();
-    if (dragId) {
-      suppressClick.current = true;
-      setTimeout(() => (suppressClick.current = false), 50);
-      if (draft && draft.join() !== trips.map((t) => t.id).join()) onReorder(draft);
-      setDragId(null);
-      // Keep the dragged order on screen until the saved order arrives.
-      setTimeout(() => setDraft(null), 300);
-    }
-  }
-
   return (
-    <ul className={`list trips${dragId ? ' dragging' : ''}`} ref={listRef}>
+    <ul className={`list trips${dragId ? ' dragging' : ''}`} ref={(el) => { listRef.current = el; }}>
       {order.map((id) => {
         const t = byId.get(id);
         if (!t) return null;
@@ -331,20 +254,15 @@ function TripList({ trips, app, today, onOpen, onMenu, onReorder }: {
         return (
           <li
             key={t.id}
-            data-id={t.id}
+            {...bind(t.id)}
             className={`trip themed${dragId === t.id ? ' lifted' : ''}`}
             style={tripTheme(t.country)}
-            onPointerDown={(e) => onPointerDown(e, t.id)}
-            onPointerMove={onPointerMove}
-            onPointerUp={onPointerUp}
-            onPointerCancel={onPointerUp}
-            onContextMenu={(e) => e.preventDefault()}
           >
             <button
               type="button"
               className="trip-main"
               onClick={() => {
-                if (!suppressClick.current) onOpen(t.id);
+                if (!justDragged()) onOpen(t.id);
               }}
             >
               <span className="trip-title">
