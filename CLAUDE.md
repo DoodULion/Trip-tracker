@@ -150,7 +150,6 @@ Deploy to GitHub Pages with a GitHub Actions workflow that builds on every push 
 - I'm on Windows using PowerShell. Give commands that work there.
 - Build in small, runnable steps. (The original seven build steps are all done; the app is deployed and in daily use.)
 - After each step, run the tests and the build, then tell me exactly what to check. For testing on my phone during development, run the dev server with `--host` and tell me the address to open in Safari on the same Wi-Fi.
-- After each step, run the tests and the build, then tell me exactly what to check. For testing on my phone during development, run the dev server with `--host` and tell me the address to open in Safari on the same Wi-Fi.
 
 ## Where things stand (for picking the work back up)
 
