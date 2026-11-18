@@ -11,8 +11,6 @@ interface CardRow {
 interface Props {
   /** Editing this trip; omit to create a new one. */
   initial?: Trip;
-  /** Starting card names for a new trip. */
-  defaultCards?: string[];
   saveLabel: string;
   discardLabel?: string;
   onSave: (trip: Trip, renames: [string, string][]) => Promise<void>;
@@ -23,14 +21,14 @@ interface Props {
 }
 
 /** Name, dates, budget ceiling and cards for one trip. Used to create, edit, and in a trip's Settings tab. */
-export default function TripForm({ initial, defaultCards = [], saveLabel, discardLabel = 'Discard changes', onSave, onDiscard, confirmSaved }: Props) {
+export default function TripForm({ initial, saveLabel, discardLabel = 'Discard changes', onSave, onDiscard, confirmSaved }: Props) {
   const [name, setName] = useState(initial?.name ?? '');
   const [country, setCountry] = useState(initial?.country ?? '');
   const [start, setStart] = useState(initial?.tripStart ?? '');
   const [end, setEnd] = useState(initial?.tripEnd ?? '');
   const [budget, setBudget] = useState(initial ? centsToInput(initial.budgetCeilingCents) : '');
   const [cards, setCards] = useState<CardRow[]>(() =>
-    initial ? initial.cards.map((n) => ({ orig: n, name: n })) : defaultCards.map((n) => ({ name: n })),
+    initial ? initial.cards.map((n) => ({ orig: n, name: n })) : [],
   );
   const [err, setErr] = useState('');
   const [saved, setSaved] = useState(false);
@@ -62,7 +60,7 @@ export default function TripForm({ initial, defaultCards = [], saveLabel, discar
     >
       <label className="field">
         <span>Trip name</span>
-        <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Japan 2026" autoComplete="off" />
+        <input value={name} onChange={(e) => setName(e.target.value)} autoComplete="off" />
       </label>
       <label className="field">
         <span>Country (sets the flag and main color)</span>
@@ -87,7 +85,7 @@ export default function TripForm({ initial, defaultCards = [], saveLabel, discar
       </div>
       <label className="field">
         <span>Budget ceiling ($)</span>
-        <input value={budget} onChange={(e) => setBudget(e.target.value)} inputMode="decimal" placeholder="10000" autoComplete="off" />
+        <input value={budget} onChange={(e) => setBudget(e.target.value)} inputMode="decimal" autoComplete="off" />
       </label>
 
       <div className="field">

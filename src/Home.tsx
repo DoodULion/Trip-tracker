@@ -126,7 +126,6 @@ export default function Home({ app, onOpen }: { app: App; onOpen: (id: string) =
           <div className="sheet">
             <h2>New trip</h2>
             <TripForm
-              defaultCards={trips[0]?.cards ?? ['Apple Card', 'Capital One']}
               saveLabel="Create trip"
               discardLabel="Cancel"
               onDiscard={close}
