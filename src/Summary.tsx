@@ -1,22 +1,15 @@
 import { useMemo } from 'react';
-import { CATEGORIES, computeDays, computeSummary, formatDollars } from './calc';
+import { computeSummary, formatDollars } from './calc';
 import { dayLabel, todayLocal } from './money';
 import { Roundel } from './Roundel';
-import StackedBars from './StackedBars';
 import type { Store } from './store';
-
-const num = (n: number) => (n ? n.toLocaleString('en-US') : '');
 
 export default function Summary({ store }: { store: Store }) {
   const { data, settings } = store;
   const today = todayLocal();
   const s = useMemo(() => computeSummary(data, settings, today), [data, settings, today]);
-  const days = useMemo(() => computeDays(data, settings), [data, settings]);
-  const logged = days.filter((d) => d.hasEntries);
 
   const outsideCount = s.outside.cardCharges.length + s.outside.cashPurchases.length + s.outside.cashBought.length;
-  const totals = Object.fromEntries(CATEGORIES.map((c) => [c, days.reduce((t, d) => t + d.yenByCategory[c], 0)]));
-  const totalYen = days.reduce((t, d) => t + d.totalYen, 0);
   const pillClass = s.status === 'Over pace' ? 'red' : s.status === 'On pace' ? '' : 'idle';
   const finished = today > settings.tripEnd;
   const showCashBanner = s.cashRateMissing && data.cashPurchases.length > 0;
@@ -142,53 +135,6 @@ export default function Summary({ store }: { store: Store }) {
           . Find them on the Entries tab.
         </p>
       )}
-
-      <section className="card">
-        <h2>Daily yen by category</h2>
-        <StackedBars days={days} />
-      </section>
-
-      <section className="card">
-        <h2>Daily spending (¥) by category</h2>
-        {logged.length === 0 ? (
-          <p className="muted">Nothing logged yet.</p>
-        ) : (
-          <div className="table-wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>Date</th>
-                  {CATEGORIES.map((c) => (
-                    <th key={c}>{c}</th>
-                  ))}
-                  <th>Total</th>
-                </tr>
-              </thead>
-              <tbody>
-                {logged.map((d) => (
-                  <tr key={d.date}>
-                    <th scope="row">{dayLabel(d.date)}</th>
-                    {CATEGORIES.map((c) => (
-                      <td key={c}>{num(d.yenByCategory[c])}</td>
-                    ))}
-                    <td>{num(d.totalYen)}</td>
-                  </tr>
-                ))}
-              </tbody>
-              <tfoot>
-                <tr>
-                  <th scope="row">Trip total</th>
-                  {CATEGORIES.map((c) => (
-                    <td key={c}>{num(totals[c])}</td>
-                  ))}
-                  <td>{num(totalYen)}</td>
-                </tr>
-              </tfoot>
-            </table>
-          </div>
-        )}
-      </section>
-
     </div>
   );
 }

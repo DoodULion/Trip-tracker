@@ -12,6 +12,7 @@ import { UndoProvider } from './undo';
 import { tripPhase, type Trip } from './calc';
 import { findCountry, flagEmoji, tripTheme } from './countries';
 import { todayLocal } from './money';
+import { navigate } from './navMotion';
 
 type Tab = 'summary' | 'add' | 'entries' | 'days' | 'payments';
 
@@ -40,8 +41,12 @@ export default function App() {
         app={app}
         enter={enter}
         onOpen={(id) => {
-          setEnter('push');
-          setOpenId(id);
+          // Whole-screen slide when the browser supports it; otherwise only the page content slides in.
+          const slid = navigate('push', () => {
+            setEnter('');
+            setOpenId(id);
+          });
+          if (!slid) setEnter('push');
         }}
       />
     );
@@ -50,19 +55,23 @@ export default function App() {
       key={trip.id}
       app={app}
       trip={trip}
+      enter={enter}
       onBack={() => {
-        setEnter('pop');
-        setOpenId(null);
+        const slid = navigate('pop', () => {
+          setEnter('');
+          setOpenId(null);
+        });
+        if (!slid) setEnter('pop');
       }}
     />
   );
 }
 
-function TripView({ app, trip, onBack }: { app: AppState; trip: Trip; onBack: () => void }) {
+function TripView({ app, trip, enter, onBack }: { app: AppState; trip: Trip; enter: Enter; onBack: () => void }) {
   const store = tripStore(app, trip);
   const [tab, setTab] = useState<Tab>('summary');
   // The first page slides in with the trip; later tab changes slide toward the tab that was tapped.
-  const motion = useRef<string>('push');
+  const motion = useRef<string>(enter);
 
   function go(next: Tab) {
     if (next === tab) return;

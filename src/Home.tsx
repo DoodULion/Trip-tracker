@@ -9,6 +9,7 @@ import Train from './Train';
 import { dayLabel, todayLocal } from './money';
 import { EMPTY_DATA, type App } from './store';
 import type { Enter } from './App';
+import { navigate } from './navMotion';
 import TripForm from './TripForm';
 
 type Overlay = { step: 'new' } | { step: 'menu' | 'edit' | 'confirm'; id: string } | null;
@@ -22,8 +23,12 @@ export default function Home({ app, onOpen, enter }: { app: App; onOpen: (id: st
   // How the current page slides in: from the trip (or first launch) at first, then push/pop between trips and settings.
   const [motion, setMotion] = useState<Enter>(enter);
   const show = (v: 'trips' | 'settings') => {
-    setMotion(v === 'settings' ? 'push' : 'pop');
-    setView(v);
+    const dir = v === 'settings' ? 'push' : 'pop';
+    const slid = navigate(dir, () => {
+      setMotion('');
+      setView(v);
+    });
+    if (!slid) setMotion(dir);
   };
   const today = todayLocal();
   const close = () => setOverlay(null);
