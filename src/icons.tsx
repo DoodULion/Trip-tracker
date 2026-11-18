@@ -9,11 +9,10 @@ const PATHS = {
       <path d="M4 10h16M9 3v4M15 3v4" />
     </>
   ),
-  settings: (
+  payments: (
     <>
-      <path d="M5 7h8M17 7h2M5 17h2M11 17h8" />
-      <circle cx="15" cy="7" r="2" />
-      <circle cx="9" cy="17" r="2" />
+      <rect x="3" y="6" width="18" height="13" rx="2" />
+      <path d="M3 10h18M7 15h4" />
     </>
   ),
   dots: <path d="M12 5h.01M12 12h.01M12 19h.01" />,

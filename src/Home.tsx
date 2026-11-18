@@ -8,6 +8,7 @@ import Seigaiha from './Seigaiha';
 import Train from './Train';
 import { dayLabel, todayLocal } from './money';
 import { EMPTY_DATA, type App } from './store';
+import type { Enter } from './App';
 import TripForm from './TripForm';
 
 type Overlay = { step: 'new' } | { step: 'menu' | 'edit' | 'confirm'; id: string } | null;
@@ -15,9 +16,15 @@ type Overlay = { step: 'new' } | { step: 'menu' | 'edit' | 'confirm'; id: string
 const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : many}`;
 const md = (d: string) => dayLabel(d).slice(4);
 
-export default function Home({ app, onOpen }: { app: App; onOpen: (id: string) => void }) {
+export default function Home({ app, onOpen, enter }: { app: App; onOpen: (id: string) => void; enter: Enter }) {
   const [overlay, setOverlay] = useState<Overlay>(null);
   const [view, setView] = useState<'trips' | 'settings'>('trips');
+  // How the current page slides in: from the trip (or first launch) at first, then push/pop between trips and settings.
+  const [motion, setMotion] = useState<Enter>(enter);
+  const show = (v: 'trips' | 'settings') => {
+    setMotion(v === 'settings' ? 'push' : 'pop');
+    setView(v);
+  };
   const today = todayLocal();
   const close = () => setOverlay(null);
 
@@ -37,14 +44,14 @@ export default function Home({ app, onOpen }: { app: App; onOpen: (id: string) =
         <Backdrop />
         <header className="band">
           <div className="band-in">
-            <button type="button" className="hit" onClick={() => setView('trips')} aria-label="Back to trips">
+            <button type="button" className="hit" onClick={() => show('trips')} aria-label="Back to trips">
               <Icon name="back" />
             </button>
             <h1 className="band-title">Settings</h1>
           </div>
         </header>
         <main>
-          <div className="screen">
+          <div className={`screen page ${motion}`}>
             <AppTools app={app} />
           </div>
         </main>
@@ -59,13 +66,13 @@ export default function Home({ app, onOpen }: { app: App; onOpen: (id: string) =
         <Seigaiha />
         <div className="band-in root">
           <h1 className="band-title">Trips</h1>
-          <button type="button" className="hit" onClick={() => setView('settings')} aria-label="App settings">
+          <button type="button" className="hit" onClick={() => show('settings')} aria-label="App settings">
             <Icon name="gear" />
           </button>
         </div>
       </header>
       <main>
-        <div className="screen">
+        <div className={`screen page ${motion}`}>
           {trips.length === 0 && (
             <div className="empty">
               <Train className="empty-train" />

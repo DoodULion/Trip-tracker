@@ -26,7 +26,7 @@ npx vite preview --port 4173
 
 ## Icons
 
-`node scripts/make-icons.mjs` regenerates the PNG icons in `public/icons/`.
+The PNG icons in `public/icons/` were rendered from `scripts/icon.svg` (see the note at its top).
 
 ## Font
 

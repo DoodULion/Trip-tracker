@@ -1,0 +1,40 @@
+<!-- Source art for the app icons in public/icons (a cartoon jet in a clear sky).
+     The PNGs were rendered from this at 512, 192, 180 (apple-touch-icon) and 48 (favicon);
+     the maskable 512 uses scale(1.2) on the jet group so it stays inside the safe circle. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+ <defs>
+  <linearGradient id="skyA" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4FB7F5"/><stop offset="1" stop-color="#BDE9FF"/></linearGradient>
+  <path id="spark" d="M12 1c1 7 4 10 11 11-7 1-10 4-11 11-1-7-4-10-11-11 7-1 10-4 11-11z" fill="#fff"/>
+ </defs>
+ <rect width="512" height="512" fill="url(#skyA)"/>
+ <!-- jet: side view, nose right, seen a little from above -->
+ <g transform="translate(256 262) rotate(-14) scale(1.74) translate(-132 -60)" stroke="#1a1a1a" stroke-width="5" stroke-linejoin="round" stroke-linecap="round">
+  <!-- far wing, peeking above the body -->
+  <path d="M154 42 L126 14 L114 14 L126 42 Z" fill="#F2B98A"/>
+  <!-- tail fin -->
+  <path d="M76 42 L42 4 L22 4 L32 42 Z" fill="#FF8A2B"/>
+  <!-- fuselage: round nose, upswept tail cone -->
+  <path d="M62 40 L200 40 C230 40 249 48 254 58 C249 68 230 75 200 75 L72 75 C48 75 28 66 12 50 L10 42 C24 40 42 40 62 40 Z" fill="#fff"/>
+  <!-- belly shade for volume -->
+  <path d="M74 66 L200 66 C222 66 240 64 250 62 C243 70 226 75 200 75 L72 75 C56 75 42 71 30 64 C44 66 58 66 74 66 Z" fill="#DCEAF5" stroke="none"/>
+  <!-- stripe -->
+  <path d="M40 62 C90 66 160 66 246 62" fill="none" stroke="#FF8A2B" stroke-width="5"/>
+  <!-- cockpit -->
+  <path d="M224 47 C234 48 242 51 247 56 L226 56 Z" fill="#9FDBFF" stroke-width="4"/>
+  <!-- windows and door -->
+  <g fill="#9FDBFF" stroke-width="3">
+   <circle cx="82" cy="52" r="3.6"/><circle cx="96" cy="52" r="3.6"/><circle cx="110" cy="52" r="3.6"/><circle cx="124" cy="52" r="3.6"/>
+   <circle cx="138" cy="52" r="3.6"/><circle cx="152" cy="52" r="3.6"/><circle cx="166" cy="52" r="3.6"/><circle cx="180" cy="52" r="3.6"/>
+  </g>
+  <rect x="200" y="46" width="10" height="17" rx="4" fill="none" stroke-width="3"/>
+  <!-- near tailplane -->
+  <path d="M52 58 L20 74 L36 76 L70 60 Z" fill="#FFD2A8"/>
+  <!-- near wing, swept back -->
+  <path d="M164 60 L110 108 C104 112 96 112 96 106 L116 61 Z" fill="#FFD2A8"/>
+ </g>
+ <use href="#spark" transform="translate(86 104) scale(1.8)"/>
+ <use href="#spark" transform="translate(214 62) scale(1.1)"/>
+ <use href="#spark" transform="translate(410 120) scale(1.3)"/>
+ <use href="#spark" transform="translate(96 392) scale(1.1)"/>
+ <use href="#spark" transform="translate(404 398) scale(1.6)"/>
+</svg>

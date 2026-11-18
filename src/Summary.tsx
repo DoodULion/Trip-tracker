@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { CATEGORIES, computeDays, computeSummary, formatDollars, formatRate, formatYen } from './calc';
+import { CATEGORIES, computeDays, computeSummary, formatDollars } from './calc';
 import { dayLabel, todayLocal } from './money';
 import { Roundel } from './Roundel';
 import StackedBars from './StackedBars';
@@ -189,61 +189,6 @@ export default function Summary({ store }: { store: Store }) {
         )}
       </section>
 
-      <div className="cols">
-        <section className="card" aria-label="Cash and rates">
-          <h2>Cash and rates</h2>
-          <dl className="kv">
-            <dt>Cash on hand</dt>
-            <dd>{formatYen(s.cashOnHandYen)}</dd>
-            <dt>Overall rate</dt>
-            <dd>{formatRate(s.overallRate) || '—'}</dd>
-            <dt>Cash rate</dt>
-            <dd>{formatRate(s.cashRate) || '—'}</dd>
-            <dt>Card rate</dt>
-            <dd>{formatRate(s.cardRate) || '—'}</dd>
-            {Object.entries(s.cardRateByCard).map(([name, r]) => (
-              <Pair key={name} k={`  ${name}`} v={formatRate(r) || '—'} />
-            ))}
-            <dt>Best day rate</dt>
-            <dd>{s.bestDayRate ? `${formatRate(s.bestDayRate.rate)} (${dayLabel(s.bestDayRate.date)})` : '—'}</dd>
-            <dt>Worst day rate</dt>
-            <dd>{s.worstDayRate ? `${formatRate(s.worstDayRate.rate)} (${dayLabel(s.worstDayRate.date)})` : '—'}</dd>
-          </dl>
-        </section>
-
-        <section className="card" aria-label="By payment and days">
-          <h2>By payment</h2>
-          <dl className="kv">
-            {Object.entries(s.byPayment.cards).map(([name, cents]) => (
-              <Pair key={name} k={name} v={formatDollars(cents)} />
-            ))}
-            {s.byPayment.noCard > 0 && <Pair k="Card (none picked)" v={formatDollars(s.byPayment.noCard)} />}
-            <Pair k="Cash" v={s.cashRateMissing && data.cashPurchases.length > 0 ? '—' : formatDollars(s.byPayment.cash)} />
-          </dl>
-          <h2 className="gap">Days</h2>
-          <dl className="kv">
-            <dt>With spending</dt>
-            <dd>{s.daysWithSpending}</dd>
-            <dt>Over the limit</dt>
-            <dd>{s.daysOver}</dd>
-            <dt>Under the limit</dt>
-            <dd>{s.daysUnder}</dd>
-            <dt>Biggest day</dt>
-            <dd>{s.biggestDay ? `${formatDollars(s.biggestDay.cents)} (${dayLabel(s.biggestDay.date)})` : '—'}</dd>
-            <dt>Smallest day</dt>
-            <dd>{s.smallestDay ? `${formatDollars(s.smallestDay.cents)} (${dayLabel(s.smallestDay.date)})` : '—'}</dd>
-          </dl>
-        </section>
-      </div>
     </div>
-  );
-}
-
-function Pair({ k, v }: { k: string; v: string }) {
-  return (
-    <>
-      <dt>{k}</dt>
-      <dd>{v}</dd>
-    </>
   );
 }

@@ -1,0 +1,68 @@
+import { useMemo } from 'react';
+import { computeSummary, formatDollars, formatRate, formatYen } from './calc';
+import { dayLabel, todayLocal } from './money';
+import type { Store } from './store';
+
+/** Cash on hand, real exchange rates, spending by payment method, and day stats. */
+export default function Payments({ store }: { store: Store }) {
+  const { data, settings } = store;
+  const today = todayLocal();
+  const s = useMemo(() => computeSummary(data, settings, today), [data, settings, today]);
+  const cashMissing = s.cashRateMissing && data.cashPurchases.length > 0;
+
+  return (
+    <div className="screen">
+      <h1>Payments</h1>
+
+      {cashMissing && <p className="banner">Add the cash you bought. Cash dollars stay blank until you do.</p>}
+
+      <div className="cols">
+        <section className="card" aria-label="By payment">
+          <h2>By payment</h2>
+          <dl className="kv">
+            {Object.entries(s.byPayment.cards).map(([name, cents]) => (
+              <Pair key={name} k={name} v={formatDollars(cents)} />
+            ))}
+            {s.byPayment.noCard > 0 && <Pair k="Card (none picked)" v={formatDollars(s.byPayment.noCard)} />}
+            <Pair k="Cash" v={cashMissing ? '—' : formatDollars(s.byPayment.cash)} />
+          </dl>
+        </section>
+
+        <section className="card" aria-label="Cash and rates">
+          <h2>Cash and rates</h2>
+          <dl className="kv">
+            <Pair k="Cash on hand" v={formatYen(s.cashOnHandYen)} />
+            <Pair k="Overall rate" v={formatRate(s.overallRate) || '—'} />
+            <Pair k="Cash rate" v={formatRate(s.cashRate) || '—'} />
+            <Pair k="Card rate" v={formatRate(s.cardRate) || '—'} />
+            {Object.entries(s.cardRateByCard).map(([name, r]) => (
+              <Pair key={name} k={`  ${name}`} v={formatRate(r) || '—'} />
+            ))}
+            <Pair k="Best day rate" v={s.bestDayRate ? `${formatRate(s.bestDayRate.rate)} (${dayLabel(s.bestDayRate.date)})` : '—'} />
+            <Pair k="Worst day rate" v={s.worstDayRate ? `${formatRate(s.worstDayRate.rate)} (${dayLabel(s.worstDayRate.date)})` : '—'} />
+          </dl>
+        </section>
+
+        <section className="card" aria-label="Days">
+          <h2>Days</h2>
+          <dl className="kv">
+            <Pair k="With spending" v={String(s.daysWithSpending)} />
+            <Pair k="Over the limit" v={String(s.daysOver)} />
+            <Pair k="Under the limit" v={String(s.daysUnder)} />
+            <Pair k="Biggest day" v={s.biggestDay ? `${formatDollars(s.biggestDay.cents)} (${dayLabel(s.biggestDay.date)})` : '—'} />
+            <Pair k="Smallest day" v={s.smallestDay ? `${formatDollars(s.smallestDay.cents)} (${dayLabel(s.smallestDay.date)})` : '—'} />
+          </dl>
+        </section>
+      </div>
+    </div>
+  );
+}
+
+function Pair({ k, v }: { k: string; v: string }) {
+  return (
+    <>
+      <dt>{k}</dt>
+      <dd>{v}</dd>
+    </>
+  );
+}

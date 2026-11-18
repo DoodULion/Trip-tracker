@@ -16,11 +16,11 @@ interface Props {
   onSave: (trip: Trip, renames: [string, string][]) => Promise<void>;
   /** Shown as a second button when given (e.g. in a sheet). */
   onDiscard?: () => void;
-  /** Show a "saved" note after saving (for the inline Settings tab). */
+  /** Show a "saved" note after saving . */
   confirmSaved?: boolean;
 }
 
-/** Name, dates, budget ceiling and cards for one trip. Used to create, edit, and in a trip's Settings tab. */
+/** Name, dates, budget ceiling and cards for one trip. Used to create and edit trips from the trips list. */
 export default function TripForm({ initial, saveLabel, discardLabel = 'Discard changes', onSave, onDiscard, confirmSaved }: Props) {
   const [name, setName] = useState(initial?.name ?? '');
   const [country, setCountry] = useState(initial?.country ?? '');
