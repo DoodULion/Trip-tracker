@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { CATEGORIES, type CardCharge, type CashBought, type CashPurchase, type Category } from './calc';
 import { centsToInput, parseCents, parseYen } from './money';
 import { Roundel } from './Roundel';
+import SheetBackdrop from './SheetBackdrop';
 import { useUndo } from './undo';
 import type { Store } from './store';
 
@@ -47,7 +48,8 @@ export default function EditSheet({ row, store, onClose }: { row: Row; store: St
       await store.addCardCharge({ id: e.id, date, category, card, yen: y, cents: c, note: n });
     } else if (kind === 'cash') {
       if (y === undefined || y <= 0) return setError('Enter the yen amount.');
-      await store.addCashPurchase({ id: e.id, date, category, yen: y, note: n });
+      if (c !== undefined && c <= 0) return setError('Leave USD paid blank, or enter more than $0.');
+      await store.addCashPurchase({ id: e.id, date, category, yen: y, ...(c !== undefined ? { cents: c } : {}), note: n });
     } else {
       if (y === undefined || y <= 0) return setError('Enter the yen you received.');
       if (c === undefined || c <= 0) return setError('Enter the dollars you paid, including fees.');
@@ -58,7 +60,7 @@ export default function EditSheet({ row, store, onClose }: { row: Row; store: St
   }
 
   return (
-    <div className="sheet-backdrop" role="dialog" aria-modal="true" aria-label={`Edit ${TITLES[kind]}`}>
+    <SheetBackdrop onClose={onClose} role="dialog" aria-modal="true" aria-label={`Edit ${TITLES[kind]}`}>
       <form className="sheet" onSubmit={submit}>
         <h2>Edit {TITLES[kind].toLowerCase()}</h2>
 
@@ -67,9 +69,9 @@ export default function EditSheet({ row, store, onClose }: { row: Row; store: St
             <span>{kind === 'bought' ? 'Yen received' : 'Yen'}</span>
             <input ref={yenRef} value={yen} onChange={(ev) => setYen(ev.target.value)} inputMode="numeric" autoComplete="off" />
           </label>
-          {kind !== 'cash' && (
+          {(
             <label className="field">
-              <span>{kind === 'bought' ? 'Dollars paid (with fees)' : 'Dollars'}</span>
+              <span>{kind === 'bought' ? 'Dollars paid (with fees)' : kind === 'cash' ? 'USD paid (optional)' : 'Dollars'}</span>
               <input ref={dollarsRef} value={dollars} onChange={(ev) => setDollars(ev.target.value)} inputMode="decimal" autoComplete="off" />
             </label>
           )}
@@ -129,7 +131,7 @@ export default function EditSheet({ row, store, onClose }: { row: Row; store: St
           <button type="button" className="secondary" onClick={onClose}>Discard changes</button>
         </div>
       </form>
-    </div>
+    </SheetBackdrop>
   );
 }
 

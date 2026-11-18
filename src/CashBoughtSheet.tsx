@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from 'react';
+import SheetBackdrop from './SheetBackdrop';
 import { clampDate, newId, parseCents, parseYen, todayLocal } from './money';
 import { formatDollars, formatYen } from './calc';
 import { useUndo } from './undo';
@@ -28,7 +29,7 @@ export default function CashBoughtSheet({ store, onClose }: { store: Store; onCl
   }
 
   return (
-    <div className="sheet-backdrop" role="dialog" aria-modal="true" aria-label="Log cash bought">
+    <SheetBackdrop onClose={onClose} role="dialog" aria-modal="true" aria-label="Log cash bought">
       <form className="sheet" onSubmit={submit}>
         <h2>Log cash bought</h2>
         <p className="muted small">An ATM withdrawal or currency exchange. This sets your real cash rate.</p>
@@ -56,6 +57,6 @@ export default function CashBoughtSheet({ store, onClose }: { store: Store; onCl
           <button type="button" className="secondary" onClick={onClose}>Cancel</button>
         </div>
       </form>
-    </div>
+    </SheetBackdrop>
   );
 }

@@ -192,7 +192,16 @@ export async function savePrefs(tripId: string, prefs: Prefs): Promise<void> {
 export async function replaceAll(items: TripWithData[]): Promise<void> {
   const d = await db();
   const tx = d.transaction([...ALL_STORES], 'readwrite') as unknown as IDBPTransaction<any, any, 'readwrite'>;
+  // Device-level notes (cached market rates, last export date) are not trip data: keep them.
+  const keep: [string, string][] = [];
+  let cur = await tx.objectStore('meta').openCursor();
+  while (cur) {
+    const k = String(cur.key);
+    if (k.startsWith(SPOT_PREFIX) || k === LAST_EXPORT) keep.push([k, cur.value]);
+    cur = await cur.continue();
+  }
   for (const s of ALL_STORES) void tx.objectStore(s).clear();
+  for (const [k, v] of keep) void tx.objectStore('meta').put(v, k);
   for (const { trip, data } of items) {
     void tx.objectStore('trips').put(trip);
     for (const e of data.cardCharges) void tx.objectStore('cardCharges').put({ ...e, tripId: trip.id });
@@ -204,4 +213,41 @@ export async function replaceAll(items: TripWithData[]): Promise<void> {
 
 export async function clearAll(): Promise<void> {
   await replaceAll([]);
+}
+
+// ---------- device notes kept in the meta store ----------
+
+const SPOT_PREFIX = 'spot:USDJPY:';
+const LAST_EXPORT = 'lastExport';
+
+/** Cached market rates: YYYY-MM-DD → yen per $. */
+export async function loadSpotRates(): Promise<Record<string, number>> {
+  const d = await db();
+  const out: Record<string, number> = {};
+  let cur = await d.transaction('meta').store.openCursor();
+  while (cur) {
+    const k = String(cur.key);
+    if (k.startsWith(SPOT_PREFIX)) {
+      const v = Number(cur.value);
+      if (v > 0) out[k.slice(SPOT_PREFIX.length)] = v;
+    }
+    cur = await cur.continue();
+  }
+  return out;
+}
+
+export async function saveSpotRate(date: string, rate: number): Promise<void> {
+  const d = await db();
+  await d.put('meta', String(rate), SPOT_PREFIX + date);
+}
+
+/** When a backup was last exported on this device (ISO timestamp), if ever. */
+export async function getLastExport(): Promise<string | undefined> {
+  const d = await db();
+  return d.get('meta', LAST_EXPORT);
+}
+
+export async function setLastExport(iso: string): Promise<void> {
+  const d = await db();
+  await d.put('meta', iso, LAST_EXPORT);
 }

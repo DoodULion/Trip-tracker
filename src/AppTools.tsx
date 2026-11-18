@@ -1,5 +1,6 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { buildBackup, parseBackup, toCsv, type Backup, type BackupTrip } from './backup';
+import { getLastExport, setLastExport } from './db';
 import { saveFile } from './download';
 import { todayLocal } from './money';
 import { EMPTY_DATA, type App } from './store';
@@ -22,6 +23,11 @@ export default function AppTools({ app }: { app: App }) {
   const [msg, setMsg] = useState('');
   const [confirmText, setConfirmText] = useState('');
   const [theme, setTheme] = useState<ThemeChoice>(getThemeChoice);
+  const [lastExport, setLastExportState] = useState<string | undefined>();
+
+  useEffect(() => {
+    void getLastExport().then(setLastExportState);
+  }, []);
   const fileRef = useRef<HTMLInputElement>(null);
 
   const items = (): BackupTrip[] => app.trips.map((trip) => ({ trip, data: app.data[trip.id] ?? EMPTY_DATA }));
@@ -30,6 +36,9 @@ export default function AppTools({ app }: { app: App }) {
   async function exportBackup() {
     setMsg('');
     await saveFile(`trip-tracker-backup-${todayLocal()}.json`, JSON.stringify(buildBackup(items()), null, 2), 'application/json');
+    const now = new Date().toISOString();
+    await setLastExport(now);
+    setLastExportState(now);
   }
 
   async function exportCsv() {
@@ -94,6 +103,11 @@ export default function AppTools({ app }: { app: App }) {
         <h2>Backup</h2>
         <p className="muted small">
           {describe(items())} on this device. A backup holds all your trips. Export one now and then and keep the file somewhere safe (Files, email).
+        </p>
+        <p className={`small last-export${lastExport ? '' : ' never'}`}>
+          {lastExport
+            ? `Last exported ${new Date(lastExport).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })} at ${new Date(lastExport).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}.`
+            : 'Not exported from this device yet.'}
         </p>
         <button type="button" className="secondary" onClick={() => void exportBackup()}>Export backup (JSON)</button>
         <button type="button" className="secondary" onClick={() => void exportCsv()} disabled={total === 0}>Export CSV (all trips)</button>

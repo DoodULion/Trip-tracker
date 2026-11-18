@@ -11,6 +11,8 @@ import {
   formatYen,
   tripDates,
   tripLength,
+  applyEstimates,
+  estimateRateFor,
   type Data,
 } from './calc';
 
@@ -289,5 +291,52 @@ describe('trip phase', () => {
     expect(tripFraction(S, '2026-12-20')).toBe(1);
     expect(tripFraction(S, '2027-01-01')).toBe(1);
     expect(tripFraction(S, '2026-11-28')).toBeCloseTo(3 / 25, 10);
+  });
+});
+
+describe('cash purchase with its own dollars', () => {
+  // Same data, but the ¥800 food cash purchase was paid as $6.00 (overriding ¥800 ÷ 150 = $5.33).
+  const withUsd: Data = { ...data, cashPurchases: data.cashPurchases.map((p) => (p.id === 'd' ? { ...p, cents: 600 } : p)) };
+  const s2 = computeSummary(withUsd, S, today);
+  const d2 = computeDays(withUsd, S);
+  it('uses the given dollars for that purchase only', () => {
+    expect(formatDollars(d2.find((x) => x.date === '2026-11-26')!.totalCents)).toBe('$66.00'); // 10 + 50 + 6
+    expect(formatDollars(s2.byPayment.cash)).toBe('$38.00'); // 6 + 21.33 + 10.67
+    expect(formatDollars(s2.totalSpentCents)).toBe('$198.00');
+  });
+  it('leaves the cash rate and cash on hand alone', () => {
+    expect(formatRate(s2.cashRate)).toBe('150.00');
+    expect(s2.cashOnHandYen).toBe(24400);
+  });
+  it('counts toward the overall rate at its own dollars', () => {
+    // (25600 card + 5600 cash) ÷ ($160 + $6 + $32) = 31200 / 198
+    expect(formatRate(s2.overallRate)).toBe('157.58');
+  });
+  it('works with no cash bought when every purchase has its dollars', () => {
+    const only: Data = { cardCharges: [], cashBought: [], cashPurchases: [{ id: 'x', date: '2026-11-26', category: 'Food', yen: 1500, cents: 1000 }] };
+    expect(computeSummary(only, S, today).totalSpentCents).toBe(1000);
+  });
+});
+
+describe('estimates for card charges missing dollars', () => {
+  const pending: Data = { ...data, cardCharges: [...data.cardCharges, { id: 'p', date: '2026-11-27', category: 'Shopping', yen: 15000, card: 'Apple Card' }] };
+  it('uses that day\'s spot rate, else the closest earlier day, else the card rate', () => {
+    expect(estimateRateFor('2026-11-27', { '2026-11-27': 150 }, 160)).toBe(150);
+    expect(estimateRateFor('2026-11-28', { '2026-11-26': 149, '2026-11-27': 151 }, 160)).toBe(151);
+    expect(estimateRateFor('2026-11-25', { '2026-11-27': 151 }, 160)).toBe(151);
+    expect(estimateRateFor('2026-11-27', {}, 160)).toBe(160);
+  });
+  it('adds an estimated amount without touching real charges or the card rate', () => {
+    const est = applyEstimates(pending, { '2026-11-27': 150 });
+    const p = est.cardCharges.find((c) => c.id === 'p')!;
+    expect(p.cents).toBe(10000);
+    expect(p.estimated).toBe(true);
+    expect(pending.cardCharges.find((c) => c.id === 'p')!.cents).toBeUndefined();
+    expect(formatRate(cardRate(est.cardCharges))).toBe('160.00');
+    expect(formatDollars(computeSummary(est, S, today).totalSpentCents)).toBe('$297.33');
+  });
+  it('falls back to the owner\'s card rate offline', () => {
+    const est = applyEstimates(pending, {});
+    expect(est.cardCharges.find((c) => c.id === 'p')!.cents).toBe(9375); // 15000 ÷ 160
   });
 });

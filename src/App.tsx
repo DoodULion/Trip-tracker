@@ -11,7 +11,7 @@ import Backdrop from './Backdrop';
 import { UndoProvider } from './undo';
 import { tripPhase, type Trip } from './calc';
 import { findCountry, flagEmoji, tripTheme } from './countries';
-import { todayLocal } from './money';
+import { useToday } from './useToday';
 import { navigate } from './navMotion';
 
 type Tab = 'summary' | 'add' | 'entries' | 'days' | 'payments';
@@ -69,6 +69,7 @@ export default function App() {
 
 function TripView({ app, trip, enter, onBack }: { app: AppState; trip: Trip; enter: Enter; onBack: () => void }) {
   const store = tripStore(app, trip);
+  const today = useToday();
   const [tab, setTab] = useState<Tab>('summary');
   // The first page slides in with the trip; later tab changes slide toward the tab that was tapped.
   const motion = useRef<string>(enter);
@@ -79,7 +80,7 @@ function TripView({ app, trip, enter, onBack }: { app: AppState; trip: Trip; ent
     const to = TABS.findIndex((t) => t.id === next);
     motion.current = to > from ? 'fwd' : 'back';
     setTab(next);
-    window.scrollTo(0, 0);
+    document.querySelector('main')?.scrollTo(0, 0);
   }
 
   return (
@@ -97,7 +98,7 @@ function TripView({ app, trip, enter, onBack }: { app: AppState; trip: Trip; ent
             </span>
           )}
           <p className="band-title">{trip.name}</p>
-          <span className="band-note">{tripPhase(trip, todayLocal())}</span>
+          <span className="band-note">{tripPhase(trip, today)}</span>
         </div>
       </header>
       <main>

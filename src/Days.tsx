@@ -1,15 +1,16 @@
+import { useToday } from './useToday';
 import { useMemo, useState } from 'react';
 import { computeDays, formatDollars, formatRate, formatYen } from './calc';
 import { RowBody } from './Entries';
 import { type Row } from './EditSheet';
 import { useEntryActions } from './EntryActions';
-import { dayLabel, todayLocal } from './money';
+import { dayLabel } from './money';
 import type { Store } from './store';
 
 export default function Days({ store }: { store: Store }) {
   const { data, settings } = store;
-  const today = todayLocal();
-  const days = useMemo(() => computeDays(data, settings), [data, settings]);
+  const today = useToday();
+  const days = useMemo(() => computeDays(store.calcData, settings), [store.calcData, settings]);
   const [open, setOpen] = useState<string | null>(null);
   const { optionsButton, overlay } = useEntryActions(store);
 

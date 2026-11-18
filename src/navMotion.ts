@@ -19,7 +19,7 @@ export function navigate(dir: Dir, update: () => void): boolean {
   root.dataset.nav = dir;
   const t = doc.startViewTransition(() => {
     flushSync(update);
-    window.scrollTo(0, 0);
+    document.querySelector('main')?.scrollTo(0, 0);
   });
   t.finished.finally(() => {
     if (root.dataset.nav === dir) delete root.dataset.nav;

@@ -23,6 +23,10 @@ export interface Trip extends Settings {
   name: string;
   /** ISO 3166-1 alpha-2 code of the country travelled to (sets the flag and main color). Optional. */
   country?: string;
+  /** Position on the trips list (lower first), set when the owner reorders. Optional. */
+  order?: number;
+  /** When the trip was created (ms since 1970), for newest-first ordering. Optional (older trips lack it). */
+  createdAt?: number;
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -40,6 +44,8 @@ export interface CardCharge {
   yen?: number; // blank = priced in dollars
   cents?: number; // may be filled in later
   note?: string;
+  /** Derived, never stored: the dollars are an estimate from that day's spot rate (see applyEstimates). */
+  estimated?: boolean;
 }
 
 export interface CashPurchase {
@@ -47,6 +53,8 @@ export interface CashPurchase {
   date: string;
   category: Category;
   yen: number;
+  /** Optional: the dollars actually paid for this purchase. When set it replaces yen ÷ cash rate. */
+  cents?: number;
   note?: string;
 }
 
@@ -122,13 +130,27 @@ export function cashYenToCents(yen: number, bought: CashBought[]): number | unde
   return (yen * p.cents) / p.yen; // yen ÷ (p.yen / p.cents)
 }
 
-/** Card rate over charges that have both yen and dollars; optionally for one card. */
+/**
+ * Dollars (fractional cents) for a set of cash purchases: each purchase's own dollars when given,
+ * otherwise its yen ÷ the cash rate. Undefined when some purchase needs the cash rate and there is none
+ * (and, with no purchases at all, undefined when no cash has been bought, as before).
+ */
+export function cashPurchasesCents(purchases: CashPurchase[], bought: CashBought[]): number | undefined {
+  if (purchases.length === 0) return cashYenToCents(0, bought);
+  const fixed = sum(purchases.filter((p) => p.cents !== undefined).map((p) => p.cents!));
+  const rateYen = sum(purchases.filter((p) => p.cents === undefined).map((p) => p.yen));
+  if (rateYen === 0) return fixed;
+  const converted = cashYenToCents(rateYen, bought);
+  return converted === undefined ? undefined : fixed + converted;
+}
+
+/** Card rate over charges that have both real yen and dollars (estimates excluded); optionally for one card. */
 export function cardRate(charges: CardCharge[], card?: string): number | undefined {
   let yen = 0;
   let cents = 0;
   for (const c of charges) {
     if (card !== undefined && c.card !== card) continue;
-    if (c.yen && c.cents) {
+    if (c.yen && c.cents && !c.estimated) {
       yen += c.yen;
       cents += c.cents;
     }
@@ -182,7 +204,7 @@ export function computeDays(data: Data, s: Settings): DayRow[] {
     const cardYen = sum(charges.map((c) => c.yen ?? 0));
     const cardCents = sum(charges.map((c) => c.cents ?? 0));
     const cashYen = sum(cash.map((c) => c.yen));
-    const cashCents = cashYen === 0 ? 0 : cashYenToCents(cashYen, data.cashBought);
+    const cashCents = cash.length === 0 ? 0 : cashPurchasesCents(cash, data.cashBought);
     const hasEntries = charges.length + cash.length > 0;
     const totalYen = cardYen + cashYen;
     const totalCents = cardCents + (cashCents ?? 0);
@@ -296,7 +318,7 @@ export function computeSummary(data: Data, s: Settings, today: string): Summary 
   const cardCents = sum(trip.cardCharges.map((c) => c.cents ?? 0));
   const cardYen = sum(trip.cardCharges.map((c) => c.yen ?? 0));
   const cashYen = sum(trip.cashPurchases.map((c) => c.yen));
-  const cashCents = cashYenToCents(cashYen, data.cashBought); // undefined if no rate (even when cashYen is 0)
+  const cashCents = cashPurchasesCents(trip.cashPurchases, data.cashBought); // undefined if a rate is needed and missing (or nothing bought)
   const totalSpentCents = cardCents + (cashCents ?? 0);
   const remainingCents = s.budgetCeilingCents - totalSpentCents;
 
@@ -320,7 +342,7 @@ export function computeSummary(data: Data, s: Settings, today: string): Summary 
     const cc = trip.cardCharges.filter((c) => c.category === category);
     const ch = trip.cashPurchases.filter((c) => c.category === category);
     const chYen = sum(ch.map((c) => c.yen));
-    const cents = sum(cc.map((c) => c.cents ?? 0)) + (cashYenToCents(chYen, data.cashBought) ?? 0);
+    const cents = sum(cc.map((c) => c.cents ?? 0)) + (ch.length ? (cashPurchasesCents(ch, data.cashBought) ?? 0) : 0);
     return {
       category,
       cents,
@@ -345,10 +367,13 @@ export function computeSummary(data: Data, s: Settings, today: string): Summary 
 
   const rateParts = cashRateParts(data.cashBought);
   const cashYenAll = sum(data.cashPurchases.map((c) => c.yen));
-  const cardWithBoth = data.cardCharges.filter((c) => c.yen && c.cents);
-  const overallYen = sum(cardWithBoth.map((c) => c.yen!)) + (rateParts ? cashYenAll : 0);
+  const cashFixed = data.cashPurchases.filter((c) => c.cents !== undefined);
+  const cashRated = data.cashPurchases.filter((c) => c.cents === undefined);
+  const cashRatedYen = sum(cashRated.map((c) => c.yen));
+  const cardWithBoth = data.cardCharges.filter((c) => c.yen && c.cents && !c.estimated);
+  const overallYen = sum(cardWithBoth.map((c) => c.yen!)) + sum(cashFixed.map((c) => c.yen)) + (rateParts ? cashRatedYen : 0);
   const overallCents =
-    sum(cardWithBoth.map((c) => c.cents!)) + (cashYenToCents(cashYenAll, data.cashBought) ?? 0);
+    sum(cardWithBoth.map((c) => c.cents!)) + sum(cashFixed.map((c) => c.cents!)) + (cashYenToCents(cashRatedYen, data.cashBought) ?? 0);
 
   // Day extremes (days with spending only)
   const withTotals = spendingDays.filter((d) => d.totalCents > 0);
@@ -405,6 +430,40 @@ export function computeSummary(data: Data, s: Settings, today: string): Summary 
     bestDayRate,
     worstDayRate,
     outside,
+  };
+}
+
+// ---------- estimates for card charges still missing dollars ----------
+
+/**
+ * The yen-per-dollar rate to estimate a charge on `date` with: that day's market (spot) rate when known,
+ * else the closest earlier known day, else the latest known, else the owner's own card rate.
+ * `spot` maps YYYY-MM-DD to yen per $.
+ */
+export function estimateRateFor(date: string, spot: Record<string, number>, fallback: number | undefined): number | undefined {
+  if (spot[date]) return spot[date];
+  const days = Object.keys(spot).sort();
+  let best: string | undefined;
+  for (const d of days) if (d <= date) best = d;
+  if (best) return spot[best];
+  if (days.length) return spot[days[days.length - 1]];
+  return fallback;
+}
+
+/**
+ * The data with an estimated dollar amount on every card charge that has yen but no dollars yet
+ * (marked `estimated`), so totals and today's left-over reflect it. Real entries are never changed.
+ */
+export function applyEstimates(data: Data, spot: Record<string, number>): Data {
+  if (!data.cardCharges.some((c) => c.cents === undefined && c.yen)) return data;
+  const fallback = cardRate(data.cardCharges);
+  return {
+    ...data,
+    cardCharges: data.cardCharges.map((c) => {
+      if (c.cents !== undefined || !c.yen) return c;
+      const rate = estimateRateFor(c.date, spot, fallback);
+      return rate ? { ...c, cents: Math.round((c.yen * 100) / rate), estimated: true } : c;
+    }),
   };
 }
 

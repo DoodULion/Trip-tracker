@@ -1,13 +1,14 @@
+import { useToday } from './useToday';
 import { useMemo } from 'react';
 import { computeSummary, formatDollars, formatRate, formatYen } from './calc';
-import { dayLabel, todayLocal } from './money';
+import { dayLabel } from './money';
 import type { Store } from './store';
 
 /** Cash on hand, real exchange rates, spending by payment method, and day stats. */
 export default function Payments({ store }: { store: Store }) {
   const { data, settings } = store;
-  const today = todayLocal();
-  const s = useMemo(() => computeSummary(data, settings, today), [data, settings, today]);
+  const today = useToday();
+  const s = useMemo(() => computeSummary(store.calcData, settings, today), [store.calcData, settings, today]);
   const cashMissing = s.cashRateMissing && data.cashPurchases.length > 0;
 
   return (

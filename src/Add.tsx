@@ -1,8 +1,8 @@
 import { useState, type FormEvent } from 'react';
-import { CATEGORIES, formatDollars, formatYen, type Category } from './calc';
+import { CATEGORIES, applyEstimates, computeDays, dailyLimitCents, formatDollars, formatYen, type Category, type Data } from './calc';
 import { Roundel } from './Roundel';
 import type { EntryStore } from './db';
-import { clampDate, newId, parseCents, parseYen, todayLocal } from './money';
+import { clampDate, dayLabel, newId, parseCents, parseYen, todayLocal } from './money';
 import { useUndo } from './undo';
 import type { Store } from './store';
 
@@ -46,23 +46,39 @@ export default function Add({ store }: { store: Store }) {
     let msg: string;
     let undoStore: EntryStore = 'cardCharges';
 
+    let after: Data;
     if (mode === 'card') {
       if (y === undefined && c === undefined) return setError('Enter yen, dollars, or both.');
-      await store.addCardCharge({ id, date, category, card, yen: y, cents: c, note: n });
+      const entry = { id, date, category, card, yen: y, cents: c, note: n };
+      after = { ...store.data, cardCharges: [...store.data.cardCharges, entry] };
+      await store.addCardCharge(entry);
       await store.setPrefs({ lastCard: card, lastCategory: category });
-      msg = `Saved ${y !== undefined ? formatYen(y) : ''}${y !== undefined && c !== undefined ? ` (${formatDollars(c)})` : c !== undefined ? formatDollars(c) : ''}`;
+      msg = `Saved ${y !== undefined ? formatYen(y) : ''}${y !== undefined && c !== undefined ? ` (${formatDollars(c)})` : c !== undefined ? formatDollars(c) : ''}.`;
     } else {
       if (y === undefined || y <= 0) return setError('Enter the yen amount.');
-      await store.addCashPurchase({ id, date, category, yen: y, note: n });
+      if (c !== undefined && c <= 0) return setError('Leave USD paid blank, or enter more than $0.');
+      const entry = { id, date, category, yen: y, ...(c !== undefined ? { cents: c } : {}), note: n };
+      after = { ...store.data, cashPurchases: [...store.data.cashPurchases, entry] };
+      await store.addCashPurchase(entry);
       undoStore = 'cashPurchases';
       await store.setPrefs({ lastCategory: category });
-      msg = `Saved ${formatYen(y)}`;
+      msg = `Saved ${formatYen(y)}${c !== undefined ? ` (${formatDollars(c)})` : ''}.`;
     }
+    msg += leftAfter(after, date);
 
     setYen('');
     setDollars('');
     setNote('');
     offer(msg, () => store.removeEntry(undoStore, id));
+  }
+
+  /** " $266.61 left today." (or for the entry's day, or how far over), from the entries including the new one. */
+  function leftAfter(after: Data, day: string): string {
+    const row = computeDays(applyEstimates(after, store.spot), settings).find((d) => d.date === day);
+    if (!row) return '';
+    const left = dailyLimitCents(settings) - row.totalCents;
+    const when = day === todayLocal() ? 'today' : `on ${dayLabel(day)}`;
+    return left >= 0 ? ` ${formatDollars(left)} left ${when}.` : ` ${formatDollars(-left)} over the limit ${when}.`;
   }
 
   return (
@@ -90,12 +106,10 @@ export default function Add({ store }: { store: Store }) {
           <span>Yen</span>
           <input value={yen} onChange={(e) => setYen(e.target.value)} inputMode="numeric" placeholder="¥" autoComplete="off" />
         </label>
-        {mode === 'card' && (
-          <label className="field">
-            <span>Dollars (optional)</span>
-            <input value={dollars} onChange={(e) => setDollars(e.target.value)} inputMode="decimal" placeholder="$" autoComplete="off" />
-          </label>
-        )}
+        <label className="field">
+          <span>{mode === 'card' ? 'Dollars (optional)' : 'USD paid (optional)'}</span>
+          <input value={dollars} onChange={(e) => setDollars(e.target.value)} inputMode="decimal" placeholder="$" autoComplete="off" />
+        </label>
       </div>
 
       <div className="field">
@@ -137,7 +151,9 @@ export default function Add({ store }: { store: Store }) {
       </label>
 
       {error && <p className="error" role="alert">{error}</p>}
-      <button type="submit" className="primary">Save</button>
+      <div className="save-dock">
+        <button type="submit" className="primary">Save</button>
+      </div>
     </form>
   );
 }

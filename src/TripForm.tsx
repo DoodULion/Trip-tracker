@@ -45,7 +45,21 @@ export default function TripForm({ initial, saveLabel, discardLabel = 'Discard c
     if (names.some((n) => n === '')) return setErr('Card names cannot be blank.');
     if (new Set(names.map((n) => n.toLowerCase())).size !== names.length) return setErr('Card names must be different from each other.');
     const renames: [string, string][] = cards.flatMap((c, i) => (c.orig !== undefined && c.orig !== names[i] ? [[c.orig, names[i]] as [string, string]] : []));
-    await onSave({ id: initial?.id ?? newId(), name: name.trim(), tripStart: start, tripEnd: end, budgetCeilingCents: cents, cards: names, ...(country ? { country } : {}) }, renames);
+    await onSave(
+      {
+        id: initial?.id ?? newId(),
+        name: name.trim(),
+        tripStart: start,
+        tripEnd: end,
+        budgetCeilingCents: cents,
+        cards: names,
+        ...(country ? { country } : {}),
+        // Keep the trip's place on the list when it is edited.
+        ...(initial?.order !== undefined ? { order: initial.order } : {}),
+        ...(initial?.createdAt !== undefined ? { createdAt: initial.createdAt } : {}),
+      },
+      renames,
+    );
     setCards(names.map((n) => ({ orig: n, name: n })));
     if (confirmSaved) setSaved(true);
   }
@@ -101,7 +115,7 @@ export default function TripForm({ initial, saveLabel, discardLabel = 'Discard c
         <button type="button" className="secondary" onClick={() => setCards([...cards, { name: '' }])}>
           Add a card
         </button>
-        <p className="muted small">Renaming a card updates its past charges. Removing one keeps its past charges under the old name.</p>
+        {initial && <p className="muted small">Renaming a card updates its past charges. Removing one keeps its past charges under the old name.</p>}
       </div>
 
       {err && <p className="error" role="alert">{err}</p>}

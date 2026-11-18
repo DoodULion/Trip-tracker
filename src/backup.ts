@@ -80,7 +80,14 @@ function parseTripFields(v: Obj, id: string, name: string, where: string): Trip 
   if (!Array.isArray(cards) || cards.some((c) => typeof c !== 'string')) fail(`${where}: cards must be a list of names.`);
   const country = optStr(v, 'country', where);
   if (country !== undefined && !/^[A-Z]{2}$/.test(country)) fail(`${where}: country must be a two-letter code.`);
-  return { id, name, tripStart, tripEnd, budgetCeilingCents, cards: cards as string[], ...(country ? { country } : {}) };
+  const order = typeof v.order === 'number' && Number.isFinite(v.order) ? v.order : undefined;
+  const createdAt = typeof v.createdAt === 'number' && Number.isFinite(v.createdAt) ? v.createdAt : undefined;
+  return {
+    id, name, tripStart, tripEnd, budgetCeilingCents, cards: cards as string[],
+    ...(country ? { country } : {}),
+    ...(order !== undefined ? { order } : {}),
+    ...(createdAt !== undefined ? { createdAt } : {}),
+  };
 }
 
 function parseData(raw: unknown, where: string): Data {
@@ -104,7 +111,8 @@ function parseData(raw: unknown, where: string): Data {
   });
   const cashPurchases: CashPurchase[] = list(raw.cashPurchases, 'cash purchases', where).map((o, i) => {
     const w = W('Cash purchase', i);
-    return { id: id(o, w), date: date(o, `${where}, ${w}`), category: category(o, `${where}, ${w}`), yen: reqInt(o, 'yen', w), note: optStr(o, 'note', w) };
+    const cents = optInt(o, 'cents', w);
+    return { id: id(o, w), date: date(o, `${where}, ${w}`), category: category(o, `${where}, ${w}`), yen: reqInt(o, 'yen', w), ...(cents !== undefined ? { cents } : {}), note: optStr(o, 'note', w) };
   });
   const cashBought: CashBought[] = list(raw.cashBought, 'cash bought', where).map((o, i) => {
     const w = W('Cash bought', i);
@@ -170,7 +178,7 @@ export function toCsv(items: BackupTrip[]): string {
         id: e.id,
         cols: ['Card', e.date, e.category, e.card, e.yen, e.cents === undefined ? undefined : centsToInput(e.cents), e.note],
       })),
-      ...data.cashPurchases.map((e) => ({ date: e.date, id: e.id, cols: ['Cash', e.date, e.category, '', e.yen, undefined, e.note] })),
+      ...data.cashPurchases.map((e) => ({ date: e.date, id: e.id, cols: ['Cash', e.date, e.category, '', e.yen, e.cents === undefined ? undefined : centsToInput(e.cents), e.note] })),
       ...data.cashBought.map((e) => ({ date: e.date, id: e.id, cols: ['Cash bought', e.date, '', '', e.yen, centsToInput(e.cents), e.where] })),
     ];
     rows.sort((a, b) => (a.date === b.date ? (a.id < b.id ? -1 : 1) : a.date < b.date ? -1 : 1));

@@ -9,7 +9,7 @@
   --line: #e6dfda;
   --or: #ffffff; /* main color outside a trip: white. Inside a trip, .themed swaps in the country color. */
   --on-or: #2b2420;
-  --red: #c8322a;
+  --red: #d63306;
   --on-red: #ffffff;
   --good: #17623e;
   --cat-food: #d9480f;
@@ -38,7 +38,7 @@
     --line: #3d3430;
     --or: #f3ece7;
     --on-or: #1b1715;
-    --red: #ff7a6b;
+    --red: #ff6a3d;
     --on-red: #1b1715;
     --good: #5fd39a;
     --cat-food: #ff8a4c;
@@ -53,7 +53,9 @@
 
 * { box-sizing: border-box; }
 html { background: var(--bg); }
-html, body { margin: 0; color: var(--ink); }
+/* The page itself never scrolls: only <main> does, so the header and tab bar stay put on iPhone. */
+html, body { margin: 0; color: var(--ink); height: 100%; overflow: hidden; overscroll-behavior: none; }
+#root { height: 100%; }
 body {
   font-family: ui-rounded, 'SF Pro Rounded', 'Nunito', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   font-size: 16px;
@@ -71,7 +73,8 @@ input, textarea, select { caret-color: var(--or); accent-color: var(--or); }
 .ic { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex: none; }
 
 /* shell */
-.app { min-height: 100dvh; display: flex; flex-direction: column; }
+.app { height: 100dvh; display: flex; flex-direction: column; overflow: hidden; }
+.band { flex: none; }
 .band { position: relative; padding: env(safe-area-inset-top) env(safe-area-inset-right) 0 env(safe-area-inset-left); }
 .band-in { position: relative; max-width: 900px; margin: 0 auto; min-height: 64px; padding: 10px 14px 4px; display: flex; align-items: center; gap: 10px; }
 .band-title { flex: 1; min-width: 0; margin: 0; font-size: 1.45rem; font-weight: 800; letter-spacing: -0.01em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -88,9 +91,12 @@ input, textarea, select { caret-color: var(--or); accent-color: var(--or); }
 main {
   flex: 1;
   padding: 10px calc(env(safe-area-inset-right) + 16px) calc(env(safe-area-inset-bottom) + 120px) calc(env(safe-area-inset-left) + 16px);
-  width: 100%; max-width: 900px; margin: 0 auto;
+  width: 100%;
   overflow-x: clip; /* a page sliding in never adds a sideways scroll */
+  overflow-y: auto; overscroll-behavior-y: contain; -webkit-overflow-scrolling: touch;
+  min-height: 0;
 }
+main > * { max-width: 868px; margin-left: auto; margin-right: auto; }
 .screen { display: flex; flex-direction: column; gap: 14px; }
 .screen > h1 { position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 h2 { font-size: 1.05rem; margin: 0 0 4px; color: var(--ink); font-weight: 800; }
@@ -168,7 +174,7 @@ input[type="date"]::-webkit-calendar-picker-indicator { margin: 0; }
 }
 .primary:active, .secondary:active, .danger:active { transform: scale(0.97); }
 .primary { border: 0; background: var(--or); color: var(--on-or); }
-.app:not(.themed) .primary { border: 2px solid var(--line); }
+.app:not(.themed) .primary { background: var(--ink); color: var(--bg); }
 .secondary { background: var(--sign); color: var(--ink); border: 2px solid var(--line); }
 .danger { background: var(--sign); color: var(--red); border: 2px solid color-mix(in srgb, var(--red) 40%, var(--sign)); }
 .danger.armed { background: var(--red); color: var(--on-red); border-color: var(--red); }
@@ -188,9 +194,9 @@ input[type="date"]::-webkit-calendar-picker-indicator { margin: 0; }
 .hero .big.bad-text { color: var(--red); }
 .meter { height: 12px; border-radius: 6px; background: var(--field); overflow: hidden; margin: 10px 0 4px; }
 .meter i { display: block; height: 100%; border-radius: 6px; background: var(--or); width: calc(var(--p, 0) * 100%); min-width: 12px; transition: width 600ms cubic-bezier(0.22, 1, 0.36, 1); }
-.meter.over i { background: var(--red); }
+.meter.over i { background: repeating-linear-gradient(-45deg, var(--red) 0 7px, color-mix(in srgb, var(--red) 55%, var(--sign)) 7px 14px); }
 .meter.zero i { min-width: 0; }
-.rule { display: grid; grid-template-columns: repeat(auto-fit, minmax(96px, 1fr)); gap: 10px 12px; margin-top: 10px; }
+.rule { display: grid; grid-template-columns: repeat(auto-fit, minmax(84px, 1fr)); gap: 10px 10px; margin-top: 10px; }
 .rule.one { grid-template-columns: 1fr; }
 .rule b { display: block; font-size: 1.1rem; font-weight: 800; }
 .rule span { font-size: 0.8rem; color: var(--mute); font-weight: 600; }
@@ -254,7 +260,7 @@ input[type="date"]::-webkit-calendar-picker-indicator { margin: 0; }
 .trip-title strong { font-size: 1.25rem; font-weight: 800; }
 .route { --p: 0; position: relative; display: block; height: 30px; }
 .route u { position: absolute; left: 0; right: 0; bottom: 4px; height: 10px; border-radius: 5px; background: var(--field); text-decoration: none; }
-.route u b { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 5px; width: calc(var(--p) * 100%); background: var(--or); animation: route-fill 0.9s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.route u b { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 5px; width: calc((100% - 40px) * var(--p) + 20px * min(var(--p) * 1000, 1)); background: var(--or); animation: route-fill 0.9s cubic-bezier(0.22, 1, 0.36, 1) both; }
 .route .jet { position: absolute; bottom: -4px; left: calc((100% - 40px) * var(--p)); width: 40px; height: auto; animation: route-ride 0.9s cubic-bezier(0.22, 1, 0.36, 1) both; }
 @keyframes route-fill { from { width: 0; } }
 @keyframes route-ride { from { left: 0; } }
@@ -313,8 +319,11 @@ input[type="date"]::-webkit-calendar-picker-indicator { margin: 0; }
 .sheet input, .sheet select { background: var(--sign); }
 @media (min-width: 700px) { .sheet-backdrop { align-items: center; } }
 .sheet h2 { font-size: 1.3rem; margin: 0; }
-.sheet-actions { display: flex; flex-wrap: wrap; gap: 12px; }
-.sheet-actions > * { flex: 1 1 140px; white-space: nowrap; }
+/* sheet actions always stack, main action first */
+.sheet-actions { display: flex; flex-direction: column; gap: 10px; }
+.sheet-actions > * { width: 100%; }
+.menu-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.menu-pair .secondary { width: 100%; }
 .sheet.menu { gap: 10px; }
 .sheet.menu .secondary, .sheet.menu .danger { width: 100%; }
 .menu-title { margin: 0 0 4px; font-weight: 800; font-size: 1.1rem; }
@@ -337,7 +346,7 @@ input[type="date"]::-webkit-calendar-picker-indicator { margin: 0; }
   display: flex; align-items: center; gap: 12px;
   background: var(--ink); color: var(--bg); border-radius: 18px; box-shadow: var(--float);
 }
-.undo-label { flex: 1; min-width: 0; font-weight: 700; font-size: 0.95rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.undo-label { flex: 1; min-width: 0; font-weight: 700; font-size: 0.95rem; line-height: 1.3; padding: 6px 0; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 .undo-btn { min-width: 76px; min-height: 44px; padding: 0 16px; border: 0; border-radius: 13px; background: color-mix(in srgb, var(--bg) 16%, var(--ink)); color: var(--bg); font: inherit; font-weight: 800; font-size: 1rem; }
 .undo-btn:disabled { opacity: 0.5; }
 .undo :focus-visible { outline-color: var(--bg); }
@@ -379,5 +388,33 @@ html[data-nav] .band-in { animation: none; } /* the whole screen is already slid
 @keyframes vt-front-out { to { transform: translateX(100%); } }
 @keyframes vt-back-out { to { transform: translateX(-30%); filter: brightness(0.75); } }
 @keyframes vt-back-in { from { transform: translateX(-30%); filter: brightness(0.75); } }
+
+/* Over the daily limit: the Today card turns into a solid warning panel, unmistakable even on a red-flag trip */
+.hero.over { background: var(--red); color: var(--on-red); }
+.hero.over .muted, .hero.over b { color: var(--on-red); }
+.hero.over .muted { opacity: 0.92; }
+.hero.over .meter { background: color-mix(in srgb, var(--on-red) 28%, transparent); }
+.hero.over .meter i { background: repeating-linear-gradient(-45deg, var(--on-red) 0 7px, color-mix(in srgb, var(--on-red) 55%, var(--red)) 7px 14px); }
+.over-tag { display: inline-flex; align-items: center; gap: 6px; width: fit-content; font-size: 0.85rem; font-weight: 800; padding: 4px 11px 4px 8px; border-radius: 999px; background: var(--on-red); color: var(--red); }
+.over-tag .ic { width: 18px; height: 18px; stroke-width: 2.4; }
+.est-note { margin-top: 2px; }
+.hero.over .est-note { opacity: 1; }
+
+/* missing-dollars alert with its action */
+.alert-act { display: flex; flex-direction: column; gap: 10px; }
+.alert-act p { margin: 0; }
+.alert-act button { align-self: flex-start; min-height: 44px; padding: 0 16px; border: 0; border-radius: 12px; background: var(--red); color: var(--on-red); font: inherit; font-weight: 800; }
+
+/* Add: Save rides just above the tab bar so it is always in reach */
+.save-dock { position: sticky; bottom: calc(env(safe-area-inset-bottom) + 92px); z-index: 4; padding-top: 4px; }
+.save-dock .primary { width: 100%; box-shadow: var(--float); }
+
+/* trips list: hold and drag to reorder */
+.trips li.trip { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; transition: transform 160ms var(--spring), box-shadow 160ms ease-out; }
+.trips li.trip.lifted { transform: scale(1.02); box-shadow: var(--float); position: relative; z-index: 2; }
+.trips.dragging li.trip:not(.lifted) { opacity: 0.85; }
+.hint { text-align: center; width: auto !important; margin: -4px auto 0; }
+.last-export { margin: 0 0 4px; font-weight: 700; color: var(--ink); }
+.last-export.never { color: var(--red); }
 
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }

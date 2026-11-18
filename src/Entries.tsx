@@ -22,7 +22,7 @@ export default function Entries({ store }: { store: Store }) {
   const { data } = store;
   const [filter, setFilter] = useState<Filter>('all');
   const [logging, setLogging] = useState(false);
-  const { optionsButton, overlay } = useEntryActions(store);
+  const { optionsButton, edit, overlay } = useEntryActions(store);
 
   const rows = useMemo<Row[]>(
     () => [
@@ -52,9 +52,14 @@ export default function Entries({ store }: { store: Store }) {
       <button type="button" className="secondary" onClick={() => setLogging(true)}>Log cash bought</button>
 
       {missingCount > 0 && (
-        <p className="alert">
-          {missingCount} card charge{missingCount === 1 ? '' : 's'} still need{missingCount === 1 ? 's' : ''} dollars (outlined in red). Use ⋮ then Edit to add them.
-        </p>
+        <div className="alert alert-act">
+          <p>
+            {missingCount} card charge{missingCount === 1 ? '' : 's'} still need{missingCount === 1 ? 's' : ''} dollars. Until then {missingCount === 1 ? 'it counts' : 'they count'} at the day's market rate (≈).
+          </p>
+          <button type="button" onClick={() => edit(rows.filter(isMissing).sort((a, b) => (a.e.date < b.e.date ? -1 : 1))[0])}>
+            Add dollars{missingCount > 1 ? ' to the oldest' : ''}
+          </button>
+        </div>
       )}
 
       <div className="chips" role="group" aria-label="Filter entries">
@@ -101,14 +106,18 @@ export function RowBody({ r, store }: { r: Row; store: Store }) {
         </span>
         <span className="row-amt">
           <span>{e.yen !== undefined ? formatYen(e.yen) : '—'}</span>
-          {e.cents !== undefined ? <span>{formatDollars(e.cents)}</span> : <span className="need">Needs $</span>}
+          {e.cents !== undefined ? (
+            <span>{formatDollars(e.cents)}</span>
+          ) : (
+            <Estimate cents={store.calcData.cardCharges.find((x) => x.id === e.id)?.cents} />
+          )}
         </span>
       </>
     );
   }
   if (r.kind === 'cash') {
     const { e } = r;
-    const cents = cashYenToCents(e.yen, store.data.cashBought);
+    const cents = e.cents ?? cashYenToCents(e.yen, store.data.cashBought);
     return (
       <>
         <Roundel category={e.category} />
@@ -148,5 +157,16 @@ function Sub({ note, pay }: { note?: string; pay: string }) {
     </span>
   ) : (
     <span className="row-sub">{pay}</span>
+  );
+}
+
+/** A card charge still missing its dollars: the market-rate estimate when there is one, else "Needs $". */
+function Estimate({ cents }: { cents: number | undefined }) {
+  return cents === undefined ? (
+    <span className="need">Needs $</span>
+  ) : (
+    <span className="need" title="Estimated at the day's market rate until you add the real dollars">
+      ≈ {formatDollars(cents)}
+    </span>
   );
 }

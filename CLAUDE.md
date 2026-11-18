@@ -4,7 +4,7 @@ This file is the spec for the app. Read it fully before writing code, and keep t
 
 ## What the app does
 
-This is a personal spending tracker for trips (the first is a trip to Japan, Nov 26 – Dec 20, 2026; the app holds as many trips as I create). I'll use it on my iPhone, added to the Home Screen from Safari. I log each card charge and each cash purchase with its category, and every time I get yen (ATM withdrawal or exchange). The app shows daily totals, budget pace, totals by category, and my real exchange rates, worked out from the amounts I actually paid. It never uses online or default exchange rates.
+This is a personal spending tracker for trips (the first is a trip to Japan, Nov 26 – Dec 20, 2026; the app holds as many trips as I create). I'll use it on my iPhone, added to the Home Screen from Safari. I log each card charge and each cash purchase with its category, and every time I get yen (ATM withdrawal or exchange). The app shows daily totals, budget pace, totals by category, and my real exchange rates, worked out from the amounts I actually paid. It never uses online or default exchange rates for real amounts. The one exception (approved by me): a card charge still missing its dollars is counted at that day's market rate as a clearly marked estimate (≈) until I enter the real dollars.
 
 It replaces a spreadsheet I built, and its behavior should match that spreadsheet.
 
@@ -17,7 +17,7 @@ I'm developing on Windows, so there's no Mac and no Xcode. The app must run as a
   - `idb` (a small IndexedDB wrapper) for storage
   - `vitest` for tests
 - Draw charts as plain SVG components. No chart library.
-- All data stays on the device in IndexedDB. No accounts, no backend, and no network calls after the first load.
+- All data stays on the device in IndexedDB. No accounts and no backend. The only network call after the first load is the market-rate lookup for card charges missing dollars (Frankfurter / ECB reference rates, sends only the date); rates are cached on the device and the app works fully offline without them.
 - On first launch, call `navigator.storage.persist()` to ask the browser to keep the data.
 - Money: store yen as integer yen and dollars as integer cents. Never do money math with floats. Only round rates (yen per $) when displaying them, to 2 decimals.
 - Dates: store each entry as a local calendar date string, `YYYY-MM-DD`. Compare dates as these strings, never with time zones.
@@ -45,7 +45,7 @@ The app holds many **trips**. Every entry below belongs to exactly one trip (sto
 
 **CardCharge**: `id`, `date`, `category`, `card` (all required); `yen` (optional, blank means the item was priced in dollars); `cents` (optional, can be filled in later because card charges take a day or two to finalize); `note` (optional)
 
-**CashPurchase**: `id`, `date`, `category`, `yen` (all required); `note` (optional)
+**CashPurchase**: `id`, `date`, `category`, `yen` (all required); `cents` (optional: the USD actually paid; when set it replaces yen ÷ cash rate for that purchase, and does not change the cash rate or cash on hand); `note` (optional)
 
 **CashBought** (ATM withdrawal or exchange): `id`, `date`, `yen` received, `cents` paid including any ATM or bank fees (all required); `where` (optional)
 
@@ -54,8 +54,9 @@ The app holds many **trips**. Every entry below belongs to exactly one trip (sto
 Put these in a pure TypeScript module (`src/calc.ts`) with no UI code, and test them.
 
 - **Cash rate** = sum of CashBought yen ÷ sum of CashBought dollars (a weighted average over all cash bought). If no cash has been bought yet, the cash rate is undefined.
-- **Cash purchase in dollars** = yen ÷ cash rate. If the cash rate is undefined, show a banner ("Add the cash you bought") and leave cash dollars blank. Never guess a rate.
-- **Card rate** (overall, and for each card) = sum of yen ÷ sum of dollars, counting only charges that have both yen and dollars.
+- **Cash purchase in dollars** = its own USD paid when entered, otherwise yen ÷ cash rate. If the cash rate is undefined, show a banner ("Add the cash you bought") and leave cash dollars blank. Never guess a rate.
+- **Card rate** (overall, and for each card) = sum of yen ÷ sum of dollars, counting only charges that have both yen and real (not estimated) dollars.
+- **Estimated card dollars**: a card charge with yen but no dollars counts at that day's market rate (the closest earlier day with a rate if that day has none; the owner's own card rate when no market rate has been fetched). Estimates feed totals, today's spending and left amounts, and are shown with ≈; they never change the entry or the card and overall rates.
 - **Overall rate** = (card yen with dollars + cash yen spent) ÷ (card dollars with yen + cash dollars).
 
 **Per trip day** (each date from tripStart through tripEnd, inclusive):
@@ -92,7 +93,7 @@ Entries dated outside the trip dates are not counted in the per-day views. Show 
 
 ## Screens
 
-**Trips list (the main page).** The app always opens here, never straight into a trip. It lists the trips (newest first) with name, dates, spent of ceiling, and a status badge. Tap a trip to open it. Each trip has a ⋮ button on its right with **Edit trip** (name, dates, budget ceiling, cards; Save changes / Discard changes) and **Delete trip** (confirmation that says how many entries go with it). A **New trip** button creates a trip. Each trip with a country shows its flag emoji beside its name (and again in the header inside the trip), and its card on the list is outlined in the country's color, with a small jet riding its progress bar. The main color outside a trip (this list and app settings) is white; inside a trip the primary buttons, selected chips, active tab, meters and today's day dot take the country's color (orange when no country is set), and the page background takes a light tint of it. The look (warm white cards, rounded system font, floating tab bar) is recorded in DESIGN.md. The home page shows only the trips and a **New trip** button; a gear button in the top-right corner opens **App settings** with **Appearance** (System / Light / Dark; System follows the phone, and the choice is a per-device preference, not part of backups) and the app-wide tools: **Export backup** (one JSON file holding all trips), **Import backup** (replaces everything, with confirmation; old single-trip backups import as one trip), **Export CSV** (all entries from all trips, with a Trip column), and **Delete all data** (typed confirmation).
+**Trips list (the main page).** The app always opens here, never straight into a trip. It lists the trips, most recently created first, with name, dates, spent of ceiling, and a status badge (after a trip ends the badge reads Under budget or Over budget). Holding a trip and dragging it reorders the list (also Move up / Move down in its ⋮ menu); the order is saved. Tap a trip to open it. Each trip has a ⋮ button on its right with **Edit trip** (name, dates, budget ceiling, cards; Save changes / Discard changes) and **Delete trip** (confirmation that says how many entries go with it). A **New trip** button creates a trip. The card-rename hint shows only when editing an existing trip. App settings shows when a backup was last exported from this device. Each trip with a country shows its flag emoji beside its name (and again in the header inside the trip), and its card on the list is outlined in the country's color, with a small jet riding its progress bar. The main color outside a trip (this list and app settings) is white; inside a trip the primary buttons, selected chips, active tab, meters and today's day dot take the country's color (orange when no country is set), and the page background takes a light tint of it. The look (warm white cards, rounded system font, floating tab bar) is recorded in DESIGN.md. The home page shows only the trips and a **New trip** button; a gear button in the top-right corner opens **App settings** with **Appearance** (System / Light / Dark; System follows the phone, and the choice is a per-device preference, not part of backups) and the app-wide tools: **Export backup** (one JSON file holding all trips), **Import backup** (replaces everything, with confirmation; old single-trip backups import as one trip), **Export CSV** (all entries from all trips, with a Trip column), and **Delete all data** (typed confirmation).
 
 Inside a trip, a "‹ Trips" button at the top goes back to the list. A trip always opens on the Summary tab. Use a bottom tab bar:
 
@@ -101,6 +102,8 @@ Inside a trip, a "‹ Trips" button at the top goes back to the list. A trip alw
 3. **Entries**: lists of card charges, cash purchases, and cash bought, grouped by day, with filters All / Card / Cash / Cash bought. A **Log cash bought** button at the top opens a small form for an ATM withdrawal or exchange (yen received, dollars paid including fees, date, where). Tapping an entry does nothing; each row has a ⋮ button on its right that opens Edit / Delete / Cancel. Delete asks for confirmation. After saving a new entry (card, cash, or cash bought), saving an edit, or deleting an entry, an **Undo** button appears for about 7 seconds above the tab bar; it removes the new entry, restores the previous values, or brings the deleted entry back. Edit opens a sheet with "Save changes" and "Discard changes" at the bottom. Card charges still missing dollars are outlined in red, with a note above the list; fill them in through Edit.
 4. **Days**: the daily log with Total $, Total ¥, rate, over/under, card/cash split, and running total vs. running limit. Tapping a day shows its entries.
 5. **Payments**: By payment (dollars for each card, card charges with no card picked, cash), Cash and rates (cash on hand, overall, cash and card rates, per-card rates, best and worst day rate), and Days stats (days with spending, over and under the limit, biggest and smallest day). A trip's name, dates, budget ceiling and cards are edited from the trips list (⋮ → Edit trip); there is no Settings tab inside a trip.
+
+Over the daily limit, the Today card turns into a solid warning panel (a vermilion distinct from any country color, with a warning tag and striped bar). After saving an entry, the Undo message also says how much is left for that day (or how far over). On Add, the Save button stays just above the tab bar. The Entries missing-dollars alert has an **Add dollars** button that opens the oldest such charge. Cash entries (Add and Edit) have an optional **USD paid** field. Pop-up sheets stack their buttons (main action first), and Escape or a tap outside closes a sheet only while nothing in it has been changed. Only the content area scrolls; the header and tab bar never move.
 
 Navigation is animated, quickly: opening a trip or App settings slides the whole new screen in from the right over the old one, and going back slides it away to the right to reveal the screen underneath (on browsers without View Transitions, only the page content slides); switching tabs slides a short way toward the tapped tab, and sheets rise from the bottom. All motion is off when the device asks for reduced motion.
 

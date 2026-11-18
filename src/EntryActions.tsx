@@ -4,6 +4,7 @@ import EditSheet, { restoreRow, type Row } from './EditSheet';
 import { useUndo } from './undo';
 import Icon from './icons';
 import { dayLabel } from './money';
+import SheetBackdrop from './SheetBackdrop';
 import type { Store } from './store';
 
 const STORES = { card: 'cardCharges', cash: 'cashPurchases', bought: 'cashBought' } as const;
@@ -17,6 +18,8 @@ function describe(r: Row): string {
   else parts.push(r.kind === 'card' ? r.e.category : `${r.e.category} (cash)`);
   if (r.e.yen !== undefined) parts.push(formatYen(r.e.yen));
   if ('cents' in r.e && r.e.cents !== undefined) parts.push(formatDollars(r.e.cents));
+  if ('note' in r.e && r.e.note) parts.push(r.e.note);
+  if (r.kind === 'card' && r.e.card) parts.push(r.e.card);
   parts.push(dayLabel(r.e.date));
   return parts.join(', ');
 }
@@ -28,6 +31,8 @@ function describe(r: Row): string {
  */
 export function useEntryActions(store: Store): {
   optionsButton: (r: Row) => ReactNode;
+  /** Open the edit sheet for an entry straight away (e.g. from the missing-dollars alert). */
+  edit: (r: Row) => void;
   overlay: ReactNode;
 } {
   const [state, setState] = useState<{ step: Step; kind: Row['kind']; id: string } | null>(null);
@@ -66,29 +71,29 @@ export function useEntryActions(store: Store): {
       overlay = <EditSheet key={row.kind + row.e.id} row={row} store={store} onClose={close} />;
     } else if (state.step === 'menu') {
       overlay = (
-        <div className="sheet-backdrop" onClick={close}>
-          <div className="sheet menu" role="dialog" aria-modal="true" aria-label="Entry options" onClick={(e) => e.stopPropagation()}>
+        <SheetBackdrop onClose={close}>
+          <div className="sheet menu" role="dialog" aria-modal="true" aria-label="Entry options">
             <p className="menu-title">{describe(row)}</p>
             <button type="button" className="secondary" onClick={() => open(row, 'edit')}>Edit</button>
             <button type="button" className="danger" onClick={() => open(row, 'confirm')}>Delete</button>
             <button type="button" className="secondary" onClick={close}>Cancel</button>
           </div>
-        </div>
+        </SheetBackdrop>
       );
     } else {
       overlay = (
-        <div className="sheet-backdrop" onClick={close}>
-          <div className="sheet menu" role="alertdialog" aria-modal="true" aria-label="Confirm delete" onClick={(e) => e.stopPropagation()}>
+        <SheetBackdrop onClose={close}>
+          <div className="sheet menu" role="alertdialog" aria-modal="true" aria-label="Confirm delete">
             <h2>Delete this entry?</h2>
             <p className="menu-title">{describe(row)}</p>
-            <p className="muted small">This can't be undone.</p>
+            <p className="muted small">You can undo it for a few seconds afterwards.</p>
             <button type="button" className="danger armed" onClick={() => void remove()}>Delete</button>
             <button type="button" className="secondary" onClick={close}>Cancel</button>
           </div>
-        </div>
+        </SheetBackdrop>
       );
     }
   }
 
-  return { optionsButton, overlay };
+  return { optionsButton, edit: (r) => open(r, 'edit'), overlay };
 }

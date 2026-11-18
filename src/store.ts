@@ -1,6 +1,8 @@
-import { useCallback, useEffect, useState } from 'react';
-import type { CardCharge, CashBought, CashPurchase, Data, Settings, Trip } from './calc';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { applyEstimates, type CardCharge, type CashBought, type CashPurchase, type Data, type Settings, type Trip } from './calc';
 import * as db from './db';
+import { todayLocal } from './money';
+import { fetchSpotRate } from './rates';
 import type { EntryMap, EntryStore, Prefs, TripWithData } from './db';
 
 export const EMPTY_DATA: Data = { cardCharges: [], cashPurchases: [], cashBought: [] };
@@ -11,6 +13,10 @@ export interface App {
   trips: Trip[];
   data: Record<string, Data>;
   prefs: Record<string, Prefs>;
+  /** Market rates fetched for days with card charges still missing dollars (YYYY-MM-DD → yen per $). */
+  spot: Record<string, number>;
+  /** A trip's entries with estimated dollars filled in for card charges still missing them (for totals only). */
+  calcData(tripId: string): Data;
   saveEntry<S extends EntryStore>(store: S, tripId: string, entry: EntryMap[S]): Promise<void>;
   removeEntry(tripId: string, store: EntryStore, id: string): Promise<void>;
   setPrefs(tripId: string, p: Prefs): Promise<void>;
@@ -25,7 +31,12 @@ export interface App {
 export interface Store {
   trip: Trip;
   settings: Settings;
+  /** The entries exactly as entered. Use this for lists and editing. */
   data: Data;
+  /** The entries with estimated dollars on card charges still missing them. Use this for totals. */
+  calcData: Data;
+  /** Cached market rates (YYYY-MM-DD → yen per $) used for estimates. */
+  spot: Record<string, number>;
   prefs: Prefs;
   addCardCharge(e: CardCharge): Promise<void>;
   addCashPurchase(e: CashPurchase): Promise<void>;
@@ -45,16 +56,41 @@ export function useApp(): App {
   const [trips, setTrips] = useState<Trip[]>([]);
   const [data, setData] = useState<Record<string, Data>>({});
   const [prefs, setPrefsState] = useState<Record<string, Prefs>>({});
+  const [spot, setSpot] = useState<Record<string, number>>({});
+  const tried = useRef(new Set<string>());
 
   useEffect(() => {
     void db.requestPersistence();
-    db.loadApp().then((r) => {
+    Promise.all([db.loadApp(), db.loadSpotRates()]).then(([r, rates]) => {
       setTrips(r.trips);
       setData(r.data);
       setPrefsState(r.prefs);
+      setSpot(rates);
       setReady(true);
     });
   }, []);
+
+  // Look up the market rate for each day that has a card charge still missing dollars (once per day, when online).
+  useEffect(() => {
+    if (!ready) return;
+    const today = todayLocal();
+    const wanted = new Set<string>();
+    for (const d of Object.values(data))
+      for (const c of d.cardCharges) if (c.cents === undefined && c.yen && !spot[c.date] && !tried.current.has(c.date)) wanted.add(c.date > today ? today : c.date);
+    for (const date of wanted) {
+      tried.current.add(date);
+      void fetchSpotRate(date).then((rate) => {
+        if (rate === undefined) {
+          tried.current.delete(date); // try again next time something changes
+          return;
+        }
+        void db.saveSpotRate(date, rate);
+        setSpot((all) => ({ ...all, [date]: rate }));
+      });
+    }
+  }, [ready, data, spot]);
+
+  const calcData = useCallback((tripId: string) => applyEstimates(data[tripId] ?? EMPTY_DATA, spot), [data, spot]);
 
   const saveEntry = useCallback(async <S extends EntryStore>(store: S, tripId: string, entry: EntryMap[S]) => {
     await db.putEntry(store, tripId, entry);
@@ -106,7 +142,7 @@ export function useApp(): App {
 
   const deleteAll = useCallback(() => replaceAll([]), [replaceAll]);
 
-  return { ready, trips, data, prefs, saveEntry, removeEntry, setPrefs, saveTrip, deleteTrip, replaceAll, deleteAll };
+  return { ready, trips, data, prefs, spot, calcData, saveEntry, removeEntry, setPrefs, saveTrip, deleteTrip, replaceAll, deleteAll };
 }
 
 /** A view of the app scoped to one trip, in the shape the trip screens expect. */
@@ -116,6 +152,8 @@ export function tripStore(app: App, trip: Trip): Store {
     trip,
     settings: trip,
     data: app.data[id] ?? EMPTY_DATA,
+    calcData: app.calcData(id),
+    spot: app.spot,
     prefs: app.prefs[id] ?? {},
     addCardCharge: (e) => app.saveEntry('cardCharges', id, e),
     addCashPurchase: (e) => app.saveEntry('cashPurchases', id, e),

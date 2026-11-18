@@ -1,17 +1,22 @@
+import { useToday } from './useToday';
 import { useMemo } from 'react';
 import { computeSummary, formatDollars } from './calc';
-import { dayLabel, todayLocal } from './money';
+import { dayLabel } from './money';
+import Icon from './icons';
 import { Roundel } from './Roundel';
+import { statusBadge } from './status';
 import type { Store } from './store';
 
 export default function Summary({ store }: { store: Store }) {
   const { data, settings } = store;
-  const today = todayLocal();
-  const s = useMemo(() => computeSummary(data, settings, today), [data, settings, today]);
+  const today = useToday();
+  const s = useMemo(() => computeSummary(store.calcData, settings, today), [store.calcData, settings, today]);
 
   const outsideCount = s.outside.cardCharges.length + s.outside.cashPurchases.length + s.outside.cashBought.length;
-  const pillClass = s.status === 'Over pace' ? 'red' : s.status === 'On pace' ? '' : 'idle';
+  const badge = statusBadge(s, store.trip, today);
   const finished = today > settings.tripEnd;
+  const over = s.focusDay.leftCents < 0;
+  const estimatedToday = store.calcData.cardCharges.filter((c) => c.estimated && c.date === s.focusDay.date);
   const showCashBanner = s.cashRateMissing && data.cashPurchases.length > 0;
 
   return (
@@ -46,10 +51,18 @@ export default function Summary({ store }: { store: Store }) {
         )}
 
         {!finished && (
-        <section className="card hero" aria-label="Today">
-          <div className={`big ${s.focusDay.leftCents < 0 ? 'bad-text' : ''}`}>{formatDollars(s.focusDay.leftCents)}</div>
-          <span className="muted small">{s.focusDay.leftCents < 0
-              ? 'Over the daily limit'
+        <section className={`card hero${over ? ' over' : ''}`} aria-label="Today">
+          {over && (
+            <span className="over-tag">
+              <Icon name="alert" />
+              Over the limit
+            </span>
+          )}
+          <div className="big">{formatDollars(Math.abs(s.focusDay.leftCents))}</div>
+          <span className="muted small">{over
+              ? s.focusDay.kind === 'today'
+                ? "Over today's limit"
+                : `Over the limit on ${dayLabel(s.focusDay.date)}`
               : s.focusDay.kind === 'today'
                 ? 'Left today'
                 : s.focusDay.kind === 'upcoming'
@@ -59,13 +72,18 @@ export default function Summary({ store }: { store: Store }) {
           <span className="muted small">
             {s.focusDay.kind === 'today' ? 'Spent today' : 'Spent'} <b>{formatDollars(s.focusDay.spentCents)}</b> of {formatDollars(s.dailyLimitCents)}
           </span>
+          {estimatedToday.length > 0 && (
+            <span className="muted small est-note">
+              Includes ≈ {formatDollars(estimatedToday.reduce((t, c) => t + (c.cents ?? 0), 0))} estimated at the market rate for {estimatedToday.length} card charge{estimatedToday.length === 1 ? '' : 's'} still missing dollars.
+            </span>
+          )}
         </section>
         )}
 
         <section className="card" aria-label="Budget">
           <div className="card-head">
             <span className="muted small">Spent of {formatDollars(settings.budgetCeilingCents)} ceiling</span>
-            <span className={`pill ${pillClass}`}>{s.status}</span>
+            <span className={`pill ${badge.cls}`}>{badge.label}</span>
           </div>
           <div className="big">{formatDollars(s.totalSpentCents)}</div>
           <Meter part={s.totalSpentCents} whole={settings.budgetCeilingCents} />
