@@ -166,5 +166,3 @@ Deploy to GitHub Pages with a GitHub Actions workflow that builds on every push 
 **Per-device preferences (localStorage, not in backups):** `trip-tracker-theme` (light, dark or system) and `trip-tracker-summary-cards` (the Summary card layout, shared by all trips).
 
 **Checking work:** `npm test` and `npm run build` (the build type-checks). In the Claude desktop browser pane, seed test data with `await import('/src/db.ts')` (`saveTrip(trip, [])`, `putEntry(store, tripId, entry)`), always delete it afterwards, and reset the viewport. The pane pauses animations and view transitions when hidden (inject `*{animation:none!important;transition:none!important}` and set `document.startViewTransition = undefined`), cannot show real keyboard focus or open a keyboard, and the dev server has occasionally served a stale file after scripted edits (restart it). Avoid `tsc -b` (it writes stray `.js` files into `src/`); use `npx tsc --noEmit -p tsconfig.json`.
-
-**Design tooling:** the Impeccable plugin's files live in `.impeccable/` (critique snapshots, design sidecar); `.impeccable/live/` is scratch and is never committed.

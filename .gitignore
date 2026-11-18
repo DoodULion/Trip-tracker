@@ -5,10 +5,3 @@ dist
 # Personal desktop shortcuts and local tool state
 *.lnk
 .claude/settings.local.json
-
-# Design-tool scratch output (the documents PRODUCT.md, DESIGN.md and .impeccable/design.json stay)
-.impeccable/mocks/
-.impeccable/review/
-.impeccable/draft/
-.impeccable/questions/
-.impeccable/build/
