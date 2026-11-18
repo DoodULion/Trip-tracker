@@ -4,7 +4,7 @@ import Days from './Days';
 import Entries from './Entries';
 import Home from './Home';
 import Icon, { type IconName } from './icons';
-import Payments from './Payments';
+import Stats from './Stats';
 import Summary from './Summary';
 import { tripStore, useApp, type App as AppState } from './store';
 import Backdrop from './Backdrop';
@@ -15,14 +15,14 @@ import { useToday } from './useToday';
 import { todayLocal } from './money';
 import { navigate } from './navMotion';
 
-type Tab = 'summary' | 'add' | 'entries' | 'days' | 'payments';
+type Tab = 'summary' | 'add' | 'entries' | 'days' | 'stats';
 
 const TABS: { id: Tab; label: string; icon: IconName }[] = [
   { id: 'summary', label: 'Summary', icon: 'summary' },
   { id: 'add', label: 'Add', icon: 'add' },
   { id: 'entries', label: 'Entries', icon: 'entries' },
   { id: 'days', label: 'Days', icon: 'days' },
-  { id: 'payments', label: 'Payments', icon: 'payments' },
+  { id: 'stats', label: 'Stats', icon: 'stats' },
 ];
 
 /** How a page enters: pushed in from the right, popped back from the left, or no motion (first launch). */
@@ -123,7 +123,7 @@ function TripView({ app, trip, enter, onBack }: { app: AppState; trip: Trip; ent
           ) : tab === 'days' ? (
             <Days store={store} />
           ) : (
-            <Payments store={store} />
+            <Stats store={store} />
           )}
         </div>
       </main>

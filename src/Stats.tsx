@@ -5,7 +5,7 @@ import { dayLabel } from './money';
 import type { Store } from './store';
 
 /** Cash on hand, real exchange rates, spending by payment method, and day stats. */
-export default function Payments({ store }: { store: Store }) {
+export default function Stats({ store }: { store: Store }) {
   const { data, settings } = store;
   const today = useToday();
   const s = useMemo(() => computeSummary(store.calcData, settings, today), [store.calcData, settings, today]);
@@ -15,7 +15,7 @@ export default function Payments({ store }: { store: Store }) {
 
   return (
     <div className="screen">
-      <h1>Payments</h1>
+      <h1>Stats</h1>
 
       {cashMissing && <p className="banner">Add the cash you bought. Cash dollars stay blank until you do.</p>}
 

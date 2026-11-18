@@ -464,7 +464,7 @@ html[data-nav] .band-in { animation: none; } /* the whole screen is already slid
 .cat-list li span:not(.rd) { flex: 1; }
 .link-danger { border: 0; background: none; color: var(--red); font: inherit; font-weight: 800; min-height: 44px; padding: 0 4px; }
 
-/* Payments: one column on a phone; on wide screens Cash and rates stands beside By payment + Days, no holes */
+/* Stats: one column on a phone; on wide screens Cash and rates stands beside By payment + Days, no holes */
 .pay-grid { display: grid; grid-template-columns: 1fr; gap: 14px; }
 @media (min-width: 700px) {
   .pay-grid { grid-template-columns: 1fr 1fr; grid-template-areas: 'pay rates' 'days rates'; grid-template-rows: auto 1fr; align-items: start; }
