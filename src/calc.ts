@@ -225,6 +225,11 @@ export function computeDays(data: Data, s: Settings): DayRow[] {
     const hasEntries = charges.length + cash.length > 0;
     const totalYen = cardYen + cashYen;
     const totalCents = cardCents + (cashCents ?? 0);
+    // The day rate uses real amounts only: a card charge still waiting for its dollars (estimated or not)
+    // is left out on both sides, so a market-rate estimate never shows up as one of the owner's rates.
+    const pending = charges.filter((c) => c.yen && (c.cents === undefined || c.estimated));
+    const rateYen = cardYen + cashYen - sum(pending.map((c) => c.yen ?? 0));
+    const rateCents = totalCents - sum(pending.map((c) => (c.estimated ? (c.cents ?? 0) : 0)));
     const yenByCategory = emptyCategoryMap(names);
     for (const c of charges) yenByCategory[c.category] += c.yen ?? 0;
     for (const c of cash) yenByCategory[c.category] += c.yen;
@@ -238,7 +243,7 @@ export function computeDays(data: Data, s: Settings): DayRow[] {
       cashCents,
       totalYen,
       totalCents,
-      rate: totalYen > 0 && totalCents > 0 ? (totalYen * 100) / totalCents : undefined,
+      rate: rateYen > 0 && rateCents > 0 ? (rateYen * 100) / rateCents : undefined,
       yenByCategory,
       limitCents: limit,
       overUnderCents: hasEntries ? totalCents - limit : undefined,

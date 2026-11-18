@@ -1,9 +1,10 @@
 import { useToday } from './useToday';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { computeDays, formatDollars, formatRate, formatYen } from './calc';
 import { RowBody } from './Entries';
 import { type Row } from './EditSheet';
 import { useEntryActions } from './EntryActions';
+import Icon from './icons';
 import { dayLabel } from './money';
 import type { Store } from './store';
 
@@ -12,6 +13,17 @@ export default function Days({ store }: { store: Store }) {
   const today = useToday();
   const days = useMemo(() => computeDays(store.calcData, settings), [store.calcData, settings]);
   const [open, setOpen] = useState<string | null>(null);
+  const listRef = useRef<HTMLOListElement>(null);
+
+  // Open on today: scroll so today's day sits near the top (a little of yesterday still shows above it).
+  useEffect(() => {
+    const main = listRef.current?.closest('main');
+    const now = listRef.current?.querySelector<HTMLElement>('.st.now');
+    if (!main || !now) return;
+    const offset = now.getBoundingClientRect().top - main.getBoundingClientRect().top + main.scrollTop - 72;
+    main.scrollTo(0, Math.max(0, offset));
+    // Only on arrival: later changes (expanding a day, new entries) must not move the list.
+  }, []);
   const { optionsButton, overlay } = useEntryActions(store);
 
   const rowsFor = (date: string): Row[] =>
@@ -23,12 +35,12 @@ export default function Days({ store }: { store: Store }) {
   return (
     <div className="screen">
       <h1>Days</h1>
-      <ol className="map">
+      <ol className="map" ref={listRef}>
         {days.map((d, i) => {
           const isOpen = open === d.date && d.hasEntries;
           const cashMissing = d.cashYen > 0 && d.cashCents === undefined;
           const over = d.overUnderCents;
-          const state = d.date === today ? 'now' : d.hasEntries ? '' : 'empty';
+          const state = d.date === today ? 'now' : d.hasEntries ? '' : 'blank';
           return (
             <li key={d.date} className={`st ${state}`} aria-current={d.date === today ? 'date' : undefined}>
               <span className="node" aria-hidden="true">{i + 1}</span>
@@ -39,7 +51,15 @@ export default function Days({ store }: { store: Store }) {
                 </span>
                 <span className="st-amt">
                   {d.hasEntries ? formatDollars(d.totalCents) : ''}
-                  {over !== undefined && <small className={over > 0 ? 'over' : ''}>{over > 0 ? `${formatDollars(over)} over` : `${formatDollars(-over)} under`}</small>}
+                  {over !== undefined &&
+                    (over > 0 ? (
+                      <small className="over">
+                        <Icon name="alert" />
+                        {formatDollars(over)} over
+                      </small>
+                    ) : (
+                      <small>{formatDollars(-over)} under</small>
+                    ))}
                 </span>
               </button>
 

@@ -63,7 +63,7 @@ Put these in a pure TypeScript module (`src/calc.ts`) with no UI code, and test 
 - Card yen, card dollars, cash yen, cash dollars
 - Total ¥ = card yen + cash yen
 - Total $ = card dollars + cash dollars
-- Day rate = Total ¥ ÷ Total $ (only when both are present)
+- Day rate = Total ¥ ÷ Total $ (only when both are present), counting real amounts only: a card charge still missing its dollars (estimated or not) is left out of the day rate on both sides, so best and worst day rate never come from an estimate
 - Yen by category = card yen + cash yen in that category
 - Daily limit = budget ceiling ÷ trip length in days
 - Over/under = Total $ − daily limit. Show red if over, green if under.

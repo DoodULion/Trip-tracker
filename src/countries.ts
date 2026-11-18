@@ -148,6 +148,28 @@ export function forLight(hex: string): string {
   return readable(hex, 'black');
 }
 
+/** Hue (0-360) and saturation (0-1) of a hex color. */
+function hueSat(hex: string): [number, number] {
+  const [r, g, b] = rgb(hex).map((v) => v / 255);
+  const max = Math.max(r, g, b);
+  const min = Math.min(r, g, b);
+  const d = max - min;
+  if (d === 0) return [0, 0];
+  const l = (max + min) / 2;
+  const s = d / (1 - Math.abs(2 * l - 1));
+  const h = max === r ? ((g - b) / d) % 6 : max === g ? (b - r) / d + 2 : (r - g) / d + 4;
+  return [(h * 60 + 360) % 360, s];
+}
+
+/**
+ * True for a country color in the same family as the app's warning red (crimsons, scarlets, vermilions).
+ * Such trips draw their money meters in ink, so red on a meter always means "over".
+ */
+export function isReddish(hex: string): boolean {
+  const [h, s] = hueSat(hex);
+  return s > 0.35 && (h >= 330 || h <= 28);
+}
+
 /**
  * Inline CSS variables that retheme a trip (used with the `.themed` class). A trip with no (known)
  * country gets the default orange.
@@ -161,5 +183,7 @@ export function tripTheme(code: string | undefined): CSSProperties {
     '--on-brand': onColor(light),
     '--brand-dark': dark,
     '--on-brand-dark': onColor(dark),
+    // Money meters normally take the trip color; on a red trip they take the ink so they never look "over".
+    ...(isReddish(base) ? { '--meter': 'var(--ink)' } : {}),
   } as CSSProperties;
 }

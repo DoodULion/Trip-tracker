@@ -31,19 +31,19 @@ export default function Summary({ store }: { store: Store }) {
             <div className="card-head">
               <span className="muted small">Trip complete, {s.tripLength} days</span>
             </div>
-            <div className="big">{formatDollars(s.totalSpentCents)}</div>
+            <Big>{formatDollars(s.totalSpentCents)}</Big>
             <span className="muted small">Total spent of {formatDollars(settings.budgetCeilingCents)}</span>
             <div className="rule">
               <div>
-                <b>{formatDollars(s.tripAverageCents)}</b>
+                <Fig>{formatDollars(s.tripAverageCents)}</Fig>
                 <span>Average per day</span>
               </div>
               <div>
-                <b>{s.biggestDay ? formatDollars(s.biggestDay.cents) : '—'}</b>
+                <Fig>{s.biggestDay ? formatDollars(s.biggestDay.cents) : '—'}</Fig>
                 <span>Most spent{s.biggestDay ? `, ${dayLabel(s.biggestDay.date)}` : ''}</span>
               </div>
               <div>
-                <b>{s.smallestDay ? formatDollars(s.smallestDay.cents) : '—'}</b>
+                <Fig>{s.smallestDay ? formatDollars(s.smallestDay.cents) : '—'}</Fig>
                 <span>Least spent{s.smallestDay ? `, ${dayLabel(s.smallestDay.date)}` : ''}</span>
               </div>
             </div>
@@ -58,7 +58,7 @@ export default function Summary({ store }: { store: Store }) {
               Over the limit
             </span>
           )}
-          <div className="big">{formatDollars(Math.abs(s.focusDay.leftCents))}</div>
+          <Big>{formatDollars(Math.abs(s.focusDay.leftCents))}</Big>
           <span className="muted small">{over
               ? s.focusDay.kind === 'today'
                 ? "Over today's limit"
@@ -85,25 +85,23 @@ export default function Summary({ store }: { store: Store }) {
             <span className="muted small">Spent of {formatDollars(settings.budgetCeilingCents)} ceiling</span>
             <span className={`pill ${badge.cls}`}>{badge.label}</span>
           </div>
-          <div className="big">{formatDollars(s.totalSpentCents)}</div>
+          <Big>{formatDollars(s.totalSpentCents)}</Big>
           <Meter part={s.totalSpentCents} whole={settings.budgetCeilingCents} />
           <div className="part">
             <h3>{s.leftTodayCents !== undefined ? 'Rest of the trip' : 'Whole trip'}</h3>
             <div className={finished ? 'rule one' : 'rule'}>
               <div>
-                <b className={s.remainingCents < 0 ? 'bad-text' : ''}>{formatDollars(s.remainingCents)}</b>
+                <Fig className={s.remainingCents < 0 ? 'bad-text' : ''}>{formatDollars(s.remainingCents)}</Fig>
                 <span>Remaining</span>
               </div>
               {!finished && (
                 <>
                   <div>
-                    <b>{s.leftPerDayCents === undefined ? '—' : formatDollars(s.leftPerDayCents)}</b>
+                    <Fig>{s.leftPerDayCents === undefined ? '—' : formatDollars(s.leftPerDayCents)}</Fig>
                     <span>Left per day</span>
                   </div>
                   <div>
-                    <b>
-                      {s.daysLeft} of {s.tripLength}
-                    </b>
+                    <Fig>{`${s.daysLeft} of ${s.tripLength}`}</Fig>
                     <span>Days left</span>
                   </div>
                 </>
@@ -155,6 +153,28 @@ function Meter({ part, whole }: { part: number; whole: number }) {
   return (
     <div className={`meter${part > whole ? ' over' : ''}${part <= 0 ? ' zero' : ''}`} aria-hidden="true">
       <i style={{ ['--p' as string]: p }} />
+    </div>
+  );
+}
+
+/*
+ * Figures size themselves to their length: each one is shrunk only as far as needed for all of its
+ * characters to fit its column (CSS reads --chars), so "$10,000.00" and "$400.00" never run together.
+ */
+const chars = (text: string) => ({ ['--chars' as string]: Math.max(text.length, 4) });
+
+function Fig({ children, className = '' }: { children: string; className?: string }) {
+  return (
+    <b className={`fig ${className}`} style={chars(children)}>
+      {children}
+    </b>
+  );
+}
+
+function Big({ children }: { children: string }) {
+  return (
+    <div className="big fit" style={chars(children)}>
+      {children}
     </div>
   );
 }

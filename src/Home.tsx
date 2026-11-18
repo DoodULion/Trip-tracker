@@ -261,9 +261,15 @@ function TripList({ trips, app, today, onOpen, onMenu, onReorder }: {
     const items = [...(listRef.current?.querySelectorAll<HTMLLIElement>('li.trip') ?? [])];
     const others = items.filter((li) => li.dataset.id !== dragId);
     let index = 0;
+    // A card counts as "before" the finger in reading order. One column (phone): the finger is past its middle.
+    // Two-up grid (wide): the finger is below its row, or on its row and right of its middle.
+    const grid = listRef.current ? getComputedStyle(listRef.current).display === 'grid' : false;
     for (const li of others) {
       const r = li.getBoundingClientRect();
-      if (e.clientY > r.top + r.height / 2) index++;
+      const before = grid
+        ? e.clientY > r.bottom || (e.clientY >= r.top && e.clientX > r.left + r.width / 2)
+        : e.clientY > r.top + r.height / 2;
+      if (before) index++;
     }
     setDraft((cur) => {
       const ids = (cur ?? order).filter((x) => x !== dragId);

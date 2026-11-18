@@ -350,3 +350,21 @@ describe('category list', () => {
     expect(s2.byCategory.map((x) => x.category).slice(0, 2)).toEqual(['Food', 'Transportation']);
   });
 });
+
+describe('day rate with charges still missing dollars', () => {
+  const pending: Data = { ...data, cardCharges: [...data.cardCharges, { id: 'p', date: '2026-11-27', category: 'Shopping', yen: 15000, card: 'Apple Card' }] };
+  it('leaves an estimated charge out of the day rate but keeps it in the day total', () => {
+    const d = computeDays(applyEstimates(pending, { '2026-11-27': 150 }), S).find((r) => r.date === '2026-11-27')!;
+    expect(formatRate(d.rate)).toBe('158.24'); // same as without the pending charge
+    expect(formatDollars(d.totalCents)).toBe('$221.33'); // $121.33 + ≈$100.00
+  });
+  it('leaves a charge with no dollars and no estimate out of the day rate too', () => {
+    const d = computeDays(pending, S).find((r) => r.date === '2026-11-27')!;
+    expect(formatRate(d.rate)).toBe('158.24');
+  });
+  it('keeps estimates out of best and worst day rate', () => {
+    const s2 = computeSummary(applyEstimates(pending, { '2026-11-27': 100 }), S, today);
+    expect(formatRate(s2.bestDayRate?.rate)).toBe('159.18');
+    expect(formatRate(s2.worstDayRate?.rate)).toBe('150.00');
+  });
+});

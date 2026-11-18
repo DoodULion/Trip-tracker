@@ -72,6 +72,7 @@ export default function Entries({ store }: { store: Store }) {
 
       {groups.length === 0 && <p className="muted">{rows.length === 0 ? 'Nothing logged yet. Use the Add tab.' : 'No entries match this filter.'}</p>}
 
+      <div className="day-groups">
       {groups.map((g) => (
         <section key={g.date} className="day-group">
           <h2>{dayLabel(g.date)}</h2>
@@ -87,6 +88,7 @@ export default function Entries({ store }: { store: Store }) {
           </ul>
         </section>
       ))}
+      </div>
 
       {overlay}
       {logging && <CashBoughtSheet store={store} onClose={() => setLogging(false)} />}

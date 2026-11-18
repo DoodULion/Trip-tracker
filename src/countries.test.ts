@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { COUNTRIES, DARK_PANEL, DEFAULT_BRAND, contrast, findCountry, flagEmoji, forDark, forLight, onColor, tripTheme } from './countries';
+import { COUNTRIES, DARK_PANEL, DEFAULT_BRAND, contrast, findCountry, flagEmoji, forDark, forLight, isReddish, onColor, tripTheme } from './countries';
 
 describe('flagEmoji', () => {
   it('builds a flag from the ISO code', () => {
@@ -64,5 +64,17 @@ describe('tripTheme', () => {
   it('falls back to the default orange with no or an unknown country', () => {
     expect((tripTheme(undefined) as Record<string, string>)['--brand']).toBe(DEFAULT_BRAND);
     expect((tripTheme('ZZ') as Record<string, string>)['--brand']).toBe(DEFAULT_BRAND);
+  });
+});
+
+describe('red country colors', () => {
+  it('spots colors in the warning-red family', () => {
+    for (const code of ['JP', 'CA', 'CN', 'CH', 'TR', 'TH']) expect(isReddish(findCountry(code)!.color)).toBe(true);
+    for (const code of ['US', 'MX', 'KR', 'FR']) expect(isReddish(findCountry(code)!.color)).toBe(false);
+    expect(isReddish(DEFAULT_BRAND)).toBe(false); // the default orange keeps its meters
+  });
+  it('gives red trips ink meters and leaves others alone', () => {
+    expect((tripTheme('JP') as Record<string, string>)['--meter']).toBe('var(--ink)');
+    expect((tripTheme('MX') as Record<string, string>)['--meter']).toBeUndefined();
   });
 });

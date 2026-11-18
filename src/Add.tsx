@@ -86,7 +86,8 @@ export default function Add({ store }: { store: Store }) {
 
   return (
     <>
-    <form className="screen" onSubmit={submit}>
+    <form className="screen add-form" onSubmit={submit}>
+      <div className="add-col">
       <div className="seg" role="tablist" aria-label="Entry type">
         {MODES.map((m) => (
           <button
@@ -131,6 +132,9 @@ export default function Add({ store }: { store: Store }) {
           </button>
         </div>
       </div>
+      </div>
+
+      <div className="add-col">
 
       {mode === 'card' && (
         <div className="field">
@@ -161,7 +165,7 @@ export default function Add({ store }: { store: Store }) {
 
       {error && <p className="error" role="alert">{error}</p>}
       <button type="submit" className="primary">Save</button>
-
+      </div>
     </form>
     {naming === 'category' && (
       <NameSheet
