@@ -103,3 +103,10 @@ describe('category list', () => {
     expect(parseBackup(JSON.stringify(plain)).categories).toEqual(['Food', 'Shopping', 'Suica', 'Activities', 'Transportation', 'Misc', 'Gifts']);
   });
 });
+
+describe('trip categories in backups', () => {
+  it('keeps a trip’s own categories', () => {
+    const t: BackupTrip = { ...japan, trip: { ...japan.trip, categories: ['Food', 'Suica'] } };
+    expect(parseBackup(JSON.stringify(buildBackup([t]))).trips[0].trip.categories).toEqual(['Food', 'Suica']);
+  });
+});

@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import type { Trip } from './calc';
+import { suggestCategories, type Trip } from './calc';
+import { Roundel } from './Roundel';
 import { COUNTRIES, flagEmoji } from './countries';
 import { currencyFor } from './currency';
 import { centsToAmountInput, formatAmountInput, newId, parseCents } from './money';
@@ -21,10 +22,14 @@ interface Props {
   confirmSaved?: boolean;
   /** How many entries the trip already has (to warn when a new country changes the currency they are read in). */
   entryCount?: number;
+  /** The owner's whole category list. */
+  library: string[];
+  /** How often each category was used on the owner's other trips (learned suggestions). */
+  usage: Record<string, number>;
 }
 
 /** Name, dates, budget ceiling and cards for one trip. Used to create and edit trips from the trips list. */
-export default function TripForm({ initial, saveLabel, discardLabel = 'Discard changes', onSave, onDiscard, confirmSaved, entryCount = 0 }: Props) {
+export default function TripForm({ initial, saveLabel, discardLabel = 'Discard changes', onSave, onDiscard, confirmSaved, entryCount = 0, library, usage }: Props) {
   const [name, setName] = useState(initial?.name ?? '');
   const [country, setCountry] = useState(initial?.country ?? '');
   const [start, setStart] = useState(initial?.tripStart ?? '');
@@ -33,6 +38,14 @@ export default function TripForm({ initial, saveLabel, discardLabel = 'Discard c
   const [cards, setCards] = useState<CardRow[]>(() =>
     initial ? initial.cards.map((n) => ({ orig: n, name: n })) : [],
   );
+  // Categories: ordered by how often they were used on past trips. A new trip starts with the ones you
+  // usually use (or the whole list when there is no history); an older trip with no choice yet has them all.
+  const { ordered, usual } = suggestCategories(library, usage);
+  const [cats, setCats] = useState<string[]>(() =>
+    initial ? (initial.categories?.filter((c) => library.includes(c)) ?? [...library]) : usual.length > 0 ? usual : [...library],
+  );
+  const toggleCat = (c: string) => setCats(cats.includes(c) ? cats.filter((x) => x !== c) : [...cats, c]);
+  const sameAs = (list: string[]) => list.length === cats.length && list.every((c) => cats.includes(c));
   const [err, setErr] = useState('');
   const [saved, setSaved] = useState(false);
 
@@ -47,6 +60,7 @@ export default function TripForm({ initial, saveLabel, discardLabel = 'Discard c
     if (cents === undefined || cents <= 0) return setErr('Enter the budget ceiling in dollars, like 10000.');
     if (names.some((n) => n === '')) return setErr('Card names cannot be blank.');
     if (new Set(names.map((n) => n.toLowerCase())).size !== names.length) return setErr('Card names must be different from each other.');
+    if (cats.length === 0) return setErr('Pick at least one category for this trip.');
     const renames: [string, string][] = cards.flatMap((c, i) => (c.orig !== undefined && c.orig !== names[i] ? [[c.orig, names[i]] as [string, string]] : []));
     await onSave(
       {
@@ -56,6 +70,7 @@ export default function TripForm({ initial, saveLabel, discardLabel = 'Discard c
         tripEnd: end,
         budgetCeilingCents: cents,
         cards: names,
+        categories: ordered.filter((c) => cats.includes(c)),
         ...(country ? { country } : {}),
         // Keep the trip's place on the list when it is edited.
         ...(initial?.order !== undefined ? { order: initial.order } : {}),
@@ -125,6 +140,29 @@ export default function TripForm({ initial, saveLabel, discardLabel = 'Discard c
           Add a card
         </button>
         {initial && <p className="muted small">Renaming a card updates its past charges. Removing one keeps its past charges under the old name.</p>}
+      </div>
+
+      <div className="field">
+        <span>Categories for this trip</span>
+        <div className="chips">
+          {ordered.map((c) => (
+            <button key={c} type="button" className={cats.includes(c) ? 'on' : ''} aria-pressed={cats.includes(c)} onClick={() => toggleCat(c)}>
+              <Roundel category={c} small />
+              {c}
+              {(usage[c] ?? 0) > 0 && <small className="use-count">{usage[c]}</small>}
+            </button>
+          ))}
+        </div>
+        {usual.length > 0 && !sameAs(usual) && (
+          <button type="button" className="secondary" onClick={() => setCats(usual)}>
+            Use my usual categories ({usual.length})
+          </button>
+        )}
+        <p className="muted small">
+          {usual.length > 0
+            ? 'Ordered by how often you used them on past trips (the number is how many entries). Add a new category in App settings, or from Add.'
+            : 'Tap to choose which categories Add offers on this trip. Add a new category in App settings, or from Add.'}
+        </p>
       </div>
 
       {err && <p className="error" role="alert">{err}</p>}

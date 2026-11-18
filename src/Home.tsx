@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useHoldDrag } from './useHoldDrag';
-import { computeSummary, formatDollars, tripFraction, tripPhase, type Trip } from './calc';
+import { categoryUsage, computeSummary, formatDollars, tripFraction, tripPhase, type Trip } from './calc';
 import AppTools from './AppTools';
 import Backdrop from './Backdrop';
 import { findCountry, flagEmoji, tripTheme } from './countries';
@@ -147,6 +147,8 @@ export default function Home({ app, onOpen, enter }: { app: App; onOpen: (id: st
           <div className="sheet">
             <h2>New trip</h2>
             <TripForm
+              library={app.categories}
+              usage={categoryUsage(Object.values(app.data))}
               saveLabel="Create trip"
               discardLabel="Cancel"
               onDiscard={close}
@@ -188,6 +190,8 @@ export default function Home({ app, onOpen, enter }: { app: App; onOpen: (id: st
             <TripForm
               key={target.id}
               initial={target}
+              library={app.categories}
+              usage={categoryUsage(Object.entries(app.data).filter(([id]) => id !== target.id).map(([, d]) => d))}
               entryCount={targetEntries}
               saveLabel="Save changes"
               discardLabel="Discard changes"

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { CATEGORIES, applyEstimates, type CardCharge, type CashBought, type CashPurchase, type Data, type Settings, type Trip } from './calc';
+import { CATEGORIES, applyEstimates, tripCategories, type CardCharge, type CashBought, type CashPurchase, type Data, type Settings, type Trip } from './calc';
 import * as db from './db';
 import { todayLocal } from './money';
 import { currencyFor, scaleOf } from './currency';
@@ -211,8 +211,12 @@ export function tripStore(app: App, trip: Trip): Store {
     data: app.data[id] ?? EMPTY_DATA,
     calcData: app.calcData(id),
     spot: app.spotFor(trip),
-    categories: app.categories,
-    addCategory: app.addCategory,
+    categories: tripCategories(trip, app.categories),
+    // A new category joins the owner's list and this trip's own categories.
+    addCategory: async (name: string) => {
+      if (!app.categories.includes(name)) await app.addCategory(name);
+      if (trip.categories) await app.saveTrip({ ...trip, categories: [...trip.categories, name] }, []);
+    },
     prefs: app.prefs[id] ?? {},
     addCardCharge: (e) => app.saveEntry('cardCharges', id, e),
     addCashPurchase: (e) => app.saveEntry('cashPurchases', id, e),

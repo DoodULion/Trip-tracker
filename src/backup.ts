@@ -86,11 +86,13 @@ function parseTripFields(v: Obj, id: string, name: string, where: string): Trip 
   if (country !== undefined && !/^[A-Z]{2}$/.test(country)) fail(`${where}: country must be a two-letter code.`);
   const order = typeof v.order === 'number' && Number.isFinite(v.order) ? v.order : undefined;
   const createdAt = typeof v.createdAt === 'number' && Number.isFinite(v.createdAt) ? v.createdAt : undefined;
+  const categories = Array.isArray(v.categories) && v.categories.every((c) => typeof c === 'string' && c.trim() !== '' && c.length <= 40) ? (v.categories as string[]) : undefined;
   return {
     id, name, tripStart, tripEnd, budgetCeilingCents, cards: cards as string[],
     ...(country ? { country } : {}),
     ...(order !== undefined ? { order } : {}),
     ...(createdAt !== undefined ? { createdAt } : {}),
+    ...(categories ? { categories } : {}),
   };
 }
 

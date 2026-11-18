@@ -12,6 +12,9 @@ import {
   tripDates,
   tripLength,
   allCategories,
+  categoryUsage,
+  suggestCategories,
+  tripCategories,
   applyEstimates,
   estimateRateFor,
   type Data,
@@ -366,5 +369,26 @@ describe('day rate with charges still missing dollars', () => {
     const s2 = computeSummary(applyEstimates(pending, { '2026-11-27': 100 }), S, today);
     expect(formatRate(s2.bestDayRate?.rate)).toBe('159.18');
     expect(formatRate(s2.worstDayRate?.rate)).toBe('150.00');
+  });
+});
+
+describe('categories per trip', () => {
+  const library = ['Food', 'Shopping', 'Suica', 'Activities', 'Transportation', 'Misc'];
+  it('offers the trip’s own choice, or the whole list for older trips', () => {
+    expect(tripCategories({}, library)).toEqual(library);
+    expect(tripCategories({ categories: ['Food', 'Misc'] }, library)).toEqual(['Food', 'Misc']);
+  });
+  it('drops categories deleted from the list, falling back to the whole list if none are left', () => {
+    expect(tripCategories({ categories: ['Food', 'Gone'] }, library)).toEqual(['Food']);
+    expect(tripCategories({ categories: ['Gone'] }, library)).toEqual(library);
+  });
+  it('counts how often each category was used and suggests the usual ones first', () => {
+    const usage = categoryUsage([data]);
+    expect(usage).toEqual({ Food: 2, Shopping: 1, Transportation: 1, Suica: 1, Activities: 1 });
+    const { ordered, usual } = suggestCategories(library, usage);
+    expect(ordered[0]).toBe('Food');
+    expect(ordered[ordered.length - 1]).toBe('Misc');
+    expect(usual).not.toContain('Misc');
+    expect(suggestCategories(library, {}).usual).toEqual([]);
   });
 });

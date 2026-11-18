@@ -79,7 +79,7 @@ export default function CardSheet({ initial, catalog, series, unitOf, valueOf, m
     const t = title.trim();
     if (t === '') return setError('Give the card a name.');
     if (daily && !seriesId) return setError('Pick what the daily chart shows.');
-    if (!daily && items.length === 0) return setError('Add at least one figure or formula.');
+    if (!daily && items.length === 0) return setError('Add at least one number or calculation.');
     onSave({
       id: initial?.id ?? `c${Date.now().toString(36)}`,
       kind: 'custom',
@@ -95,6 +95,7 @@ export default function CardSheet({ initial, catalog, series, unitOf, valueOf, m
     <SheetBackdrop onClose={onClose} role="dialog" aria-modal="true" aria-label={initial ? 'Edit card' : 'New card'}>
       <form className="sheet card-sheet" onSubmit={submit}>
         <h2>{initial ? 'Edit card' : 'New card'}</h2>
+        <p className="muted small">A card shows numbers from this trip: pick ready-made ones (like Remaining or Food), or combine two, such as Remaining ÷ Days left. Then choose how it looks.</p>
 
         {!initial && missingBuiltins.length > 0 && (
           <div className="field">
@@ -122,7 +123,7 @@ export default function CardSheet({ initial, catalog, series, unitOf, valueOf, m
           </select>
         </label>
         {display === 'bars' && <p className="muted small">Each bar is sized against the largest figure of the same kind (dollars with dollars, local currency with local currency).</p>}
-        {display === 'donut' && <p className="muted small">The pie shares out figures of the same kind as the first one, above zero; pick parts of a whole, such as categories or cards.</p>}
+        {display === 'donut' && <p className="muted small">A pie shows parts of a whole: pick numbers of the same kind, such as each category or each card.</p>}
 
         {daily && (
           <label className="field">
@@ -136,9 +137,9 @@ export default function CardSheet({ initial, catalog, series, unitOf, valueOf, m
 
         {!daily && (<>
         <div className="field">
-          <span>Figures ({items.length} of {MAX_ITEMS})</span>
+          <span>Numbers on this card ({items.length} of {MAX_ITEMS})</span>
           {items.length === 0 ? (
-            <p className="muted small">Nothing yet. Pick figures below, or build a formula.</p>
+            <p className="muted small">Nothing yet. Pick a number below, or make a calculation from two numbers.</p>
           ) : (
             <ul className="pick-list">
               {items.map((it, i) => (
@@ -155,7 +156,7 @@ export default function CardSheet({ initial, catalog, series, unitOf, valueOf, m
         </div>
 
         <label className="field">
-          <span>Add a figure</span>
+          <span>Add a number</span>
           <select
             value=""
             disabled={full}
@@ -163,7 +164,7 @@ export default function CardSheet({ initial, catalog, series, unitOf, valueOf, m
               if (e.target.value) setItems([...items, { stat: e.target.value }]);
             }}
           >
-            <option value="">{full ? 'This card is full' : 'Choose a figure…'}</option>
+            <option value="">{full ? 'This card is full' : 'Choose a number…'}</option>
             {groups.map((g) => (
               <optgroup key={g} label={g}>
                 {catalog.filter((d) => d.group === g).map((d) => (
@@ -175,14 +176,14 @@ export default function CardSheet({ initial, catalog, series, unitOf, valueOf, m
         </label>
 
         {!building ? (
-          <button type="button" className="secondary" disabled={full} onClick={() => setBuilding(true)}>Add a formula</button>
+          <button type="button" className="secondary" disabled={full} onClick={() => setBuilding(true)}>Add a calculation (+ − × ÷)</button>
         ) : (
           <fieldset className="formula">
-            <legend>Formula</legend>
+            <legend>Calculation</legend>
             <label className="field">
               <span>Start with</span>
               <select value={a} onChange={(e) => { setA(e.target.value); setB(''); }}>
-                <option value="">Choose a figure…</option>
+                <option value="">Choose a number…</option>
                 {groups.map((g) => (
                   <optgroup key={g} label={g}>
                     {catalog.filter((d) => d.group === g && unitOf(d.id) !== 'text').map((d) => (
@@ -202,7 +203,7 @@ export default function CardSheet({ initial, catalog, series, unitOf, valueOf, m
             <label className="field">
               <span>Then</span>
               <select value={b} disabled={!a} onChange={(e) => setB(e.target.value)}>
-                <option value="">{a ? 'Choose…' : 'Pick the first figure'}</option>
+                <option value="">{a ? 'Choose…' : 'Pick the first number'}</option>
                 {numberOk && <option value="#">A number</option>}
                 {groups.map((g) => {
                   const opts = bOptions.filter((d) => d.group === g);

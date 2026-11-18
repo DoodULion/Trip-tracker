@@ -26,7 +26,7 @@ describe('summary card figures', () => {
     expect(v('remaining')).toBe('$9,802.67');
     expect(v('dailyLimit')).toBe('$400.00');
     expect(v('cashOnHand')).toBe('¥24,400');
-    expect(v('overallRate')).toBe('158.11');
+    expect(v('overallRate')).toBe('158.11 ¥/$');
     expect(v('cat:Food')).toBe('$15.33');
     expect(v('catyen:Food')).toBe('¥2,400');
     expect(v('card:Apple Card')).toBe('$110.00');
@@ -52,7 +52,7 @@ describe('formulas', () => {
     expect(f('cat:Food', '/', 'totalSpent')).toBe('7.8%');
   });
   it('gives a rate for yen ÷ dollars', () => {
-    expect(f('totalYen', '/', 'totalSpent')).toBe('158.11');
+    expect(f('totalYen', '/', 'totalSpent')).toBe('158.11 ¥/$');
   });
   it('adds plain dollars to a dollar figure', () => {
     expect(f('totalSpent', '+', 2.67)).toBe('$200.00');

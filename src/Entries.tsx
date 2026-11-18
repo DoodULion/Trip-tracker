@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
-import { cashYenToCents, formatDollars, formatYen } from './calc';
+import { cashYenToCents, computeDays, formatDollars, formatYen } from './calc';
+import Icon from './icons';
 import CashBoughtSheet from './CashBoughtSheet';
 import { type Row } from './EditSheet';
 import { useEntryActions } from './EntryActions';
@@ -34,6 +35,13 @@ export default function Entries({ store }: { store: Store }) {
   );
 
   const missingCount = rows.filter(isMissing).length;
+
+  // Each day's total in its header (≈ when it includes an estimate); days outside the trip show none.
+  const totals = useMemo(() => {
+    const est = new Set(store.calcData.cardCharges.filter((c) => c.estimated).map((c) => c.date));
+    return new Map(computeDays(store.calcData, store.settings).filter((d) => d.hasEntries).map((d) => [d.date, `${est.has(d.date) ? '≈' : ''}${formatDollars(d.totalCents)}`]));
+  }, [store.calcData, store.settings]);
+  const dayTotal = (date: string) => (filter === 'all' ? totals.get(date) : undefined);
   const shown = rows.filter((r) => (filter === 'all' ? true : r.kind === filter));
 
   // Newest day first; within a day, in the order entered (ids start with a timestamp).
@@ -49,20 +57,12 @@ export default function Entries({ store }: { store: Store }) {
     <div className="screen">
       <h1>Entries</h1>
 
-      <button type="button" className="secondary" onClick={() => setLogging(true)}>Log cash bought</button>
-
-      {missingCount > 0 && (
-        <div className="alert alert-act">
-          <p>
-            {missingCount} card charge{missingCount === 1 ? '' : 's'} still need{missingCount === 1 ? 's' : ''} dollars. Until then {missingCount === 1 ? 'it counts' : 'they count'} at the day's market rate (≈).
-          </p>
-          <button type="button" onClick={() => edit(rows.filter(isMissing).sort((a, b) => (a.e.date < b.e.date ? -1 : 1))[0])}>
-            Add dollars{missingCount > 1 ? ' to the oldest' : ''}
-          </button>
-        </div>
-      )}
-
-      <div className="chips" role="group" aria-label="Filter entries">
+      {/* One compact block before the list: the "Log cash bought" first, then the filters, then a one-line alert. */}
+      <div className="chips scroll-row" role="group" aria-label="Filter entries">
+        <button type="button" className="chip-new" onClick={() => setLogging(true)}>
+          <Icon name="add" />
+          Log cash bought
+        </button>
         {FILTERS.map((f) => (
           <button key={f.id} type="button" className={filter === f.id ? 'on' : ''} aria-pressed={filter === f.id} onClick={() => setFilter(f.id)}>
             {f.label}
@@ -70,12 +70,26 @@ export default function Entries({ store }: { store: Store }) {
         ))}
       </div>
 
+      {missingCount > 0 && (
+        <div className="alert alert-act alert-line">
+          <p>
+            <b>{missingCount}</b> card charge{missingCount === 1 ? '' : 's'} need{missingCount === 1 ? 's' : ''} dollars (counted ≈)
+          </p>
+          <button type="button" onClick={() => edit(rows.filter(isMissing).sort((a, b) => (a.e.date < b.e.date ? -1 : 1))[0])}>
+            Add dollars
+          </button>
+        </div>
+      )}
+
       {groups.length === 0 && <p className="muted">{rows.length === 0 ? 'Nothing logged yet. Use the Add tab.' : 'No entries match this filter.'}</p>}
 
       <div className="day-groups">
       {groups.map((g) => (
         <section key={g.date} className="day-group">
-          <h2>{dayLabel(g.date)}</h2>
+          <h2>
+            {dayLabel(g.date)}
+            {dayTotal(g.date) && <span className="day-total">{dayTotal(g.date)}</span>}
+          </h2>
           <ul className="list">
             {g.list.map((r) => (
               <li key={r.kind + r.e.id}>

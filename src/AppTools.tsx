@@ -115,7 +115,7 @@ export default function AppTools({ app }: { app: App }) {
 
       <section className="card">
         <h2>Categories</h2>
-        <p className="muted small">These are offered on every trip. Deleting one stops offering it; past entries keep their category.</p>
+        <p className="muted small">Your list of categories. Each trip picks the ones it offers in its trip settings. Deleting one stops offering it everywhere; past entries keep their category.</p>
         <ul className="cat-list">
           {app.categories.map((c) => (
             <li key={c}>

@@ -1,5 +1,5 @@
 import { useState, type PointerEvent as ReactPointerEvent } from 'react';
-import { formatDollars, formatRate, formatYen } from './calc';
+import { formatDollars, formatRateUnit, formatYen } from './calc';
 import { dayLabel } from './money';
 import type { SeriesDef, SeriesPoint, StatValue } from './summaryCards';
 
@@ -10,6 +10,8 @@ export interface ChartRow {
   value: number | undefined;
   unit: StatValue['unit'];
   note?: string;
+  /** A category's own color, so its slice or bar matches its tile; otherwise the chart order is used. */
+  color?: string;
 }
 
 /** Chart colors for slices, in a fixed order (checked for color-blind separation in light and dark). */
@@ -52,7 +54,7 @@ export function Bars({ rows }: { rows: ChartRow[] }) {
             <b>{r.text}</b>
             {r.unit !== 'text' && (
               <span className={`hb-track${r.value !== undefined && r.value < 0 ? ' neg' : ''}`} aria-hidden="true">
-                <i style={{ width: `${p * 100}%` }} />
+                <i style={{ width: `${p * 100}%`, ...(r.color ? { background: r.color } : {}) }} />
               </span>
             )}
           </li>
@@ -72,7 +74,7 @@ export function Donut({ rows, format }: { rows: ChartRow[]; format: (v: StatValu
   const usable = rows.filter((r) => r.unit === unit && r.value !== undefined && r.value > 0);
   const left = rows.length - usable.length;
   // The total in the middle names the unit, so "Food ($)" reads as "Food" here.
-  let parts = usable.map((r) => ({ label: r.label.replace(/ \([^)]*\)$/, ''), value: r.value as number }));
+  let parts: { label: string; value: number; color?: string }[] = usable.map((r) => ({ label: r.label.replace(/ \([^)]*\)$/, ''), value: r.value as number, color: r.color }));
   if (parts.length > SLICES) {
     const rest = parts.slice(SLICES - 1).reduce((t, x) => t + x.value, 0);
     parts = [...parts.slice(0, SLICES - 1), { label: 'Other', value: rest }];
@@ -96,7 +98,7 @@ export function Donut({ rows, format }: { rows: ChartRow[]; format: (v: StatValu
               cy="50"
               r={R}
               fill="none"
-              stroke={x.label === 'Other' ? 'var(--mute)' : `var(--chart-${i + 1})`}
+              stroke={x.label === 'Other' ? 'var(--mute)' : x.color ?? `var(--chart-${i + 1})`}
               strokeWidth="14"
               strokeDasharray={`${Math.max(len - gap, 0.5)} ${C}`}
               strokeDashoffset={-offset}
@@ -106,13 +108,13 @@ export function Donut({ rows, format }: { rows: ChartRow[]; format: (v: StatValu
           offset += len;
           return el;
         })}
-        <text x="50" y="48" textAnchor="middle" className="donut-total">{format({ value: total, unit })}</text>
-        <text x="50" y="60" textAnchor="middle" className="donut-cap">total</text>
+        <text x="50" y="48" textAnchor="middle" className="donut-total" fontSize="11">{format({ value: total, unit })}</text>
+        <text x="50" y="60" textAnchor="middle" className="donut-cap" fontSize="8">total</text>
       </svg>
       <ul className="legend">
         {parts.map((x, i) => (
           <li key={i}>
-            <i style={{ background: x.label === 'Other' ? 'var(--mute)' : `var(--chart-${i + 1})` }} aria-hidden="true" />
+            <i style={{ background: x.label === 'Other' ? 'var(--mute)' : x.color ?? `var(--chart-${i + 1})` }} aria-hidden="true" />
             <span>{x.label}</span>
             <b>{format({ value: x.value, unit })}</b>
             <small>{((x.value / total) * 100).toFixed(0)}%</small>
@@ -132,7 +134,7 @@ function niceCeil(v: number): number {
   return 10 * p;
 }
 
-const fmt = (unit: SeriesDef['unit'], v: number) => (unit === 'usd' ? formatDollars(v) : unit === 'yen' ? formatYen(v) : formatRate(v));
+const fmt = (unit: SeriesDef['unit'], v: number) => (unit === 'usd' ? formatDollars(v) : unit === 'yen' ? formatYen(v) : formatRateUnit(v));
 const md = (d: string) => dayLabel(d).slice(4);
 
 /**
@@ -214,8 +216,8 @@ export function DailyChart({ def, points, today }: { def: SeriesDef; points: Ser
               p.value === undefined || p.value <= 0 ? null : (
                 <rect
                   key={p.date}
-                  x={slot * i + Math.min(1, slot * 0.15)}
-                  width={Math.max(slot - Math.min(2, slot * 0.3), 1)}
+                  x={slot * i + slot * 0.11}
+                  width={Math.max(slot * 0.78, 2)}
                   y={y(p.value)}
                   height={H - y(p.value)}
                   className={p.ref !== undefined && p.value > p.ref ? 'bar over' : 'bar'}

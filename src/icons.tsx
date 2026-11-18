@@ -24,6 +24,7 @@ const PATHS = {
   ),
   back: <path d="M15 5l-7 7 7 7" />,
   close: <path d="M6 6l12 12M18 6L6 18" />,
+  down: <path d="M6 9l6 6 6-6" />,
   edit: <path d="M4 20h4L19 9l-4-4L4 16v4zM13.5 6.5l4 4" />,
   alert: (
     <>

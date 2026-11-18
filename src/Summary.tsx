@@ -3,6 +3,7 @@ import { Fragment, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import { computeDays, computeSummary, formatDollars, tripPhase } from './calc';
 import { Bars, DailyChart, Donut, Tiles, type ChartRow } from './CardCharts';
+import { Big, Fig, Meter } from './Figures';
 import CardSheet from './CardSheet';
 import SheetBackdrop from './SheetBackdrop';
 import {
@@ -23,7 +24,7 @@ import { useHoldDrag } from './useHoldDrag';
 import { useSummaryLayout } from './useSummaryLayout';
 import { dayLabel } from './money';
 import Icon from './icons';
-import { Roundel } from './Roundel';
+import { Roundel, categoryColor } from './Roundel';
 import { statusBadge } from './status';
 import type { Store } from './store';
 
@@ -218,7 +219,8 @@ export default function Summary({ store }: { store: Store }) {
     const one = display === 'auto' && c.items.length === 1 ? c.items[0] : undefined;
     const rows: ChartRow[] = c.items.map((it) => {
       const v = 'stat' in it ? statValue(it.stat, s, ceiling) : formulaValue(it.formula, s, ceiling);
-      return { label: label(it), text: formatStat(v), value: v.value, unit: v.unit, note: v.note };
+      const cat = 'stat' in it && /^cat(yen)?:/.test(it.stat) ? it.stat.slice(it.stat.indexOf(':') + 1) : undefined;
+      return { label: label(it), text: formatStat(v), value: v.value, unit: v.unit, note: v.note, ...(cat ? { color: categoryColor(cat) } : {}) };
     });
     const def = display === 'daily' && c.series ? seriesDef(c.series) : undefined;
     return (
@@ -227,7 +229,7 @@ export default function Summary({ store }: { store: Store }) {
           <h2>{c.title}</h2>
           {tools(c.id, c.title)}
         </div>
-        {display !== 'daily' && c.items.length === 0 && <p className="muted small">No figures. Tap Edit, then ⋮ → Edit card.</p>}
+        {display !== 'daily' && c.items.length === 0 && <p className="muted small">No numbers yet. Tap the pencil, then ⋮ → Edit card.</p>}
         {def && <DailyChart def={def} points={dailySeries(def.id, days, today)} today={today} />}
         {display === 'tiles' && <Tiles rows={rows} />}
         {display === 'bars' && <Bars rows={rows} />}
@@ -383,38 +385,6 @@ export default function Summary({ store }: { store: Store }) {
           </div>
         </SheetBackdrop>
       )}
-    </div>
-  );
-}
-
-/** A thick rounded bar: how much of a limit is used. Red once it is over. Decorative; the figures sit beside it. */
-function Meter({ part, whole }: { part: number; whole: number }) {
-  const p = whole > 0 ? Math.min(1, Math.max(0, part / whole)) : 0;
-  return (
-    <div className={`meter${part > whole ? ' over' : ''}${part <= 0 ? ' zero' : ''}`} aria-hidden="true">
-      <i style={{ ['--p' as string]: p }} />
-    </div>
-  );
-}
-
-/*
- * Figures size themselves to their length: each one is shrunk only as far as needed for all of its
- * characters to fit its column (CSS reads --chars), so "$10,000.00" and "$400.00" never run together.
- */
-const chars = (text: string) => ({ ['--chars' as string]: Math.max(text.length, 4) });
-
-function Fig({ children, className = '' }: { children: string; className?: string }) {
-  return (
-    <b className={`fig ${className}`} style={chars(children)}>
-      {children}
-    </b>
-  );
-}
-
-function Big({ children }: { children: string }) {
-  return (
-    <div className="big fit" style={chars(children)}>
-      {children}
     </div>
   );
 }

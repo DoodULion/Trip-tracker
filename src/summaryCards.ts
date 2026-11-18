@@ -3,7 +3,7 @@
  * Pure: no UI, no storage. Every figure comes from `computeSummary`, so it follows the same rules
  * as the rest of the app (real amounts, blanks instead of invented zeros).
  */
-import { formatDollars, formatRate, formatYen, type DayRow, type Summary } from './calc';
+import { formatDollars, formatRateUnit, formatYen, type DayRow, type Summary } from './calc';
 import { getCurrency } from './currency';
 import { dayLabel } from './money';
 
@@ -202,7 +202,7 @@ export function formatStat(v: StatValue): string {
   switch (v.unit) {
     case 'usd': return formatDollars(v.value);
     case 'yen': return formatYen(v.value);
-    case 'rate': return formatRate(v.value) || '—';
+    case 'rate': return formatRateUnit(v.value) || '—';
     case 'pct': return `${v.value.toFixed(1)}%`;
     case 'count': return Number.isInteger(v.value) ? String(v.value) : v.value.toFixed(2);
     default: return String(v.value);

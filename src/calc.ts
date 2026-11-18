@@ -1,4 +1,4 @@
-import { formatLocal, getCurrency, scaleOf } from './currency';
+import { formatLocal, getCurrency, rateUnit, scaleOf } from './currency';
 /**
  * Pure calculation module. No UI, no storage, no clock (callers pass `today`).
  *
@@ -44,6 +44,33 @@ export interface Trip extends Settings {
   order?: number;
   /** When the trip was created (ms since 1970), for newest-first ordering. Optional (older trips lack it). */
   createdAt?: number;
+  /** The categories this trip offers on Add, in order (chosen in its trip settings). Older trips lack it: they offer the whole list. */
+  categories?: string[];
+}
+
+/**
+ * The categories a trip offers for new entries: its own choice, limited to categories that still exist
+ * in the owner's list. A trip with no choice (or none left) offers the whole list.
+ */
+export function tripCategories(trip: Pick<Trip, 'categories'>, library: readonly string[]): string[] {
+  const own = trip.categories?.filter((c) => library.includes(c));
+  return own && own.length > 0 ? own : [...library];
+}
+
+/** How many entries (card charges and cash purchases) use each category, across the given trips' data. */
+export function categoryUsage(datas: Data[]): Record<string, number> {
+  const out: Record<string, number> = {};
+  for (const d of datas) for (const e of [...d.cardCharges, ...d.cashPurchases]) out[e.category] = (out[e.category] ?? 0) + 1;
+  return out;
+}
+
+/**
+ * The owner's categories ordered for picking: most used on past trips first, then the rest in list order.
+ * `usual` is just the ones used before, in that order (empty when there is no history yet).
+ */
+export function suggestCategories(library: readonly string[], usage: Record<string, number>): { ordered: string[]; usual: string[] } {
+  const ordered = [...library].sort((a, b) => (usage[b] ?? 0) - (usage[a] ?? 0) || library.indexOf(a) - library.indexOf(b));
+  return { ordered, usual: ordered.filter((c) => (usage[c] ?? 0) > 0) };
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -507,6 +534,11 @@ export function formatDollars(cents: number): string {
 /** A rate (local currency per $) to 2 decimals. Rates are held on the minor-unit scale, so euros divide by 100. */
 export function formatRate(rate: number | undefined): string {
   return rate === undefined ? '' : (rate / scaleOf(getCurrency())).toFixed(2);
+}
+
+/** A rate with its unit, for display: "155.34 ¥/$" (blank when there is no rate). */
+export function formatRateUnit(rate: number | undefined): string {
+  return rate === undefined ? '' : `${formatRate(rate)} ${rateUnit()}`;
 }
 
 /** Where "today" falls relative to a trip, as short text: "Starts in 9 days", "Day 3 / 25", "Finished". */

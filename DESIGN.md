@@ -8,9 +8,10 @@ colors:
   ink: "#2b2420"
   mute: "#665a52"
   hairline: "#e6dfda"
-  main-outside-trip: "#ffffff"
+  main-outside-trip: "#2b2420"
+  night-main-outside-trip: "#f3ece7"
   default-trip-orange: "#f39700"
-  over-red: "#c8322a"
+  over-red: "#d63306"
   under-green: "#17623e"
   food-orange: "#d9480f"
   shopping-magenta: "#b83280"
@@ -24,7 +25,7 @@ colors:
   night-ink: "#f3ece7"
   night-mute: "#b1a59c"
   night-hairline: "#3d3430"
-  night-red: "#ff7a6b"
+  night-red: "#ff6a3d"
   night-green: "#5fd39a"
   night-food: "#ff8a4c"
   night-shopping: "#f06bb4"
@@ -50,6 +51,11 @@ typography:
     fontSize: "1.45rem"
     fontWeight: 800
     letterSpacing: "-0.01em"
+  title-lg:
+    fontFamily: "ui-rounded, 'SF Pro Rounded', 'Nunito', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif"
+    fontSize: "1.25rem"
+    fontWeight: 800
+    letterSpacing: "-0.01em"
   title:
     fontFamily: "ui-rounded, 'SF Pro Rounded', 'Nunito', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif"
     fontSize: "1.05rem"
@@ -60,13 +66,23 @@ typography:
     fontWeight: 400
     lineHeight: 1.4
     fontFeature: "tnum"
+  small:
+    fontFamily: "ui-rounded, 'SF Pro Rounded', 'Nunito', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif"
+    fontSize: "0.95rem"
+    fontWeight: 600
   label:
     fontFamily: "ui-rounded, 'SF Pro Rounded', 'Nunito', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif"
-    fontSize: "0.8rem"
+    fontSize: "0.85rem"
     fontWeight: 600
+  caption:
+    fontFamily: "ui-rounded, 'SF Pro Rounded', 'Nunito', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif"
+    fontSize: "0.75rem"
+    fontWeight: 700
 rounded:
   hero: "28px"
   card: "22px"
+  trip: "24px"
+  track: "18px"
   row: "16px"
   control: "14px"
   tile: "11px"
@@ -160,7 +176,7 @@ The system rejects the outlined enamel sign-panel look it replaced and the grey 
 
 **Key Characteristics:**
 - Ground tinted by the trip's country; cards pure white and flat.
-- Main color is white outside a trip and the country color inside one (orange when no country is set).
+- Main color is neutral outside a trip (ink in light mode, warm white in dark) and the country color inside one (the same neutral when no country is set).
 - A radius hierarchy that ranks surfaces: hero 28, cards 22, rows 16, controls 14, chips and pills full.
 - Shadow only on things that float: tab bar, sheets, undo toast.
 - Meters (today, budget, the route bar on each trip card) are the one expressive move.
@@ -207,9 +223,14 @@ Warm, low-chroma neutrals carry the page; one swappable trip color carries actio
 - **Hero figure** (800, 3.4rem, line-height 1, -0.03em): Left today in the Today card; only one per screen.
 - **Display** (800, 2.2rem, 1.1, -0.02em): the main figure of a card (spent, total spent).
 - **Headline** (800, 1.45rem, -0.01em): the trip name in the top band; 2.1rem on the root trips list.
-- **Title** (800, 1.05rem): card headings; 1.25rem for trip names on trip cards, 1.3rem for sheet titles.
+- **Title large** (800, 1.25rem): card headings (Today, Budget, By category, Stats cards), trip names on trip cards and sheet titles; a clear step above 16px body.
+- **Title** (800, 1.05rem): sub-headings inside a card ("Rest of the trip") and button text.
 - **Body** (400, 16px, 1.4): text and figures in rows; inputs are 17px 600 so iOS never zooms on focus.
-- **Label** (600 to 700, 0.8 to 0.875rem): field labels, stat captions, route dates, tab labels (0.72rem 700). Sentence case, never uppercase.
+- **Small** (600, 0.95rem): secondary lines (the live "left today" caption, alerts, Days chips).
+- **Label** (600 to 700, 0.85rem): field labels, stat captions, route dates, row sub-lines. Sentence case, never uppercase.
+- **Caption** (700, 0.75rem): tab labels, chart axis labels, usage counts.
+
+The ramp is closed: 0.75, 0.85, 0.95, 1, 1.05, 1.25, 1.45, 2.2, 3.4rem. Figures that fit themselves to their column (container units) stay inside these bounds.
 
 ### Named Rules
 **The Weight Carries It Rule.** Figures are 800; labels are 600 to 700 in mute. Hierarchy comes from weight and color before size.
@@ -240,7 +261,7 @@ Every corner is soft and the radius ranks the surface: hero card 28px (also shee
 ### Buttons
 Tactile and plain: full-width blocks with a small press-in.
 - **Shape:** gently rounded (16px), 54px tall, 17px 800 text.
-- **Primary:** trip color with its readable text inside a trip; white with a hairline border outside one.
+- **Primary:** trip color with its readable text inside a trip; ink with warm-white text outside one (warm white with ink text in dark).
 - **Secondary:** card white, ink text, 2px hairline border.
 - **Danger:** card white, red text, red border at 40%; armed state fills red with white text (two-step delete).
 - **Press:** `scale(0.97)` over 160ms on the ease-out-quint curve. Focus is a 3px ink outline offset 2px across the app.
@@ -261,7 +282,7 @@ A soft track (ink 8% into the ground, 18px radius, 4px inset) with a raised whit
 
 ### Inputs / Fields
 - **Style:** card white, 2px hairline border, 14px radius, 52px tall, 17px 600 text; numeric keypad for yen, decimal for dollars.
-- **Focus:** border turns the trip color (ink outside a trip); caret and accent take the main color.
+- **Focus:** fields get a trip-color border plus a soft 3px halo of it (ink outside a trip); buttons get a 3px ink outline; caret and accent take the main color.
 - **Labels:** 0.875rem 700 mute above the field, given a ground-colored backing so the background pattern never crosses them.
 
 ### Navigation
@@ -292,7 +313,7 @@ Navigation is quick and directional, and all of it switches off under `prefers-r
 ## Do's and Don'ts
 
 ### Do:
-- **Do** take the main color from `--or` everywhere, so a trip's country color and the white outside a trip both flow through one variable.
+- **Do** take the main color from `--or` everywhere, so a trip's country color and the neutral outside a trip both flow through one variable.
 - **Do** keep cards flat white on the tinted ground; give the Float shadow only to the tab bar, sheets and undo toast.
 - **Do** rank radius by surface: hero 28, card 22, row 16, control 14, tile 11, chips full.
 - **Do** set figures at 800 in tabular numerals, and keep labels sentence case in mute.
@@ -302,7 +323,7 @@ Navigation is quick and directional, and all of it switches off under `prefers-r
 
 ### Don't:
 - **Don't** use red for anything but over the limit, missing data, errors and destructive actions.
-- **Don't** put a brand color on the trips list or App settings; the main color outside a trip is white.
+- **Don't** put a brand color on the trips list or App settings; the main color outside a trip is the neutral ink / warm white.
 - **Don't** add shadows to cards, rows, chips or inputs.
 - **Don't** ship font files; rely on the system rounded face.
 - **Don't** return to outlined sign panels or a single-radius grey card kit.

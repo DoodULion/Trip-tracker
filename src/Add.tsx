@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from 'react';
+import { useMemo, useState, type FormEvent } from 'react';
 import { applyEstimates, computeDays, dailyLimitCents, formatDollars, formatYen, type Category, type Data } from './calc';
 import Icon from './icons';
 import NameSheet from './NameSheet';
@@ -36,6 +36,7 @@ export default function Add({ store }: { store: Store }) {
   const [dollars, setDollars] = useState('');
   const [note, setNote] = useState('');
   const [error, setError] = useState('');
+  const [more, setMore] = useState(false);
   const { offer } = useUndo();
 
   const cur = getCurrency();
@@ -77,6 +78,27 @@ export default function Add({ store }: { store: Store }) {
     setNote('');
     offer(msg, () => store.removeEntry(undoStore, id));
   }
+
+  // Live answer to "can I buy this?": what is left for the entry's day if this amount is saved.
+  const preview = useMemo(() => {
+    const y = parseYen(yen);
+    const c = parseCents(dollars);
+    const typed = y !== undefined || c !== undefined;
+    const tmp = { id: '__preview', date, category, note: undefined };
+    const after: Data = !typed
+      ? store.data
+      : mode === 'card'
+        ? { ...store.data, cardCharges: [...store.data.cardCharges, { ...tmp, card, yen: y, cents: c }] }
+        : y !== undefined
+          ? { ...store.data, cashPurchases: [...store.data.cashPurchases, { ...tmp, yen: y, ...(c !== undefined ? { cents: c } : {}) }] }
+          : store.data;
+    const est = applyEstimates(after, store.spot);
+    const row = computeDays(est, settings).find((d) => d.date === date);
+    if (!row) return undefined;
+    // A card amount with no dollars typed counts at an estimated rate, so it is marked ≈.
+    return { left: dailyLimitCents(settings) - row.totalCents, typed, estimated: typed && mode === 'card' && c === undefined };
+  }, [yen, dollars, date, category, card, mode, store.data, store.spot, settings]);
+  const isToday = date === todayLocal();
 
   /** " $266.61 left today." (or for the entry's day, or how far over), from the entries including the new one. */
   function leftAfter(after: Data, day: string): string {
@@ -120,9 +142,19 @@ export default function Add({ store }: { store: Store }) {
         </label>
       </div>
 
+      {preview && (
+        <p className={`live-left${preview.left < 0 ? ' over' : ''}`} aria-live="polite">
+          <span>{preview.typed ? 'After this, ' : ''}{preview.left < 0 ? 'over the limit' : 'left'} {isToday ? 'today' : `on ${dayLabel(date)}`}</span>
+          <b>
+            {preview.estimated ? '≈' : ''}
+            {formatDollars(Math.abs(preview.left))}
+          </b>
+        </p>
+      )}
+
       <div className="field">
         <span>Category</span>
-        <div className="chips">
+        <div className="chips scroll-row">
           {store.categories.map((c) => (
             <button key={c} type="button" className={category === c ? 'on' : ''} aria-pressed={category === c} onClick={() => setCategory(c)}>
               <Roundel category={c} small />
@@ -142,7 +174,7 @@ export default function Add({ store }: { store: Store }) {
       {mode === 'card' && (
         <div className="field">
           <span>Card</span>
-          <div className="chips">
+          <div className="chips scroll-row">
             {settings.cards.map((c) => (
               <button key={c} type="button" className={card === c ? 'on' : ''} aria-pressed={card === c} onClick={() => setCard(c)}>
                 {c}
@@ -156,15 +188,25 @@ export default function Add({ store }: { store: Store }) {
         </div>
       )}
 
-      <label className="field">
-        <span>Date</span>
-        <input type="date" value={date} onChange={(e) => e.target.value && setDate(e.target.value)} />
-      </label>
-
-      <label className="field">
-        <span>Note (optional)</span>
-        <input value={note} onChange={(e) => setNote(e.target.value)} />
-      </label>
+      {/* Date and note are rarely changed: they wait behind one row, so Save stays close. */}
+      {!more ? (
+        <button type="button" className="more-row" aria-expanded={false} onClick={() => setMore(true)}>
+          <span>{isToday ? 'Today' : dayLabel(date)}</span>
+          <span className="muted">{note.trim() ? note.trim() : 'Change date, add a note'}</span>
+          <Icon name="down" />
+        </button>
+      ) : (
+        <div className="grid2 more-fields">
+          <label className="field">
+            <span>Date</span>
+            <input type="date" value={date} onChange={(e) => e.target.value && setDate(e.target.value)} />
+          </label>
+          <label className="field">
+            <span>Note (optional)</span>
+            <input value={note} onChange={(e) => setNote(e.target.value)} />
+          </label>
+        </div>
+      )}
 
       {error && <p className="error" role="alert">{error}</p>}
       <button type="submit" className="primary">Save</button>
@@ -174,7 +216,7 @@ export default function Add({ store }: { store: Store }) {
       <NameSheet
         title="New category"
         label="Category name"
-        hint="It's added for every trip. Remove it any time in App settings."
+        hint={`It's added to ${store.trip.name} and to your category list. Remove it any time in App settings.`}
         existing={store.categories}
         onClose={() => setNaming(null)}
         onSave={async (name) => {

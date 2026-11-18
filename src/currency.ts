@@ -101,6 +101,9 @@ export function setCurrency(cur: Currency): void {
 }
 export const getCurrency = (): Currency => current;
 
+/** The unit of a rate in the trip being viewed: "¥/$", "€/$". */
+export const rateUnit = (cur: Currency = current) => `${cur.symbol.trim()}/$`;
+
 /* ---------- formatting and parsing ---------- */
 
 const group = (n: number) => n.toLocaleString('en-US');
