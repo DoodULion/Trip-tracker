@@ -193,6 +193,9 @@ input[type="date"]::-webkit-calendar-picker-indicator { margin: 0; }
 }
 .more-row .muted { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 600; }
 .more-row .ic { width: 20px; height: 20px; color: var(--mute); }
+.more-row.add-cash { border-style: dashed; }
+.more-row.add-cash .muted { flex: 1; }
+.more-row.add-cash .ic { color: var(--ink); }
 .chips button {
   min-height: 44px; padding: 0 16px; border-radius: 999px;
   border: 0; background: var(--sign); color: var(--ink); font: inherit; font-size: 0.95rem; font-weight: 700;

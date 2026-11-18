@@ -2,6 +2,7 @@ import { useMemo, useState, type FormEvent } from 'react';
 import { applyEstimates, computeDays, dailyLimitCents, formatDollars, formatYen, type Category, type Data } from './calc';
 import Icon from './icons';
 import NameSheet from './NameSheet';
+import CashBoughtSheet from './CashBoughtSheet';
 import { Roundel } from './Roundel';
 import type { EntryStore } from './db';
 import { clampDate, dayLabel, newId, parseCents, parseYen, todayLocal } from './money';
@@ -37,6 +38,7 @@ export default function Add({ store }: { store: Store }) {
   const [note, setNote] = useState('');
   const [error, setError] = useState('');
   const [more, setMore] = useState(false);
+  const [addingCash, setAddingCash] = useState(false);
   const { offer } = useUndo();
 
   const cur = getCurrency();
@@ -131,6 +133,15 @@ export default function Add({ store }: { store: Store }) {
         ))}
       </div>
 
+      {/* Cash: getting cash (ATM or exchange) lives here too, beside spending it. */}
+      {mode === 'cash' && (
+        <button type="button" className="more-row add-cash" onClick={() => setAddingCash(true)}>
+          <Icon name="add" />
+          <span>Add cash</span>
+          <span className="muted">from an ATM or exchange</span>
+        </button>
+      )}
+
       <div className="grid2">
         <label className="field">
           <span>{cur.name}</span>
@@ -144,7 +155,7 @@ export default function Add({ store }: { store: Store }) {
 
       {preview && (
         <p className={`live-left${preview.left < 0 ? ' over' : ''}`} aria-live="polite">
-          <span>{preview.typed ? 'After this, ' : ''}{preview.left < 0 ? 'over the limit' : 'left'} {isToday ? 'today' : `on ${dayLabel(date)}`}</span>
+          <span>{preview.typed ? 'After this, ' : ''}{preview.left < 0 ? (preview.typed ? 'over the limit' : 'Over the limit') : preview.typed ? 'left' : 'Left'} {isToday ? 'today' : `on ${dayLabel(date)}`}</span>
           <b>
             {preview.estimated ? '≈' : ''}
             {formatDollars(Math.abs(preview.left))}
@@ -225,6 +236,7 @@ export default function Add({ store }: { store: Store }) {
         }}
       />
     )}
+    {addingCash && <CashBoughtSheet store={store} onClose={() => setAddingCash(false)} />}
     {naming === 'card' && (
       <NameSheet
         title="New card"

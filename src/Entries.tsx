@@ -1,7 +1,5 @@
 import { useMemo, useState } from 'react';
 import { cashYenToCents, computeDays, formatDollars, formatYen } from './calc';
-import Icon from './icons';
-import CashBoughtSheet from './CashBoughtSheet';
 import { type Row } from './EditSheet';
 import { useEntryActions } from './EntryActions';
 import { dayLabel } from './money';
@@ -22,7 +20,6 @@ const isMissing = (r: Row) => r.kind === 'card' && r.e.cents === undefined;
 export default function Entries({ store }: { store: Store }) {
   const { data } = store;
   const [filter, setFilter] = useState<Filter>('all');
-  const [logging, setLogging] = useState(false);
   const { optionsButton, edit, overlay } = useEntryActions(store);
 
   const rows = useMemo<Row[]>(
@@ -57,12 +54,8 @@ export default function Entries({ store }: { store: Store }) {
     <div className="screen">
       <h1>Entries</h1>
 
-      {/* One compact block before the list: the "Log cash bought" first, then the filters, then a one-line alert. */}
+      {/* One compact block before the list: the filters, then a one-line alert. (Cash you get is added from Add → Cash.) */}
       <div className="chips scroll-row" role="group" aria-label="Filter entries">
-        <button type="button" className="chip-new" onClick={() => setLogging(true)}>
-          <Icon name="add" />
-          Log cash bought
-        </button>
         {FILTERS.map((f) => (
           <button key={f.id} type="button" className={filter === f.id ? 'on' : ''} aria-pressed={filter === f.id} onClick={() => setFilter(f.id)}>
             {f.label}
@@ -105,7 +98,6 @@ export default function Entries({ store }: { store: Store }) {
       </div>
 
       {overlay}
-      {logging && <CashBoughtSheet store={store} onClose={() => setLogging(false)} />}
     </div>
   );
 }

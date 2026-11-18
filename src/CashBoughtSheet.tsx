@@ -32,9 +32,9 @@ export default function CashBoughtSheet({ store, onClose }: { store: Store; onCl
   }
 
   return (
-    <SheetBackdrop onClose={onClose} role="dialog" aria-modal="true" aria-label="Log cash bought">
+    <SheetBackdrop onClose={onClose} role="dialog" aria-modal="true" aria-label="Add cash">
       <form className="sheet" onSubmit={submit}>
-        <h2>Log cash bought</h2>
+        <h2>Add cash</h2>
         <p className="muted small">An ATM withdrawal or currency exchange. This sets your real cash rate.</p>
         <div className="grid2">
           <label className="field">
