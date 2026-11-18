@@ -29,8 +29,9 @@ export default function Summary({ store }: { store: Store }) {
         {finished && (
           <section className="card" aria-label="Trip summary">
             <div className="card-head">
-              <span className="muted small">Trip complete, {s.tripLength} days</span>
+              <h2>Trip summary</h2>
             </div>
+            <span className="muted small">Trip complete, {s.tripLength} days</span>
             <Big>{formatDollars(s.totalSpentCents)}</Big>
             <span className="muted small">Total spent of {formatDollars(settings.budgetCeilingCents)}</span>
             <div className="rule">
@@ -52,6 +53,7 @@ export default function Summary({ store }: { store: Store }) {
 
         {!finished && (
         <section className={`card hero${over ? ' over' : ''}`} aria-label="Today">
+          <h2>{s.focusDay.kind === 'today' ? 'Today' : s.focusDay.kind === 'upcoming' ? 'First day' : 'Last day'}</h2>
           {over && (
             <span className="over-tag">
               <Icon name="alert" />
@@ -82,8 +84,11 @@ export default function Summary({ store }: { store: Store }) {
 
         <section className="card" aria-label="Budget">
           <div className="card-head">
-            <span className="muted small">Spent of {formatDollars(settings.budgetCeilingCents)} ceiling</span>
+            <h2>Budget</h2>
             <span className={`pill ${badge.cls}`}>{badge.label}</span>
+          </div>
+          <div className="card-head">
+            <span className="muted small">Spent of {formatDollars(settings.budgetCeilingCents)} ceiling</span>
           </div>
           <Big>{formatDollars(s.totalSpentCents)}</Big>
           <Meter part={s.totalSpentCents} whole={settings.budgetCeilingCents} />

@@ -196,7 +196,8 @@ export function tripTheme(code: string | undefined): CSSProperties {
     '--on-brand': onColor(light),
     '--brand-dark': dark,
     '--on-brand-dark': onColor(dark),
-    // Money meters normally take the trip color; on a red trip they take the ink so they never look "over".
+    // Money meters normally take the trip color; on a red trip they take the ink so they never look "over"
+    // (the track stays tinted with the country color either way).
     ...(isReddish(base) ? { '--meter': 'var(--ink)' } : {}),
   } as CSSProperties;
 }

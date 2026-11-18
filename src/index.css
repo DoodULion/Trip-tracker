@@ -147,6 +147,8 @@ input, select {
   transition: border-color 160ms ease-out;
 }
 input::placeholder { color: var(--mute); opacity: 1; }
+/* the DELETE hint must not look like typed text */
+input.confirm-input::placeholder { opacity: 0.45; font-style: italic; }
 input:focus, select:focus { border-color: var(--or); outline: none; }
 .app:not(.themed) input:focus, .app:not(.themed) select:focus { border-color: var(--ink); }
 .grid2 { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 12px; }
@@ -207,6 +209,8 @@ input[type="date"]::-webkit-calendar-picker-indicator { margin: 0; }
 .hero .big { font-size: 3.4rem; line-height: 1; letter-spacing: -0.03em; }
 .hero .big.bad-text { color: var(--red); }
 .meter { height: 12px; border-radius: 6px; background: var(--field); overflow: hidden; margin: 10px 0 4px; }
+/* the track carries the country color, so the meter belongs to the trip even when its fill is ink */
+.themed .meter { background: color-mix(in srgb, var(--or) 24%, var(--field)); }
 .meter i { display: block; height: 100%; border-radius: 6px; background: var(--meter, var(--or)); width: calc(var(--p, 0) * 100%); min-width: 12px; transition: width 600ms cubic-bezier(0.22, 1, 0.36, 1); }
 .meter.over i { background: repeating-linear-gradient(-45deg, var(--red) 0 7px, color-mix(in srgb, var(--red) 55%, var(--sign)) 7px 14px); }
 .meter.zero i { min-width: 0; }
@@ -262,6 +266,7 @@ input[type="date"]::-webkit-calendar-picker-indicator { margin: 0; }
 .row-amt { flex: none; }
 .row-sub { display: flex; gap: 5px; min-width: 0; font-size: 0.85rem; color: var(--mute); font-weight: 600; white-space: nowrap; }
 .row-sub > * { flex: none; }
+.row-note-line { display: block; font-size: 0.85rem; font-weight: 500; color: var(--ink); min-width: 0; overflow-wrap: anywhere; line-height: 1.3; }
 .row-sub .row-note { flex: 0 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; color: var(--ink); font-weight: 500; }
 .row-amt { display: flex; flex-direction: column; align-items: flex-end; font-weight: 800; }
 .row-amt .muted { font-weight: 600; font-size: 0.85rem; }
@@ -387,7 +392,9 @@ input[type="date"]::-webkit-calendar-picker-indicator { margin: 0; }
 
 /* a trip's country color replaces the main color inside that trip, and washes the ground */
 .themed { --or: var(--brand); --on-or: var(--on-brand); --bg: color-mix(in oklab, var(--brand) 8%, #f6f2ef); --field: color-mix(in oklab, var(--brand) 6%, #f3efec); }
-[data-theme="dark"] .themed { --or: var(--brand-dark); --on-or: var(--on-brand-dark); --bg: color-mix(in oklab, var(--brand-dark) 9%, #1b1715); --field: color-mix(in oklab, var(--brand-dark) 8%, #332b27); }
+/* dark: a deeper ground and lighter cards, so cards stay distinct even on a red trip */
+[data-theme="dark"] .themed { --or: var(--brand-dark); --on-or: var(--on-brand-dark); --bg: color-mix(in oklab, var(--brand-dark) 6%, #120f0e); --sign: #302926; --field: color-mix(in oklab, var(--brand-dark) 8%, #3b3330); --line: #4a403b; }
+[data-theme="dark"] .themed .card { box-shadow: inset 0 0 0 1px var(--line); }
 .seg.theme-pick { margin-top: 6px; }
 .app.themed { background: var(--bg); }
 .trip.themed { --bg: var(--stone); }
@@ -443,7 +450,6 @@ html[data-nav] .band-in { animation: none; } /* the whole screen is already slid
 .trips li.trip { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; transition: transform 160ms var(--spring), box-shadow 160ms ease-out; }
 .trips li.trip.lifted { transform: scale(1.02); box-shadow: var(--float); position: relative; z-index: 2; }
 .trips.dragging li.trip:not(.lifted) { opacity: 0.85; }
-.hint { text-align: center; width: auto !important; margin: -4px auto 0; }
 .last-export { margin: 0 0 4px; font-weight: 700; color: var(--ink); }
 .last-export.never { color: var(--red); }
 

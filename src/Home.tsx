@@ -5,7 +5,7 @@ import Backdrop from './Backdrop';
 import { findCountry, flagEmoji, tripTheme } from './countries';
 import Icon from './icons';
 import Jet from './Jet';
-import { dayLabel } from './money';
+import { dayLabel, todayLocal } from './money';
 import { EMPTY_DATA, type App } from './store';
 import type { Enter } from './App';
 import { navigate } from './navMotion';
@@ -19,6 +19,9 @@ type Overlay = { step: 'new' } | { step: 'menu' | 'edit' | 'confirm'; id: string
 const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : many}`;
 const md = (d: string) => dayLabel(d).slice(4);
 const HOLD_MS = 400;
+type Bucket = 'now' | 'past';
+/** Remembered while the app is open, so coming back from a trip lands on the tab it was opened from. */
+let lastBucket: Bucket | undefined;
 
 export default function Home({ app, onOpen, enter }: { app: App; onOpen: (id: string) => void; enter: Enter }) {
   const [overlay, setOverlay] = useState<Overlay>(null);
@@ -37,6 +40,15 @@ export default function Home({ app, onOpen, enter }: { app: App; onOpen: (id: st
   const close = () => setOverlay(null);
 
   const sorted = useMemo(() => sortTrips(app.trips), [app.trips]);
+  const isPast = (t: Trip) => t.tripEnd < today;
+  const pastCount = sorted.filter(isPast).length;
+  // Current and future trips by default; the Past tab when every trip is over.
+  const [bucket, setBucketState] = useState<Bucket>(() => lastBucket ?? (sorted.length > 0 && sorted.every((t) => t.tripEnd < todayLocal()) ? 'past' : 'now'));
+  const setBucket = (b: Bucket) => {
+    lastBucket = b;
+    setBucketState(b);
+  };
+  const shown = sorted.filter((t) => isPast(t) === (bucket === 'past'));
   const target = overlay && overlay.step !== 'new' ? app.trips.find((t) => t.id === overlay.id) : undefined;
   const targetEntries = target
     ? (() => {
@@ -44,6 +56,9 @@ export default function Home({ app, onOpen, enter }: { app: App; onOpen: (id: st
         return d.cardCharges.length + d.cashPurchases.length + d.cashBought.length;
       })()
     : 0;
+
+  /** The order of the visible tab's trips, followed by the other tab's trips in their current order. */
+  const fullOrder = (visible: string[]) => [...visible, ...sorted.filter((t) => !visible.includes(t.id)).map((t) => t.id)];
 
   /** Save a new order: every trip gets its position. */
   async function saveOrder(ids: string[]) {
@@ -54,12 +69,12 @@ export default function Home({ app, onOpen, enter }: { app: App; onOpen: (id: st
   }
 
   function move(id: string, by: -1 | 1) {
-    const ids = sorted.map((t) => t.id);
+    const ids = shown.map((t) => t.id);
     const i = ids.indexOf(id);
     const j = i + by;
     if (i < 0 || j < 0 || j >= ids.length) return;
     [ids[i], ids[j]] = [ids[j], ids[i]];
-    void saveOrder(ids);
+    void saveOrder(fullOrder(ids));
   }
 
   if (view === 'settings') {
@@ -83,7 +98,7 @@ export default function Home({ app, onOpen, enter }: { app: App; onOpen: (id: st
     );
   }
 
-  const targetIndex = target ? sorted.findIndex((t) => t.id === target.id) : -1;
+  const targetIndex = target ? shown.findIndex((t) => t.id === target.id) : -1;
 
   return (
     <div className="app">
@@ -98,15 +113,30 @@ export default function Home({ app, onOpen, enter }: { app: App; onOpen: (id: st
       </header>
       <main>
         <div className={`screen page ${motion}`}>
+          {sorted.length > 0 && (
+            <div className="seg" role="tablist" aria-label="Trips">
+              <button type="button" role="tab" aria-selected={bucket === 'now'} className={bucket === 'now' ? 'on' : ''} onClick={() => setBucket('now')}>
+                Current &amp; upcoming
+              </button>
+              <button type="button" role="tab" aria-selected={bucket === 'past'} className={bucket === 'past' ? 'on' : ''} onClick={() => setBucket('past')}>
+                Past{pastCount > 0 ? ` (${pastCount})` : ''}
+              </button>
+            </div>
+          )}
+
           {sorted.length === 0 && (
             <div className="empty">
               <Jet className="jet" />
               <p className="muted">No trips yet. Create your first one to start logging spending.</p>
             </div>
           )}
+          {sorted.length > 0 && shown.length === 0 && (
+            <div className="empty">
+              <p className="muted">{bucket === 'past' ? 'No past trips yet. A trip moves here the day after it ends.' : 'No current or upcoming trips. Create one below.'}</p>
+            </div>
+          )}
 
-          <TripList trips={sorted} app={app} today={today} onOpen={onOpen} onMenu={(id) => setOverlay({ step: 'menu', id })} onReorder={(ids) => void saveOrder(ids)} />
-          {sorted.length > 1 && <p className="muted small hint">Hold a trip and drag it to change the order.</p>}
+          <TripList key={bucket} trips={shown} app={app} today={today} onOpen={onOpen} onMenu={(id) => setOverlay({ step: 'menu', id })} onReorder={(ids) => void saveOrder(fullOrder(ids))} />
 
           <button type="button" className="primary" onClick={() => setOverlay({ step: 'new' })}>New trip</button>
         </div>
@@ -125,6 +155,7 @@ export default function Home({ app, onOpen, enter }: { app: App; onOpen: (id: st
                 const top = Math.min(0, ...app.trips.map((x) => x.order ?? 0)) - 1;
                 const created = { ...t, createdAt: Date.now(), ...(app.trips.some((x) => x.order !== undefined) ? { order: top } : {}) };
                 await app.saveTrip(created, r);
+                setBucket(created.tripEnd < today ? 'past' : 'now');
                 close();
                 onOpen(created.id);
               }}
@@ -138,10 +169,10 @@ export default function Home({ app, onOpen, enter }: { app: App; onOpen: (id: st
           <div className="sheet menu" role="dialog" aria-modal="true" aria-label="Trip options">
             <p className="menu-title">{target.name}</p>
             <button type="button" className="secondary" onClick={() => setOverlay({ step: 'edit', id: target.id })}>Edit trip</button>
-            {sorted.length > 1 && (
+            {shown.length > 1 && (
               <div className="menu-pair">
                 <button type="button" className="secondary" disabled={targetIndex <= 0} onClick={() => { move(target.id, -1); close(); }}>Move up</button>
-                <button type="button" className="secondary" disabled={targetIndex >= sorted.length - 1} onClick={() => { move(target.id, 1); close(); }}>Move down</button>
+                <button type="button" className="secondary" disabled={targetIndex >= shown.length - 1} onClick={() => { move(target.id, 1); close(); }}>Move down</button>
               </div>
             )}
             <button type="button" className="danger" onClick={() => setOverlay({ step: 'confirm', id: target.id })}>Delete trip</button>

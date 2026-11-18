@@ -103,7 +103,7 @@ export default function TripForm({ initial, saveLabel, discardLabel = 'Discard c
       </label>
 
       <div className="field">
-        <span>Cards</span>
+        <span>Credit Card</span>
         {cards.map((c, i) => (
           <div key={i} className="card-edit">
             <input aria-label={`Card ${i + 1} name`} value={c.name} onChange={(e) => setCards(cards.map((x, j) => (j === i ? { ...x, name: e.target.value } : x)))} />

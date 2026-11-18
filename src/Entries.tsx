@@ -150,15 +150,13 @@ export function RowBody({ r, store }: { r: Row; store: Store }) {
   );
 }
 
-/** The line under an entry's name: its note when there is one, with how it was paid in parentheses. */
+/** The line under an entry's name: how it was paid, then the note on its own line when there is one. */
 function Sub({ note, pay }: { note?: string; pay: string }) {
-  return note ? (
-    <span className="row-sub">
-      <span className="row-note">{note}</span>
-      <span>({pay})</span>
-    </span>
-  ) : (
-    <span className="row-sub">{pay}</span>
+  return (
+    <>
+      <span className="row-sub">{pay}</span>
+      {note && <span className="row-note-line">{note}</span>}
+    </>
   );
 }
 

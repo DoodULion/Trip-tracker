@@ -12,6 +12,7 @@ import { UndoProvider } from './undo';
 import { tripPhase, type Trip } from './calc';
 import { findCountry, flagEmoji, tripTheme } from './countries';
 import { useToday } from './useToday';
+import { todayLocal } from './money';
 import { navigate } from './navMotion';
 
 type Tab = 'summary' | 'add' | 'entries' | 'days' | 'payments';
@@ -32,6 +33,16 @@ export default function App() {
   // The app always opens on the trips list; a trip opens only when chosen.
   const [openId, setOpenId] = useState<string | null>(null);
   const [enter, setEnter] = useState<Enter>('');
+  const launched = useRef(false);
+
+  // On launch only: if today falls inside a trip's dates, open that trip (its Summary); otherwise stay on the list.
+  // Going back to the list later must not reopen it, so this runs once.
+  if (app.ready && !launched.current) {
+    launched.current = true;
+    const now = todayLocal();
+    const current = app.trips.find((t) => t.tripStart <= now && now <= t.tripEnd);
+    if (current) setOpenId(current.id);
+  }
 
   if (!app.ready) return <p className="screen" style={{ padding: 16 }}>Loading…</p>;
   const trip = openId ? app.trips.find((t) => t.id === openId) : undefined;

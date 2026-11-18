@@ -211,6 +211,7 @@ export default function AppTools({ app }: { app: App }) {
           aria-label="Type DELETE to confirm"
           value={confirmText}
           onChange={(e) => setConfirmText(e.target.value)}
+          className="confirm-input"
           placeholder="DELETE"
           autoCapitalize="characters"
           autoComplete="off"
