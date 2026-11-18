@@ -9,6 +9,29 @@ export default function SheetBackdrop({ onClose, children, ...rest }: { onClose:
   const closeRef = useRef(onClose);
   closeRef.current = onClose;
 
+  const ref = useRef<HTMLDivElement>(null);
+
+  // With the keyboard open the sheet stays inside the part of the screen you can see: the backdrop is sized to the
+  // visual viewport (what is left above the keyboard), so the whole card fits, and the focused field is kept in view.
+  useEffect(() => {
+    const vv = window.visualViewport;
+    const el = ref.current;
+    if (!vv || !el) return;
+    const fit = () => {
+      el.style.setProperty('--vv-h', `${vv.height}px`);
+      el.style.setProperty('--vv-top', `${vv.offsetTop}px`);
+      const f = document.activeElement;
+      if (f instanceof HTMLElement && el.contains(f) && /^(INPUT|TEXTAREA|SELECT)$/.test(f.tagName)) f.scrollIntoView({ block: 'nearest' });
+    };
+    fit();
+    vv.addEventListener('resize', fit);
+    vv.addEventListener('scroll', fit);
+    return () => {
+      vv.removeEventListener('resize', fit);
+      vv.removeEventListener('scroll', fit);
+    };
+  }, []);
+
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape' && !dirty.current) closeRef.current();
@@ -19,6 +42,7 @@ export default function SheetBackdrop({ onClose, children, ...rest }: { onClose:
 
   return (
     <div
+      ref={ref}
       className="sheet-backdrop"
       {...rest}
       onInputCapture={() => {

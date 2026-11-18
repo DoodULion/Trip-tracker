@@ -155,7 +155,7 @@ input::placeholder { color: var(--mute); opacity: 1; }
 input.confirm-input::placeholder { opacity: 0.45; font-style: italic; }
 input:focus, select:focus { border-color: var(--or); outline: none; }
 .app:not(.themed) input:focus, .app:not(.themed) select:focus { border-color: var(--ink); }
-.grid2 { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 12px; }
+.grid2 { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 12px; align-items: end; } /* inputs line up on their bottom edge even when one label wraps to two lines */
 /* iOS gives date inputs a wide built-in minimum; drop it so Start and End share the row evenly */
 input[type="date"] { -webkit-appearance: none; appearance: none; display: block; max-width: 100%; text-align: left; }
 input[type="date"]::-webkit-date-and-time-value { text-align: left; }
@@ -348,12 +348,12 @@ input[type="date"]::-webkit-calendar-picker-indicator { margin: 0; }
 
 /* sheets */
 .sheet-backdrop {
-  position: fixed; inset: 0; z-index: 10; background: var(--scrim); display: flex; align-items: flex-end; justify-content: center; overflow-y: auto;
+  position: fixed; left: 0; right: 0; top: var(--vv-top, 0px); height: var(--vv-h, 100%); z-index: 10; background: var(--scrim); display: flex; align-items: flex-end; justify-content: center; overflow-y: auto;
   /* the whole sheet floats clear of the screen edges and the home indicator */
   padding: calc(env(safe-area-inset-top) + 12px) calc(env(safe-area-inset-right) + 10px) calc(env(safe-area-inset-bottom) + 12px) calc(env(safe-area-inset-left) + 10px);
 }
 .sheet {
-  width: 100%; max-width: 640px; max-height: calc(100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 24px); overflow-y: auto;
+  width: 100%; max-width: 640px; max-height: calc(var(--vv-h, 100dvh) - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 24px); overflow-y: auto;
   background: var(--bg); border-radius: var(--r-hero); box-shadow: var(--float);
   padding: 20px 18px 18px;
   display: flex; flex-direction: column; gap: 16px;
@@ -468,9 +468,13 @@ html[data-nav] .band-in { animation: none; } /* the whole screen is already slid
 .app:has(.sheet-backdrop) .tabbar { transform: translateY(140%); opacity: 0; pointer-events: none; }
 .head-r { display: inline-flex; align-items: center; gap: 4px; }
 .card-head .more { margin: -10px -10px -10px 0; }
-.sum-card { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; transition: transform 160ms var(--spring), box-shadow 160ms ease-out; }
-.sum-card.lifted { transform: scale(1.02); box-shadow: var(--float); position: relative; z-index: 2; }
+.sum-card { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; }
+.sum-card.lifted { box-shadow: var(--float); }
 .cols.dragging .sum-card:not(.lifted) { opacity: 0.85; }
+/* hold-and-drag motion: press in while holding, rise (scale + shadow) once lifted; the move itself is set by useHoldDrag */
+:is(.sum-card, li.trip) { transition: scale 240ms var(--spring), box-shadow 240ms ease-out, opacity 200ms ease-out; }
+:is(.sum-card, li.trip)[data-pressing] { scale: 0.975; transition-duration: 400ms; }
+:is(.sum-card, li.trip).lifted { scale: 1.035; position: relative; z-index: 2; }
 .cols.editing .sum-card { box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--or) 45%, var(--line)); }
 .add-card {
   display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 64px; border-radius: var(--r-card);
@@ -534,8 +538,8 @@ html[data-nav] .band-in { animation: none; } /* the whole screen is already slid
 .formula-preview { margin: 0; color: var(--mute); }
 .formula .seg button { font-size: 1.35rem; color: var(--ink); }
 .formula-preview b { color: var(--ink); }
-.trips li.trip { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; transition: transform 160ms var(--spring), box-shadow 160ms ease-out; }
-.trips li.trip.lifted { transform: scale(1.02); box-shadow: var(--float); position: relative; z-index: 2; }
+.trips li.trip { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; }
+.trips li.trip.lifted { box-shadow: var(--float); }
 .trips.dragging li.trip:not(.lifted) { opacity: 0.85; }
 .last-export { margin: 0 0 4px; font-weight: 700; color: var(--ink); }
 .last-export.never { color: var(--red); }
