@@ -76,15 +76,15 @@ describe('importing an old single-trip (v1) backup', () => {
 describe('toCsv', () => {
   const csv = toCsv([japan, korea]).replace('﻿', '').split('\r\n');
   it('has a header and one line per entry, trips in order, oldest first', () => {
-    expect(csv[0]).toBe('Trip,Type,Date,Category,Card,Yen,Dollars,Note');
+    expect(csv[0]).toBe('Trip,Type,Date,Category,Card,Amount,Currency,Dollars,Note');
     expect(csv).toHaveLength(1 + 4 + 1 + 1);
-    expect(csv[1]).toBe('Japan,Card,2026-11-26,Food,Apple Card,1600,10.00,');
-    expect(csv[4]).toBe('Japan,Cash,2026-11-27,Suica,,3200,,');
-    expect(csv[5]).toBe('Korea,Cash,2027-03-02,Food,,900,,');
+    expect(csv[1]).toBe('Japan,Card,2026-11-26,Food,Apple Card,1600,JPY,10.00,');
+    expect(csv[4]).toBe('Japan,Cash,2026-11-27,Suica,,3200,JPY,,');
+    expect(csv[5]).toBe('Korea,Cash,2027-03-02,Food,,900,JPY,,');
   });
   it('quotes commas and quotes, and defuses formulas', () => {
-    expect(csv[2]).toBe('Japan,Card,2026-11-26,Misc,,500,,"gift, ""nice"""');
-    expect(csv[3]).toBe("Japan,Cash bought,2026-11-26,,,30000,200.00,'=ATM");
+    expect(csv[2]).toBe('Japan,Card,2026-11-26,Misc,,500,JPY,,"gift, ""nice"""');
+    expect(csv[3]).toBe("Japan,Cash bought,2026-11-26,,,30000,JPY,200.00,'=ATM");
   });
 });
 

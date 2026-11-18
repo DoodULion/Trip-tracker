@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { type CardCharge, type CashBought, type CashPurchase, type Category } from './calc';
 import { centsToInput, parseCents, parseYen } from './money';
+import { amountHint, getCurrency, minorToInput } from './currency';
 import { Roundel } from './Roundel';
 import SheetBackdrop from './SheetBackdrop';
 import { useUndo } from './undo';
@@ -18,7 +19,7 @@ export default function EditSheet({ row, store, onClose }: { row: Row; store: St
   const e = row.e;
   const { offer } = useUndo();
   const [date, setDate] = useState(e.date);
-  const [yen, setYen] = useState(e.yen !== undefined ? String(e.yen) : '');
+  const [yen, setYen] = useState(minorToInput(e.yen));
   const [dollars, setDollars] = useState('cents' in e ? centsToInput(e.cents) : '');
   const [category, setCategory] = useState<Category>('category' in e ? e.category : 'Food');
   const [card, setCard] = useState('card' in e ? e.card : '');
@@ -34,24 +35,26 @@ export default function EditSheet({ row, store, onClose }: { row: Row; store: St
     (missingDollars ? dollarsRef : yenRef).current?.focus();
   }, [missingDollars]);
 
+  const cur = getCurrency();
+
   async function submit(ev: FormEvent) {
     ev.preventDefault();
     setError('');
     const y = parseYen(yen);
     const c = parseCents(dollars);
-    if (yen.trim() !== '' && y === undefined) return setError('Yen must be a whole number.');
+    if (yen.trim() !== '' && y === undefined) return setError(`${cur.name} must be ${amountHint(cur)}.`);
     if (dollars.trim() !== '' && c === undefined) return setError('Dollars must look like 10.50.');
     const n = note.trim() || undefined;
 
     if (kind === 'card') {
-      if (y === undefined && c === undefined) return setError('Enter yen, dollars, or both.');
+      if (y === undefined && c === undefined) return setError(`Enter ${cur.name.toLowerCase()}, dollars, or both.`);
       await store.addCardCharge({ id: e.id, date, category, card, yen: y, cents: c, note: n });
     } else if (kind === 'cash') {
-      if (y === undefined || y <= 0) return setError('Enter the yen amount.');
+      if (y === undefined || y <= 0) return setError(`Enter the amount in ${cur.name.toLowerCase()}.`);
       if (c !== undefined && c <= 0) return setError('Leave USD paid blank, or enter more than $0.');
       await store.addCashPurchase({ id: e.id, date, category, yen: y, ...(c !== undefined ? { cents: c } : {}), note: n });
     } else {
-      if (y === undefined || y <= 0) return setError('Enter the yen you received.');
+      if (y === undefined || y <= 0) return setError(`Enter the ${cur.name.toLowerCase()} you received.`);
       if (c === undefined || c <= 0) return setError('Enter the dollars you paid, including fees.');
       await store.addCashBought({ id: e.id, date, yen: y, cents: c, where: where.trim() || undefined });
     }
@@ -66,12 +69,12 @@ export default function EditSheet({ row, store, onClose }: { row: Row; store: St
 
         <div className="grid2">
           <label className="field">
-            <span>{kind === 'bought' ? 'Yen received' : 'Yen'}</span>
-            <input ref={yenRef} value={yen} onChange={(ev) => setYen(ev.target.value)} inputMode="numeric" autoComplete="off" />
+            <span>{kind === 'bought' ? `${cur.name} received` : cur.name}</span>
+            <input ref={yenRef} value={yen} onChange={(ev) => setYen(ev.target.value)} inputMode={cur.decimals ? 'decimal' : 'numeric'} autoComplete="off" />
           </label>
           {(
             <label className="field">
-              <span>{kind === 'bought' ? 'Dollars paid (with fees)' : kind === 'cash' ? 'USD paid (optional)' : 'Dollars'}</span>
+              <span>{kind === 'bought' ? 'Dollars paid' : kind === 'cash' ? 'USD paid (optional)' : 'Dollars'}</span>
               <input ref={dollarsRef} value={dollars} onChange={(ev) => setDollars(ev.target.value)} inputMode="decimal" autoComplete="off" />
             </label>
           )}

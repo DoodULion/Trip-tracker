@@ -1,5 +1,6 @@
 import { useToday } from './useToday';
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { getCurrency } from './currency';
 import { computeDays, formatDollars, formatRate, formatYen } from './calc';
 import { RowBody } from './Entries';
 import { type Row } from './EditSheet';
@@ -68,7 +69,7 @@ export default function Days({ store }: { store: Store }) {
               {isOpen && (
                 <div className="st-body">
                   <dl className="kv">
-                    <dt>Total ¥</dt>
+                    <dt>Total {getCurrency().symbol.trim()}</dt>
                     <dd>{formatYen(d.totalYen)}</dd>
                     <dt>Day rate</dt>
                     <dd>{formatRate(d.rate) || '—'}</dd>

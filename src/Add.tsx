@@ -5,6 +5,7 @@ import NameSheet from './NameSheet';
 import { Roundel } from './Roundel';
 import type { EntryStore } from './db';
 import { clampDate, dayLabel, newId, parseCents, parseYen, todayLocal } from './money';
+import { amountHint, getCurrency } from './currency';
 import { useUndo } from './undo';
 import type { Store } from './store';
 
@@ -37,12 +38,14 @@ export default function Add({ store }: { store: Store }) {
   const [error, setError] = useState('');
   const { offer } = useUndo();
 
+  const cur = getCurrency();
+
   async function submit(ev: FormEvent) {
     ev.preventDefault();
     setError('');
     const y = parseYen(yen);
     const c = parseCents(dollars);
-    if (yen.trim() !== '' && y === undefined) return setError('Yen must be a whole number.');
+    if (yen.trim() !== '' && y === undefined) return setError(`${cur.name} must be ${amountHint(cur)}.`);
     if (dollars.trim() !== '' && c === undefined) return setError('Dollars must look like 10.50.');
     const id = newId();
     const n = note.trim() || undefined;
@@ -51,14 +54,14 @@ export default function Add({ store }: { store: Store }) {
 
     let after: Data;
     if (mode === 'card') {
-      if (y === undefined && c === undefined) return setError('Enter yen, dollars, or both.');
+      if (y === undefined && c === undefined) return setError(`Enter ${cur.name.toLowerCase()}, dollars, or both.`);
       const entry = { id, date, category, card, yen: y, cents: c, note: n };
       after = { ...store.data, cardCharges: [...store.data.cardCharges, entry] };
       await store.addCardCharge(entry);
       await store.setPrefs({ lastCard: card, lastCategory: category });
       msg = `Saved ${y !== undefined ? formatYen(y) : ''}${y !== undefined && c !== undefined ? ` (${formatDollars(c)})` : c !== undefined ? formatDollars(c) : ''}.`;
     } else {
-      if (y === undefined || y <= 0) return setError('Enter the yen amount.');
+      if (y === undefined || y <= 0) return setError(`Enter the amount in ${cur.name.toLowerCase()}.`);
       if (c !== undefined && c <= 0) return setError('Leave USD paid blank, or enter more than $0.');
       const entry = { id, date, category, yen: y, ...(c !== undefined ? { cents: c } : {}), note: n };
       after = { ...store.data, cashPurchases: [...store.data.cashPurchases, entry] };
@@ -108,8 +111,8 @@ export default function Add({ store }: { store: Store }) {
 
       <div className="grid2">
         <label className="field">
-          <span>Yen</span>
-          <input value={yen} onChange={(e) => setYen(e.target.value)} inputMode="numeric" placeholder="¥" autoComplete="off" />
+          <span>{cur.name}</span>
+          <input value={yen} onChange={(e) => setYen(e.target.value)} inputMode={cur.decimals ? 'decimal' : 'numeric'} placeholder={cur.symbol.trim()} autoComplete="off" />
         </label>
         <label className="field">
           <span>{mode === 'card' ? 'Dollars (optional)' : 'USD paid (optional)'}</span>

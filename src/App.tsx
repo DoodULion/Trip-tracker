@@ -10,6 +10,7 @@ import { tripStore, useApp, type App as AppState } from './store';
 import Backdrop from './Backdrop';
 import { UndoProvider } from './undo';
 import { type Trip } from './calc';
+import { currencyFor, setCurrency } from './currency';
 import { findCountry, flagEmoji, tripTheme } from './countries';
 import { todayLocal } from './money';
 import { navigate } from './navMotion';
@@ -79,6 +80,8 @@ export default function App() {
 
 function TripView({ app, trip, enter, onBack }: { app: AppState; trip: Trip; enter: Enter; onBack: () => void }) {
   const store = tripStore(app, trip);
+  // Every amount on this trip's screens is shown in its currency (see currency.ts).
+  setCurrency(currencyFor(trip.country));
   const [tab, setTab] = useState<Tab>('summary');
   // The first page slides in with the trip; later tab changes slide toward the tab that was tapped.
   const motion = useRef<string>(enter);

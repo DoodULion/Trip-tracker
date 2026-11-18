@@ -121,7 +121,7 @@ export default function CardSheet({ initial, catalog, series, unitOf, valueOf, m
             {DISPLAYS.map((d) => <option key={d.id} value={d.id}>{d.label}</option>)}
           </select>
         </label>
-        {display === 'bars' && <p className="muted small">Each bar is sized against the largest figure of the same kind (dollars with dollars, yen with yen).</p>}
+        {display === 'bars' && <p className="muted small">Each bar is sized against the largest figure of the same kind (dollars with dollars, local currency with local currency).</p>}
         {display === 'donut' && <p className="muted small">The pie shares out figures of the same kind as the first one, above zero; pick parts of a whole, such as categories or cards.</p>}
 
         {daily && (

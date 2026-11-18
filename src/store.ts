@@ -2,7 +2,8 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { CATEGORIES, applyEstimates, type CardCharge, type CashBought, type CashPurchase, type Data, type Settings, type Trip } from './calc';
 import * as db from './db';
 import { todayLocal } from './money';
-import { fetchSpotRate } from './rates';
+import { currencyFor, scaleOf } from './currency';
+import { fetchSpotRate, hasMarketRate } from './rates';
 import type { EntryMap, EntryStore, Prefs, TripWithData } from './db';
 
 export const EMPTY_DATA: Data = { cardCharges: [], cashPurchases: [], cashBought: [] };
@@ -19,8 +20,10 @@ export interface App {
   removeCategory(name: string): Promise<void>;
   /** Put back any deleted built-in categories (in their usual order, ahead of the owner's own). */
   restoreBuiltInCategories(): Promise<void>;
-  /** Market rates fetched for days with card charges still missing dollars (YYYY-MM-DD → yen per $). */
-  spot: Record<string, number>;
+  /** Market rates fetched for days with card charges still missing dollars (currency code → YYYY-MM-DD → local currency per $). */
+  spot: Record<string, Record<string, number>>;
+  /** The market rates for one trip's currency, on the scale its amounts are stored in (see scaleOf), for estimates. */
+  spotFor(trip: Pick<Trip, 'country'>): Record<string, number>;
   /** A trip's entries with estimated dollars filled in for card charges still missing them (for totals only). */
   calcData(tripId: string): Data;
   saveEntry<S extends EntryStore>(store: S, tripId: string, entry: EntryMap[S]): Promise<void>;
@@ -41,7 +44,7 @@ export interface Store {
   data: Data;
   /** The entries with estimated dollars on card charges still missing them. Use this for totals. */
   calcData: Data;
-  /** Cached market rates (YYYY-MM-DD → yen per $) used for estimates. */
+  /** Cached market rates for this trip's currency (YYYY-MM-DD → local minor units per $ ×100) used for estimates. */
   spot: Record<string, number>;
   /** Categories to offer for new entries (deleted ones are not offered; past entries keep theirs). */
   categories: string[];
@@ -65,7 +68,7 @@ export function useApp(): App {
   const [trips, setTrips] = useState<Trip[]>([]);
   const [data, setData] = useState<Record<string, Data>>({});
   const [prefs, setPrefsState] = useState<Record<string, Prefs>>({});
-  const [spot, setSpot] = useState<Record<string, number>>({});
+  const [spot, setSpot] = useState<Record<string, Record<string, number>>>({});
   const [categories, setCategories] = useState<string[]>([...CATEGORIES]);
   const tried = useRef(new Set<string>());
 
@@ -85,23 +88,45 @@ export function useApp(): App {
   useEffect(() => {
     if (!ready) return;
     const today = todayLocal();
-    const wanted = new Set<string>();
-    for (const d of Object.values(data))
-      for (const c of d.cardCharges) if (c.cents === undefined && c.yen && !spot[c.date] && !tried.current.has(c.date)) wanted.add(c.date > today ? today : c.date);
-    for (const date of wanted) {
-      tried.current.add(date);
-      void fetchSpotRate(date).then((rate) => {
+    const wanted = new Set<string>(); // "CODE|date"
+    for (const t of trips) {
+      const code = currencyFor(t.country).code;
+      if (!hasMarketRate(code)) continue; // no published rate: such charges use your own card rate instead
+      for (const c of data[t.id]?.cardCharges ?? []) {
+        const date = c.date > today ? today : c.date;
+        if (c.cents === undefined && c.yen && !spot[code]?.[c.date] && !tried.current.has(`${code}|${date}`)) wanted.add(`${code}|${date}`);
+      }
+    }
+    for (const key of wanted) {
+      const [code, date] = key.split('|');
+      tried.current.add(key);
+      void fetchSpotRate(date, code).then((rate) => {
         if (rate === undefined) {
-          tried.current.delete(date); // try again next time something changes
+          tried.current.delete(key); // try again next time something changes
           return;
         }
-        void db.saveSpotRate(date, rate);
-        setSpot((all) => ({ ...all, [date]: rate }));
+        void db.saveSpotRate(code, date, rate);
+        setSpot((all) => ({ ...all, [code]: { ...all[code], [date]: rate } }));
       });
     }
-  }, [ready, data, spot]);
+  }, [ready, data, spot, trips]);
 
-  const calcData = useCallback((tripId: string) => applyEstimates(data[tripId] ?? EMPTY_DATA, spot), [data, spot]);
+  const spotFor = useCallback(
+    (trip: Pick<Trip, 'country'>) => {
+      const cur = currencyFor(trip.country);
+      const scale = scaleOf(cur);
+      return Object.fromEntries(Object.entries(spot[cur.code] ?? {}).map(([d, r]) => [d, r * scale]));
+    },
+    [spot],
+  );
+
+  const calcData = useCallback(
+    (tripId: string) => {
+      const trip = trips.find((t) => t.id === tripId);
+      return applyEstimates(data[tripId] ?? EMPTY_DATA, trip ? spotFor(trip) : {});
+    },
+    [data, trips, spotFor],
+  );
 
   const saveEntry = useCallback(async <S extends EntryStore>(store: S, tripId: string, entry: EntryMap[S]) => {
     await db.putEntry(store, tripId, entry);
@@ -174,7 +199,7 @@ export function useApp(): App {
 
   const deleteAll = useCallback(() => replaceAll([]), [replaceAll]);
 
-  return { ready, trips, data, prefs, categories, addCategory, removeCategory, restoreBuiltInCategories, spot, calcData, saveEntry, removeEntry, setPrefs, saveTrip, deleteTrip, replaceAll, deleteAll };
+  return { ready, trips, data, prefs, categories, addCategory, removeCategory, restoreBuiltInCategories, spot, spotFor, calcData, saveEntry, removeEntry, setPrefs, saveTrip, deleteTrip, replaceAll, deleteAll };
 }
 
 /** A view of the app scoped to one trip, in the shape the trip screens expect. */
@@ -185,7 +210,7 @@ export function tripStore(app: App, trip: Trip): Store {
     settings: trip,
     data: app.data[id] ?? EMPTY_DATA,
     calcData: app.calcData(id),
-    spot: app.spot,
+    spot: app.spotFor(trip),
     categories: app.categories,
     addCategory: app.addCategory,
     prefs: app.prefs[id] ?? {},

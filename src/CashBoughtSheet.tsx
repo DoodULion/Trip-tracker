@@ -1,11 +1,12 @@
 import { useState, type FormEvent } from 'react';
 import SheetBackdrop from './SheetBackdrop';
 import { clampDate, newId, parseCents, parseYen, todayLocal } from './money';
+import { amountHint, getCurrency } from './currency';
 import { formatDollars, formatYen } from './calc';
 import { useUndo } from './undo';
 import type { Store } from './store';
 
-/** Log yen received from an ATM or exchange, and the dollars paid including fees. Nothing is focused automatically. */
+/** Log the local currency received from an ATM or exchange, and the dollars paid including fees. Nothing is focused automatically. */
 export default function CashBoughtSheet({ store, onClose }: { store: Store; onClose: () => void }) {
   const { settings } = store;
   const { offer } = useUndo();
@@ -15,12 +16,14 @@ export default function CashBoughtSheet({ store, onClose }: { store: Store; onCl
   const [where, setWhere] = useState('');
   const [error, setError] = useState('');
 
+  const cur = getCurrency();
+
   async function submit(ev: FormEvent) {
     ev.preventDefault();
     setError('');
     const y = parseYen(yen);
     const c = parseCents(dollars);
-    if (y === undefined || y <= 0) return setError('Enter the yen you received, as a whole number.');
+    if (y === undefined || y <= 0) return setError(`Enter the ${cur.name.toLowerCase()} you received, as ${amountHint(cur)}.`);
     if (c === undefined || c <= 0) return setError('Enter the dollars you paid, including fees, like 200.00.');
     const id = newId();
     await store.addCashBought({ id, date, yen: y, cents: c, where: where.trim() || undefined });
@@ -35,11 +38,11 @@ export default function CashBoughtSheet({ store, onClose }: { store: Store; onCl
         <p className="muted small">An ATM withdrawal or currency exchange. This sets your real cash rate.</p>
         <div className="grid2">
           <label className="field">
-            <span>Yen received</span>
-            <input value={yen} onChange={(e) => setYen(e.target.value)} inputMode="numeric" placeholder="¥" autoComplete="off" />
+            <span>{cur.name} received</span>
+            <input value={yen} onChange={(e) => setYen(e.target.value)} inputMode={cur.decimals ? 'decimal' : 'numeric'} placeholder={cur.symbol.trim()} autoComplete="off" />
           </label>
           <label className="field">
-            <span>Dollars paid (with fees)</span>
+            <span>Dollars paid</span>
             <input value={dollars} onChange={(e) => setDollars(e.target.value)} inputMode="decimal" placeholder="$" autoComplete="off" />
           </label>
         </div>

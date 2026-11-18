@@ -1,11 +1,9 @@
 /** Parsing and date helpers for form input. No float money math. */
+import { parseLocal } from './currency';
 
-/** "1,600" -> 1600. Blank or invalid -> undefined. */
+/** A local-currency amount as typed ("1,600" → 1600 yen; "12.50" → 1250 euro cents), in the trip being viewed. */
 export function parseYen(input: string): number | undefined {
-  const s = input.replace(/[,\s¥]/g, '');
-  if (!/^\d+$/.test(s)) return undefined;
-  const n = Number(s);
-  return Number.isSafeInteger(n) ? n : undefined;
+  return parseLocal(input);
 }
 
 /** "10", "10.5", "$1,234.56" -> integer cents, by string handling only. Blank or invalid -> undefined. */

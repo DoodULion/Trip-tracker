@@ -13,7 +13,8 @@
       (function () {
         var c = null;
         try { c = localStorage.getItem('trip-tracker-theme'); } catch (e) {}
-        var dark = c === 'dark' || (c !== 'light' && matchMedia('(prefers-color-scheme: dark)').matches);
+        // Light unless the owner chose Dark, or chose System and the phone is in dark mode.
+        var dark = c === 'dark' || (c === 'system' && matchMedia('(prefers-color-scheme: dark)').matches);
         document.documentElement.dataset.theme = dark ? 'dark' : 'light';
         document.querySelector('meta[name="theme-color"]').setAttribute('content', dark ? '#1b1715' : '#f1edea');
       })();

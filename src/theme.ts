@@ -1,5 +1,5 @@
 /**
- * Appearance: follow the system, or always light, or always dark.
+ * Appearance: light (the default), dark, or follow the system.
  * The choice is a per-device preference kept in localStorage (not trip data, so it is not in backups).
  * index.html applies it before the first paint; this module keeps it current afterwards.
  */
@@ -12,16 +12,15 @@ const media = typeof window !== 'undefined' ? window.matchMedia('(prefers-color-
 export function getThemeChoice(): ThemeChoice {
   try {
     const v = localStorage.getItem(KEY);
-    return v === 'light' || v === 'dark' ? v : 'system';
+    return v === 'dark' || v === 'system' ? v : 'light'; // nothing chosen yet: light
   } catch {
-    return 'system';
+    return 'light';
   }
 }
 
 export function setThemeChoice(choice: ThemeChoice): void {
   try {
-    if (choice === 'system') localStorage.removeItem(KEY);
-    else localStorage.setItem(KEY, choice);
+    localStorage.setItem(KEY, choice);
   } catch {
     // Storage blocked: the choice still applies for this session.
   }

@@ -11,9 +11,9 @@ import { EMPTY_DATA, type App } from './store';
 import { getThemeChoice, setThemeChoice, type ThemeChoice } from './theme';
 
 const THEMES: { id: ThemeChoice; label: string }[] = [
-  { id: 'system', label: 'System' },
   { id: 'light', label: 'Light' },
   { id: 'dark', label: 'Dark' },
+  { id: 'system', label: 'System' },
 ];
 
 const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : many}`;

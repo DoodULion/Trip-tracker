@@ -1,3 +1,4 @@
+import { getCurrency } from './currency';
 import type { CSSProperties } from 'react';
 import type { Category } from './calc';
 
@@ -51,11 +52,11 @@ export function Roundel({ category, small }: { category: Category; small?: boole
   );
 }
 
-/** Tile for cash-bought entries: a yen sign in the neutral color. */
+/** Tile for cash-bought entries: the trip's currency sign in the neutral color. */
 export function CashRoundel() {
   return (
     <span className="rd" style={{ '--c': 'var(--cat-misc)' } as CSSProperties} aria-hidden="true">
-      ¥
+      {getCurrency().symbol.trim().slice(0, 2)}
     </span>
   );
 }

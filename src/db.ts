@@ -197,7 +197,7 @@ export async function replaceAll(items: TripWithData[]): Promise<void> {
   let cur = await tx.objectStore('meta').openCursor();
   while (cur) {
     const k = String(cur.key);
-    if (k.startsWith(SPOT_PREFIX) || k === LAST_EXPORT) keep.push([k, cur.value]);
+    if (SPOT_RE.test(k) || k === LAST_EXPORT) keep.push([k, cur.value]);
     cur = await cur.continue();
   }
   for (const s of ALL_STORES) void tx.objectStore(s).clear();
@@ -217,28 +217,27 @@ export async function clearAll(): Promise<void> {
 
 // ---------- device notes kept in the meta store ----------
 
-const SPOT_PREFIX = 'spot:USDJPY:';
+/** Spot-rate cache keys: `spot:USD<CODE>:<date>` (yen keeps the original `spot:USDJPY:` keys). */
+const SPOT_RE = /^spot:USD([A-Z]{3}):(\d{4}-\d{2}-\d{2})$/;
 const LAST_EXPORT = 'lastExport';
 
-/** Cached market rates: YYYY-MM-DD → yen per $. */
-export async function loadSpotRates(): Promise<Record<string, number>> {
+/** Cached market rates: currency code → (YYYY-MM-DD → local currency per $). */
+export async function loadSpotRates(): Promise<Record<string, Record<string, number>>> {
   const d = await db();
-  const out: Record<string, number> = {};
+  const out: Record<string, Record<string, number>> = {};
   let cur = await d.transaction('meta').store.openCursor();
   while (cur) {
-    const k = String(cur.key);
-    if (k.startsWith(SPOT_PREFIX)) {
-      const v = Number(cur.value);
-      if (v > 0) out[k.slice(SPOT_PREFIX.length)] = v;
-    }
+    const m = SPOT_RE.exec(String(cur.key));
+    const v = Number(cur.value);
+    if (m && v > 0) (out[m[1]] ??= {})[m[2]] = v;
     cur = await cur.continue();
   }
   return out;
 }
 
-export async function saveSpotRate(date: string, rate: number): Promise<void> {
+export async function saveSpotRate(code: string, date: string, rate: number): Promise<void> {
   const d = await db();
-  await d.put('meta', String(rate), SPOT_PREFIX + date);
+  await d.put('meta', String(rate), `spot:USD${code}:${date}`);
 }
 
 /** When a backup was last exported on this device (ISO timestamp), if ever. */

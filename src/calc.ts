@@ -1,3 +1,4 @@
+import { formatLocal, getCurrency, scaleOf } from './currency';
 /**
  * Pure calculation module. No UI, no storage, no clock (callers pass `today`).
  *
@@ -491,8 +492,9 @@ export function applyEstimates(data: Data, spot: Record<string, number>): Data {
 
 // ---------- display helpers ----------
 
-export function formatYen(yen: number): string {
-  return (yen < 0 ? '-¥' : '¥') + Math.abs(Math.round(yen)).toLocaleString('en-US');
+/** A local-currency amount (whole minor units) in the currency of the trip being viewed: yen by default. */
+export function formatYen(minor: number): string {
+  return formatLocal(minor);
 }
 
 /** `cents` may be fractional (cash dollars); rounds to the nearest cent for display only. */
@@ -502,8 +504,9 @@ export function formatDollars(cents: number): string {
   return cents < 0 && r !== 0 ? `-${s}` : s;
 }
 
+/** A rate (local currency per $) to 2 decimals. Rates are held on the minor-unit scale, so euros divide by 100. */
 export function formatRate(rate: number | undefined): string {
-  return rate === undefined ? '' : rate.toFixed(2);
+  return rate === undefined ? '' : (rate / scaleOf(getCurrency())).toFixed(2);
 }
 
 /** Where "today" falls relative to a trip, as short text: "Starts in 9 days", "Day 3 / 25", "Finished". */

@@ -188,6 +188,7 @@ export default function Home({ app, onOpen, enter }: { app: App; onOpen: (id: st
             <TripForm
               key={target.id}
               initial={target}
+              entryCount={targetEntries}
               saveLabel="Save changes"
               discardLabel="Discard changes"
               onDiscard={close}

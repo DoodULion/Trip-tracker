@@ -72,7 +72,7 @@ export function Donut({ rows, format }: { rows: ChartRow[]; format: (v: StatValu
   const usable = rows.filter((r) => r.unit === unit && r.value !== undefined && r.value > 0);
   const left = rows.length - usable.length;
   // The total in the middle names the unit, so "Food ($)" reads as "Food" here.
-  let parts = usable.map((r) => ({ label: r.label.replace(/ \((\$|¥)\)$/, ''), value: r.value as number }));
+  let parts = usable.map((r) => ({ label: r.label.replace(/ \([^)]*\)$/, ''), value: r.value as number }));
   if (parts.length > SLICES) {
     const rest = parts.slice(SLICES - 1).reduce((t, x) => t + x.value, 0);
     parts = [...parts.slice(0, SLICES - 1), { label: 'Other', value: rest }];

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import type { Trip } from './calc';
 import { COUNTRIES, flagEmoji } from './countries';
+import { currencyFor } from './currency';
 import { centsToAmountInput, formatAmountInput, newId, parseCents } from './money';
 
 interface CardRow {
@@ -18,10 +19,12 @@ interface Props {
   onDiscard?: () => void;
   /** Show a "saved" note after saving . */
   confirmSaved?: boolean;
+  /** How many entries the trip already has (to warn when a new country changes the currency they are read in). */
+  entryCount?: number;
 }
 
 /** Name, dates, budget ceiling and cards for one trip. Used to create and edit trips from the trips list. */
-export default function TripForm({ initial, saveLabel, discardLabel = 'Discard changes', onSave, onDiscard, confirmSaved }: Props) {
+export default function TripForm({ initial, saveLabel, discardLabel = 'Discard changes', onSave, onDiscard, confirmSaved, entryCount = 0 }: Props) {
   const [name, setName] = useState(initial?.name ?? '');
   const [country, setCountry] = useState(initial?.country ?? '');
   const [start, setStart] = useState(initial?.tripStart ?? '');
@@ -77,9 +80,9 @@ export default function TripForm({ initial, saveLabel, discardLabel = 'Discard c
         <input value={name} onChange={(e) => setName(e.target.value)} autoComplete="off" />
       </label>
       <label className="field">
-        <span>Country (sets the flag and main color)</span>
+        <span>Country (sets the flag, main color and currency)</span>
         <select value={country} onChange={(e) => setCountry(e.target.value)}>
-          <option value="">No country (neutral)</option>
+          <option value="">No country (neutral, yen)</option>
           {COUNTRIES.map((c) => (
             <option key={c.code} value={c.code}>
               {flagEmoji(c.code)} {c.name}
@@ -87,6 +90,12 @@ export default function TripForm({ initial, saveLabel, discardLabel = 'Discard c
           ))}
         </select>
       </label>
+      <p className="muted small">
+        Amounts are entered in {currencyFor(country || undefined).name.toLowerCase()} ({currencyFor(country || undefined).code}); dollars stay the base currency.
+        {initial && entryCount > 0 && currencyFor(country || undefined).code !== currencyFor(initial.country).code && (
+          <> The {entryCount} entries already in this trip will read as {currencyFor(country || undefined).name.toLowerCase()}, not {currencyFor(initial.country).name.toLowerCase()}.</>
+        )}
+      </p>
       <div className="grid2">
         <label className="field">
           <span>Start</span>

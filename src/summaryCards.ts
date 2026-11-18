@@ -4,12 +4,16 @@
  * as the rest of the app (real amounts, blanks instead of invented zeros).
  */
 import { formatDollars, formatRate, formatYen, type DayRow, type Summary } from './calc';
+import { getCurrency } from './currency';
 import { dayLabel } from './money';
 
 /** What a figure measures. Formulas only combine units that make sense together. */
 export type Unit = 'usd' | 'yen' | 'rate' | 'count' | 'pct' | 'text';
 
-/** A figure: dollars in cents, yen, yen per $, a count, a percent, or plain text. Undefined value = blank. */
+/** The trip's currency sign for labels: "¥", "€", "kr". */
+const sym = () => getCurrency().symbol.trim();
+
+/** A figure: dollars in cents, local currency, local currency per $, a count, a percent, or plain text. Undefined value = blank. */
 export interface StatValue {
   value: number | undefined;
   unit: Unit;
@@ -36,7 +40,7 @@ const FIXED: StatDef[] = [
   { id: 'tripAverage', label: 'Average per trip day', group: 'Budget' },
   { id: 'projected', label: 'Projected total', group: 'Budget' },
   { id: 'status', label: 'Pace', group: 'Budget' },
-  { id: 'totalYen', label: 'Total yen spent', group: 'Budget' },
+  { id: 'totalYen', label: 'Total spent (local)', group: 'Budget' },
   { id: 'spentToday', label: 'Spent today', group: 'Today' },
   { id: 'leftToday', label: 'Left today', group: 'Today' },
   { id: 'tripLength', label: 'Trip length (days)', group: 'Days' },
@@ -59,9 +63,9 @@ const FIXED: StatDef[] = [
 /** Every figure on offer for a trip: the fixed ones, one per category, one per card. */
 export function statCatalog(categories: readonly string[], cards: readonly string[]): StatDef[] {
   return [
-    ...FIXED,
+    ...FIXED.map((d) => (d.id === 'totalYen' ? { ...d, label: `Total spent (${sym()})` } : d)),
     ...categories.map((c): StatDef => ({ id: `cat:${c}`, label: `${c} ($)`, group: 'By category' })),
-    ...categories.map((c): StatDef => ({ id: `catyen:${c}`, label: `${c} (¥)`, group: 'By category' })),
+    ...categories.map((c): StatDef => ({ id: `catyen:${c}`, label: `${c} (${sym()})`, group: 'By category' })),
     ...cards.map((c): StatDef => ({ id: `card:${c}`, label: `${c} ($)`, group: 'By payment' })),
   ];
 }
@@ -69,8 +73,8 @@ export function statCatalog(categories: readonly string[], cards: readonly strin
 /** The label for a stat id, also for a category or card the trip no longer has. */
 export function statLabel(id: string): string {
   const fixed = FIXED.find((d) => d.id === id);
-  if (fixed) return fixed.label;
-  if (id.startsWith('catyen:')) return `${id.slice(7)} (¥)`;
+  if (fixed) return id === 'totalYen' ? `Total spent (${sym()})` : fixed.label;
+  if (id.startsWith('catyen:')) return `${id.slice(7)} (${sym()})`;
   if (id.startsWith('cat:')) return `${id.slice(4)} ($)`;
   if (id.startsWith('card:')) return `${id.slice(5)} ($)`;
   return id;
@@ -191,7 +195,7 @@ export function formulaLabel(f: Formula): string {
   return `${statLabel(f.a)} ${op} ${typeof f.b === 'number' ? String(f.b) : statLabel(f.b)}`;
 }
 
-/** A figure as text: `$10.00`, `¥1,600`, `158.11`, `12`, `45.0%`, or `—` when blank. */
+/** A figure as text: `$10.00`, `¥1,600` (the trip's currency), `158.11`, `12`, `45.0%`, or `—` when blank. */
 export function formatStat(v: StatValue): string {
   if (v.text !== undefined) return v.text;
   if (v.value === undefined) return '—';
@@ -236,21 +240,21 @@ export interface SeriesDef {
   mark: 'bar' | 'line';
 }
 
-const SERIES: SeriesDef[] = [
+const series = (): SeriesDef[] => [
   { id: 'daySpend', label: 'Spent each day ($), with the daily limit', unit: 'usd', mark: 'bar' },
-  { id: 'dayYen', label: 'Spent each day (¥)', unit: 'yen', mark: 'bar' },
+  { id: 'dayYen', label: `Spent each day (${sym()})`, unit: 'yen', mark: 'bar' },
   { id: 'running', label: 'Running total vs. running limit ($)', unit: 'usd', mark: 'line' },
-  { id: 'dayRate', label: 'Day rate (¥ per $)', unit: 'rate', mark: 'line' },
+  { id: 'dayRate', label: `Day rate (${sym()} per $)`, unit: 'rate', mark: 'line' },
 ];
 
 /** The daily series on offer: the fixed ones plus yen per day for each category. */
 export function seriesCatalog(categories: readonly string[]): SeriesDef[] {
-  return [...SERIES, ...categories.map((c): SeriesDef => ({ id: `catday:${c}`, label: `${c} each day (¥)`, unit: 'yen', mark: 'bar' }))];
+  return [...series(), ...categories.map((c): SeriesDef => ({ id: `catday:${c}`, label: `${c} each day (${sym()})`, unit: 'yen', mark: 'bar' }))];
 }
 
 export function seriesDef(id: string): SeriesDef | undefined {
-  if (id.startsWith('catday:')) return { id, label: `${id.slice(7)} each day (¥)`, unit: 'yen', mark: 'bar' };
-  return SERIES.find((d) => d.id === id);
+  if (id.startsWith('catday:')) return { id, label: `${id.slice(7)} each day (${sym()})`, unit: 'yen', mark: 'bar' };
+  return series().find((d) => d.id === id);
 }
 
 export interface SeriesPoint {
