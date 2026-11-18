@@ -17,7 +17,7 @@ export default defineConfig(({ command, isPreview }) => ({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['icons/favicon-48.png', 'icons/apple-touch-icon.png', 'fonts/OFL.txt'],
+      includeAssets: ['icons/favicon-48.png', 'icons/apple-touch-icon.png'],
       manifest: {
         name: 'Trip Tracker',
         short_name: 'Trip Tracker',
@@ -26,8 +26,8 @@ export default defineConfig(({ command, isPreview }) => ({
         orientation: 'any',
         start_url: base,
         scope: base,
-        theme_color: '#ffffff',
-        background_color: '#f4f4f1',
+        theme_color: '#f1edea',
+        background_color: '#f1edea',
         icons: [
           { src: 'icons/icon-192.png', sizes: '192x192', type: 'image/png' },
           { src: 'icons/icon-512.png', sizes: '512x512', type: 'image/png' },

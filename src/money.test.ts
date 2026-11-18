@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { clampDate, parseCents, parseYen, todayLocal } from './money';
+import { centsToAmountInput, clampDate, formatAmountInput, parseCents, parseYen, todayLocal } from './money';
 
 describe('parseYen', () => {
   it('parses integers', () => {
@@ -55,5 +55,29 @@ describe('input/label helpers', () => {
   it('dayLabel', () => {
     expect(dayLabel('2026-11-26')).toBe('Thu 11/26');
     expect(dayLabel('2026-12-20')).toBe('Sun 12/20');
+  });
+});
+
+describe('formatAmountInput', () => {
+  it('groups whole dollars with commas as you type', () => {
+    expect(formatAmountInput('10000')).toBe('10,000');
+    expect(formatAmountInput('1234567.5')).toBe('1,234,567.5');
+    expect(formatAmountInput('999')).toBe('999');
+    expect(formatAmountInput('')).toBe('');
+  });
+  it('re-groups after an edit and drops stray characters', () => {
+    expect(formatAmountInput('1,00000')).toBe('100,000');
+    expect(formatAmountInput('$5,0a00.129')).toBe('5,000.12');
+    expect(formatAmountInput('00012')).toBe('12');
+    expect(formatAmountInput('0.5')).toBe('0.5');
+    expect(formatAmountInput('.5')).toBe('.5');
+    expect(formatAmountInput('1.2.3')).toBe('1.23');
+  });
+  it('round-trips through parseCents', () => {
+    expect(parseCents(formatAmountInput('1234567.89'))).toBe(123456789);
+  });
+  it('shows stored amounts without .00 for whole dollars', () => {
+    expect(centsToAmountInput(1000000)).toBe('10,000');
+    expect(centsToAmountInput(1000050)).toBe('10,000.50');
   });
 });

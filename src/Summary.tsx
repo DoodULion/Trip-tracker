@@ -24,7 +24,7 @@ export default function Summary({ store }: { store: Store }) {
         {finished && (
           <section className="card" aria-label="Trip summary">
             <div className="card-head">
-              <span className="muted small">Trip complete · {s.tripLength} days</span>
+              <span className="muted small">Trip complete, {s.tripLength} days</span>
             </div>
             <div className="big">{formatDollars(s.totalSpentCents)}</div>
             <span className="muted small">Total spent of {formatDollars(settings.budgetCeilingCents)}</span>
@@ -35,39 +35,30 @@ export default function Summary({ store }: { store: Store }) {
               </div>
               <div>
                 <b>{s.biggestDay ? formatDollars(s.biggestDay.cents) : '—'}</b>
-                <span>Most spent{s.biggestDay ? ` · ${dayLabel(s.biggestDay.date)}` : ''}</span>
+                <span>Most spent{s.biggestDay ? `, ${dayLabel(s.biggestDay.date)}` : ''}</span>
               </div>
               <div>
                 <b>{s.smallestDay ? formatDollars(s.smallestDay.cents) : '—'}</b>
-                <span>Least spent{s.smallestDay ? ` · ${dayLabel(s.smallestDay.date)}` : ''}</span>
+                <span>Least spent{s.smallestDay ? `, ${dayLabel(s.smallestDay.date)}` : ''}</span>
               </div>
             </div>
           </section>
         )}
 
         {!finished && (
-        <section className="card" aria-label="Today">
-          <div className="card-head">
-            <span className="muted small">
-              {s.focusDay.kind === 'today'
-                ? 'Today'
+        <section className="card hero" aria-label="Today">
+          <div className={`big ${s.focusDay.leftCents < 0 ? 'bad-text' : ''}`}>{formatDollars(s.focusDay.leftCents)}</div>
+          <span className="muted small">{s.focusDay.leftCents < 0
+              ? 'Over the daily limit'
+              : s.focusDay.kind === 'today'
+                ? 'Left today'
                 : s.focusDay.kind === 'upcoming'
-                  ? `First day, ${dayLabel(s.focusDay.date)}`
-                  : `Last day, ${dayLabel(s.focusDay.date)}`}
-              {' · daily limit '}
-              {formatDollars(s.dailyLimitCents)}
-            </span>
-          </div>
-          <div className="pair">
-            <div>
-              <div className="mid">{formatDollars(s.focusDay.spentCents)}</div>
-              <span>{s.focusDay.kind === 'today' ? 'Spent today' : 'Spent'}</span>
-            </div>
-            <div>
-              <div className={`mid ${s.focusDay.leftCents < 0 ? 'bad-text' : ''}`}>{formatDollars(s.focusDay.leftCents)}</div>
-              <span>{s.focusDay.kind === 'today' ? 'Left today' : 'Left'}</span>
-            </div>
-          </div>
+                  ? `Left on the first day, ${dayLabel(s.focusDay.date)}`
+                  : `Left on the last day, ${dayLabel(s.focusDay.date)}`}</span>
+          <Meter part={s.focusDay.spentCents} whole={s.dailyLimitCents} />
+          <span className="muted small">
+            {s.focusDay.kind === 'today' ? 'Spent today' : 'Spent'} <b>{formatDollars(s.focusDay.spentCents)}</b> of {formatDollars(s.dailyLimitCents)}
+          </span>
         </section>
         )}
 
@@ -77,6 +68,7 @@ export default function Summary({ store }: { store: Store }) {
             <span className={`pill ${pillClass}`}>{s.status}</span>
           </div>
           <div className="big">{formatDollars(s.totalSpentCents)}</div>
+          <Meter part={s.totalSpentCents} whole={settings.budgetCeilingCents} />
           <div className="part">
             <h3>{s.leftTodayCents !== undefined ? 'Rest of the trip' : 'Whole trip'}</h3>
             <div className={finished ? 'rule one' : 'rule'}>
@@ -102,7 +94,7 @@ export default function Summary({ store }: { store: Store }) {
           </div>
         </section>
 
-        <section className="card" aria-label="By category">
+        <section className="card span-all" aria-label="By category">
           <h2>By category</h2>
           <div className="cats">
             {s.byCategory.map((c) => (
@@ -135,6 +127,16 @@ export default function Summary({ store }: { store: Store }) {
           . Find them on the Entries tab.
         </p>
       )}
+    </div>
+  );
+}
+
+/** A thick rounded bar: how much of a limit is used. Red once it is over. Decorative; the figures sit beside it. */
+function Meter({ part, whole }: { part: number; whole: number }) {
+  const p = whole > 0 ? Math.min(1, Math.max(0, part / whole)) : 0;
+  return (
+    <div className={`meter${part > whole ? ' over' : ''}${part <= 0 ? ' zero' : ''}`} aria-hidden="true">
+      <i style={{ ['--p' as string]: p }} />
     </div>
   );
 }

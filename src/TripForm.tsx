@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import type { Trip } from './calc';
 import { COUNTRIES, flagEmoji } from './countries';
-import { centsToInput, newId, parseCents } from './money';
+import { centsToAmountInput, formatAmountInput, newId, parseCents } from './money';
 
 interface CardRow {
   orig?: string; // name it had when the form opened; used to rename existing charges
@@ -26,7 +26,7 @@ export default function TripForm({ initial, saveLabel, discardLabel = 'Discard c
   const [country, setCountry] = useState(initial?.country ?? '');
   const [start, setStart] = useState(initial?.tripStart ?? '');
   const [end, setEnd] = useState(initial?.tripEnd ?? '');
-  const [budget, setBudget] = useState(initial ? centsToInput(initial.budgetCeilingCents) : '');
+  const [budget, setBudget] = useState(initial ? centsToAmountInput(initial.budgetCeilingCents) : '');
   const [cards, setCards] = useState<CardRow[]>(() =>
     initial ? initial.cards.map((n) => ({ orig: n, name: n })) : [],
   );
@@ -85,7 +85,7 @@ export default function TripForm({ initial, saveLabel, discardLabel = 'Discard c
       </div>
       <label className="field">
         <span>Budget ceiling ($)</span>
-        <input value={budget} onChange={(e) => setBudget(e.target.value)} inputMode="decimal" autoComplete="off" />
+        <input value={budget} onChange={(e) => setBudget(withCommas(e.target))} inputMode="decimal" autoComplete="off" />
       </label>
 
       <div className="field">
@@ -114,4 +114,21 @@ export default function TripForm({ initial, saveLabel, discardLabel = 'Discard c
       {saved && <p className="toast show" role="status">Settings saved.</p>}
     </form>
   );
+}
+
+/**
+ * Format the field's text with thousands commas and keep the cursor after the same digit,
+ * so typing or deleting in the middle of the number doesn't jump the cursor to the end.
+ */
+function withCommas(el: HTMLInputElement): string {
+  const caret = el.selectionStart ?? el.value.length;
+  const kept = el.value.slice(0, caret).replace(/[^\d.]/g, '').length;
+  const next = formatAmountInput(el.value);
+  requestAnimationFrame(() => {
+    if (document.activeElement !== el) return;
+    let i = 0;
+    for (let n = 0; i < next.length && n < kept; i++) if (/[\d.]/.test(next[i])) n++;
+    el.setSelectionRange(i, i);
+  });
+  return next;
 }

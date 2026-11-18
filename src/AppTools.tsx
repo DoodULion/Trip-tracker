@@ -3,6 +3,13 @@ import { buildBackup, parseBackup, toCsv, type Backup, type BackupTrip } from '.
 import { saveFile } from './download';
 import { todayLocal } from './money';
 import { EMPTY_DATA, type App } from './store';
+import { getThemeChoice, setThemeChoice, type ThemeChoice } from './theme';
+
+const THEMES: { id: ThemeChoice; label: string }[] = [
+  { id: 'system', label: 'System' },
+  { id: 'light', label: 'Light' },
+  { id: 'dark', label: 'Dark' },
+];
 
 const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : many}`;
 const entryCount = (d: { cardCharges: unknown[]; cashPurchases: unknown[]; cashBought: unknown[] }) =>
@@ -14,6 +21,7 @@ export default function AppTools({ app }: { app: App }) {
   const [importErr, setImportErr] = useState('');
   const [msg, setMsg] = useState('');
   const [confirmText, setConfirmText] = useState('');
+  const [theme, setTheme] = useState<ThemeChoice>(getThemeChoice);
   const fileRef = useRef<HTMLInputElement>(null);
 
   const items = (): BackupTrip[] => app.trips.map((trip) => ({ trip, data: app.data[trip.id] ?? EMPTY_DATA }));
@@ -60,6 +68,28 @@ export default function AppTools({ app }: { app: App }) {
 
   return (
     <div className="cols">
+      <section className="card">
+        <h2>Appearance</h2>
+        <p className="muted small">System follows your phone's light or dark setting.</p>
+        <div className="seg theme-pick" role="radiogroup" aria-label="Appearance">
+          {THEMES.map((t) => (
+            <button
+              key={t.id}
+              type="button"
+              role="radio"
+              aria-checked={theme === t.id}
+              className={theme === t.id ? 'on' : ''}
+              onClick={() => {
+                setThemeChoice(t.id);
+                setTheme(t.id);
+              }}
+            >
+              {t.label}
+            </button>
+          ))}
+        </div>
+      </section>
+
       <section className="card">
         <h2>Backup</h2>
         <p className="muted small">

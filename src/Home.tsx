@@ -1,11 +1,10 @@
 import { useMemo, useState } from 'react';
-import { computeSummary, formatDollars, tripFraction, tripLength, tripPhase } from './calc';
+import { computeSummary, formatDollars, tripFraction, tripPhase } from './calc';
 import AppTools from './AppTools';
 import Backdrop from './Backdrop';
 import { findCountry, flagEmoji, tripTheme } from './countries';
 import Icon from './icons';
-import Seigaiha from './Seigaiha';
-import Train from './Train';
+import Jet from './Jet';
 import { dayLabel, todayLocal } from './money';
 import { EMPTY_DATA, type App } from './store';
 import type { Enter } from './App';
@@ -68,7 +67,6 @@ export default function Home({ app, onOpen, enter }: { app: App; onOpen: (id: st
     <div className="app">
       <Backdrop />
       <header className="band">
-        <Seigaiha />
         <div className="band-in root">
           <h1 className="band-title">Trips</h1>
           <button type="button" className="hit" onClick={() => show('settings')} aria-label="App settings">
@@ -80,7 +78,7 @@ export default function Home({ app, onOpen, enter }: { app: App; onOpen: (id: st
         <div className={`screen page ${motion}`}>
           {trips.length === 0 && (
             <div className="empty">
-              <Train className="empty-train" />
+              <Jet className="jet" />
               <p className="muted">No trips yet. Create your first one to start logging spending.</p>
             </div>
           )}
@@ -99,25 +97,25 @@ export default function Home({ app, onOpen, enter }: { app: App; onOpen: (id: st
                         </span>
                       )}
                       <strong>{t.name}</strong>
-                      <span className={`pill ${cls}`}>{s.status}</span>
                     </span>
                     <span className="route" aria-hidden="true" style={{ ['--p' as string]: tripFraction(t, today) }}>
-                      <i />
                       <u>
                         <b />
-                        <Train className="train" />
+                        <Jet className="jet" />
                       </u>
-                      <i />
                     </span>
                     <span className="route-labels">
                       <span>{md(t.tripStart)}</span>
                       <span>
-                        {tripPhase(t, today)} · {plural(tripLength(t), 'day', 'days')}
+                        {tripPhase(t, today)}
                       </span>
                       <span>{md(t.tripEnd)}</span>
                     </span>
-                    <span>
-                      <strong>{formatDollars(s.totalSpentCents)}</strong> <span className="muted">of {formatDollars(t.budgetCeilingCents)}</span>
+                    <span className="trip-money">
+                      <span>
+                        <strong>{formatDollars(s.totalSpentCents)}</strong> <span className="muted">of {formatDollars(t.budgetCeilingCents)}</span>
+                      </span>
+                      <span className={`pill ${cls}`}>{s.status}</span>
                     </span>
                   </button>
                   <button type="button" className="more" aria-label={`Options for ${t.name}`} aria-haspopup="dialog" onClick={() => setOverlay({ step: 'menu', id: t.id })}>

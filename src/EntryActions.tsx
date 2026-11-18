@@ -18,7 +18,7 @@ function describe(r: Row): string {
   if (r.e.yen !== undefined) parts.push(formatYen(r.e.yen));
   if ('cents' in r.e && r.e.cents !== undefined) parts.push(formatDollars(r.e.cents));
   parts.push(dayLabel(r.e.date));
-  return parts.join(' · ');
+  return parts.join(', ');
 }
 
 /**

@@ -1,7 +1,7 @@
 import type { CSSProperties } from 'react';
 import type { Category } from './calc';
 
-/** Line-color and station code for each category. Fixed for every trip. */
+/** Color and letter code for each category. Fixed for every trip. */
 export const CATEGORY_CODE: Record<Category, string> = {
   Food: 'F',
   Shopping: 'S',
@@ -20,7 +20,7 @@ export const CATEGORY_COLOR: Record<Category, string> = {
   Misc: 'var(--cat-misc)',
 };
 
-/** A station-sign roundel: white face, colored ring, code letter. Decorative; the name is always beside it. */
+/** A soft tinted category tile with its letter code. Decorative; the name is always beside it. */
 export function Roundel({ category, small }: { category: Category; small?: boolean }) {
   return (
     <span className={`rd${small ? ' sm' : ''}`} style={{ '--c': CATEGORY_COLOR[category] } as CSSProperties} aria-hidden="true">
@@ -29,7 +29,7 @@ export function Roundel({ category, small }: { category: Category; small?: boole
   );
 }
 
-/** Roundel for cash-bought entries (a yen sign on the neutral line). */
+/** Tile for cash-bought entries: a yen sign in the neutral color. */
 export function CashRoundel() {
   return (
     <span className="rd" style={{ '--c': 'var(--cat-misc)' } as CSSProperties} aria-hidden="true">

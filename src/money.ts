@@ -19,6 +19,23 @@ export function parseCents(input: string): number | undefined {
   return Number.isSafeInteger(cents) ? cents : undefined;
 }
 
+/**
+ * Tidy a dollar amount as it is typed: keep digits and one decimal point (at most 2 decimals),
+ * and group the whole dollars with commas. "10000" -> "10,000", "1234567.5" -> "1,234,567.5".
+ */
+export function formatAmountInput(raw: string): string {
+  const cleaned = raw.replace(/[^\d.]/g, '');
+  const dot = cleaned.indexOf('.');
+  const whole = (dot === -1 ? cleaned : cleaned.slice(0, dot)).replace(/^0+(?=\d)/, '');
+  const grouped = whole.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  return dot === -1 ? grouped : `${grouped}.${cleaned.slice(dot + 1).replace(/\./g, '').slice(0, 2)}`;
+}
+
+/** A stored amount shown in an amount field: "10,000" for whole dollars, "10,000.50" otherwise. */
+export function centsToAmountInput(cents: number): string {
+  return formatAmountInput(cents % 100 === 0 ? String(cents / 100) : centsToInput(cents));
+}
+
 export function pad2(n: number): string {
   return String(n).padStart(2, '0');
 }

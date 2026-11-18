@@ -30,10 +30,9 @@ export default function Days({ store }: { store: Store }) {
           const state = d.date === today ? 'now' : d.hasEntries ? '' : 'empty';
           return (
             <li key={d.date} className={`st ${state}`} aria-current={d.date === today ? 'date' : undefined}>
-              <span className="node" aria-hidden="true" />
+              <span className="node" aria-hidden="true">{i + 1}</span>
               <button type="button" className="st-head" disabled={!d.hasEntries} aria-expanded={isOpen} onClick={() => setOpen(isOpen ? null : d.date)}>
                 <span>
-                  <code>D{String(i + 1).padStart(2, '0')}</code>
                   <b>{dayLabel(d.date)}</b>
                   {d.date === today && <em>today</em>}
                 </span>
@@ -51,9 +50,9 @@ export default function Days({ store }: { store: Store }) {
                     <dt>Day rate</dt>
                     <dd>{formatRate(d.rate) || '—'}</dd>
                     <dt>Card</dt>
-                    <dd>{d.cardYen || d.cardCents ? `${formatYen(d.cardYen)} · ${formatDollars(d.cardCents)}` : '—'}</dd>
+                    <dd>{d.cardYen || d.cardCents ? `${formatYen(d.cardYen)} (${formatDollars(d.cardCents)})` : '—'}</dd>
                     <dt>Cash</dt>
-                    <dd>{d.cashYen ? `${formatYen(d.cashYen)} · ${cashMissing ? '—' : formatDollars(d.cashCents ?? 0)}` : '—'}</dd>
+                    <dd>{d.cashYen ? `${formatYen(d.cashYen)}${cashMissing ? '' : ` (${formatDollars(d.cashCents ?? 0)})`}` : '—'}</dd>
                     <dt>Running total</dt>
                     <dd>{formatDollars(d.runningCents)}</dd>
                     <dt>Running limit</dt>

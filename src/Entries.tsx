@@ -97,7 +97,7 @@ export function RowBody({ r, store }: { r: Row; store: Store }) {
         <Roundel category={e.category} />
         <span className="row-main">
           <strong>{e.category}</strong>
-          <span className="muted">{e.card || 'No card'}{e.note ? ` · ${e.note}` : ''}</span>
+          <Sub note={e.note} pay={e.card || 'No card'} />
         </span>
         <span className="row-amt">
           <span>{e.yen !== undefined ? formatYen(e.yen) : '—'}</span>
@@ -114,7 +114,7 @@ export function RowBody({ r, store }: { r: Row; store: Store }) {
         <Roundel category={e.category} />
         <span className="row-main">
           <strong>{e.category}</strong>
-          <span className="muted">Cash{e.note ? ` · ${e.note}` : ''}</span>
+          <Sub note={e.note} pay="Cash" />
         </span>
         <span className="row-amt">
           <span>{formatYen(e.yen)}</span>
@@ -129,12 +129,24 @@ export function RowBody({ r, store }: { r: Row; store: Store }) {
       <CashRoundel />
       <span className="row-main">
         <strong>Cash bought</strong>
-        <span className="muted">{e.where || 'ATM / exchange'}</span>
+        <Sub pay={e.where || 'ATM or exchange'} />
       </span>
       <span className="row-amt">
         <span>{formatYen(e.yen)}</span>
         <span>{formatDollars(e.cents)}</span>
       </span>
     </>
+  );
+}
+
+/** The line under an entry's name: its note when there is one, with how it was paid in parentheses. */
+function Sub({ note, pay }: { note?: string; pay: string }) {
+  return note ? (
+    <span className="row-sub">
+      <span className="row-note">{note}</span>
+      <span>({pay})</span>
+    </span>
+  ) : (
+    <span className="row-sub">{pay}</span>
   );
 }

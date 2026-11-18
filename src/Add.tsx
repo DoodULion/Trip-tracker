@@ -50,7 +50,7 @@ export default function Add({ store }: { store: Store }) {
       if (y === undefined && c === undefined) return setError('Enter yen, dollars, or both.');
       await store.addCardCharge({ id, date, category, card, yen: y, cents: c, note: n });
       await store.setPrefs({ lastCard: card, lastCategory: category });
-      msg = `Saved ${y !== undefined ? formatYen(y) : ''}${y !== undefined && c !== undefined ? ' · ' : ''}${c !== undefined ? formatDollars(c) : ''}`;
+      msg = `Saved ${y !== undefined ? formatYen(y) : ''}${y !== undefined && c !== undefined ? ` (${formatDollars(c)})` : c !== undefined ? formatDollars(c) : ''}`;
     } else {
       if (y === undefined || y <= 0) return setError('Enter the yen amount.');
       await store.addCashPurchase({ id, date, category, yen: y, note: n });

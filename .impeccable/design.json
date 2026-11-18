@@ -1,232 +1,543 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-11-17T00:00:00Z",
+  "generatedAt": "2026-11-18T11:41:18.943Z",
   "title": "Design System: Trip Tracker",
   "extensions": {
     "colorMeta": {
-      "orange-line": {
-        "role": "primary",
-        "displayName": "Orange Line",
-        "canonical": "#f39700",
-        "tonalRamp": [
-          "#492d00",
-          "#7a4c00",
-          "#aa6a00",
-          "#d68500",
-          "#f39700",
-          "#f7b64c",
-          "#fad08c",
-          "#fdeacc"
-        ]
-      },
-      "ink": {
+      "warm-stone": {
         "role": "neutral",
-        "displayName": "Ink",
-        "canonical": "#1a1a1a",
+        "displayName": "Warm Stone",
+        "canonical": "#f1edea",
         "tonalRamp": [
-          "#080808",
-          "#0d0d0d",
-          "#121212",
-          "#171717",
-          "#1a1a1a",
-          "#5f5f5f",
-          "#989898",
-          "#d1d1d1"
-        ]
-      },
-      "enamel-ground": {
-        "role": "neutral",
-        "displayName": "Enamel Ground",
-        "canonical": "#f4f4f1",
-        "tonalRamp": [
-          "#494948",
-          "#7a7a78",
-          "#ababa9",
-          "#d7d7d4",
-          "#f4f4f1",
-          "#f7f7f5",
-          "#fafaf9",
+          "#3c3b3b",
+          "#6c6b69",
+          "#9d9a98",
+          "#cdc9c7",
+          "#f4f1ee",
+          "#f7f5f3",
+          "#fbfaf9",
           "#fdfdfc"
         ]
       },
-      "enamel-sign": {
+      "card-white": {
         "role": "neutral",
-        "displayName": "Enamel Sign",
+        "displayName": "Card White",
         "canonical": "#ffffff",
         "tonalRamp": [
-          "#4d4d4d",
-          "#808080",
-          "#b2b2b2",
-          "#e0e0e0",
+          "#404040",
+          "#737373",
+          "#a6a6a6",
+          "#d9d9d9",
           "#ffffff",
           "#ffffff",
           "#ffffff",
           "#ffffff"
         ]
       },
+      "field-stone": {
+        "role": "neutral",
+        "displayName": "Field Stone",
+        "canonical": "#f4f0ed",
+        "tonalRamp": [
+          "#3d3c3b",
+          "#6e6c6b",
+          "#9f9c9a",
+          "#cfccc9",
+          "#f6f3f1",
+          "#f9f7f5",
+          "#fcfbfa",
+          "#fefdfd"
+        ]
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Ink",
+        "canonical": "#2b2420",
+        "tonalRamp": [
+          "#0b0908",
+          "#13100e",
+          "#1c1715",
+          "#251f1b",
+          "#55504d",
+          "#8a8784",
+          "#bfbdbc",
+          "#e6e5e4"
+        ]
+      },
       "mute": {
         "role": "neutral",
         "displayName": "Mute",
-        "canonical": "#5c5c57",
+        "canonical": "#665a52",
         "tonalRamp": [
-          "#1c1c1a",
-          "#2e2e2c",
-          "#40403d",
-          "#51514d",
-          "#5c5c57",
-          "#8d8d89",
-          "#b6b6b3",
-          "#dededd"
+          "#1a1715",
+          "#2e2825",
+          "#423b35",
+          "#574d46",
+          "#857b75",
+          "#aba4a0",
+          "#d1cecb",
+          "#edebea"
         ]
       },
       "hairline": {
         "role": "neutral",
         "displayName": "Hairline",
-        "canonical": "#d6d6d0",
+        "canonical": "#e6dfda",
         "tonalRamp": [
-          "#40403e",
-          "#6b6b68",
-          "#969692",
-          "#bcbcb7",
-          "#d6d6d0",
-          "#e2e2de",
-          "#ededea",
-          "#f7f7f6"
+          "#3a3837",
+          "#676462",
+          "#96918e",
+          "#c4beb9",
+          "#ebe5e1",
+          "#f1edeb",
+          "#f8f5f4",
+          "#fcfbfb"
         ]
+      },
+      "main-outside-trip": {
+        "role": "primary",
+        "displayName": "Main Outside Trip",
+        "canonical": "#ffffff",
+        "tonalRamp": [
+          "#404040",
+          "#737373",
+          "#a6a6a6",
+          "#d9d9d9",
+          "#ffffff",
+          "#ffffff",
+          "#ffffff",
+          "#ffffff"
+        ]
+      },
+      "default-trip-orange": {
+        "role": "primary",
+        "displayName": "Default Trip Orange",
+        "canonical": "#f39700",
+        "tonalRamp": [
+          "#3d2600",
+          "#6d4400",
+          "#9e6200",
+          "#cf8000",
+          "#f5ac33",
+          "#f8c673",
+          "#fbe0b3",
+          "#fef3e0"
+        ],
+        "note": "Inside a trip the live primary is the country color from tripTheme() (--brand / --brand-dark), contrast-nudged; this orange is the no-country fallback."
       },
       "over-red": {
         "role": "semantic",
         "displayName": "Over Red",
-        "canonical": "#d4261c",
+        "canonical": "#c8322a",
         "tonalRamp": [
-          "#400b08",
-          "#6a130e",
-          "#941b14",
-          "#bb2119",
-          "#d4261c",
-          "#e16760",
-          "#ec9d99",
-          "#f6d4d2"
+          "#320d0b",
+          "#5a1613",
+          "#82211b",
+          "#aa2b24",
+          "#d35b55",
+          "#e18e8a",
+          "#efc2bf",
+          "#f8e6e5"
         ]
       },
-      "shopping-purple": {
-        "role": "secondary",
-        "displayName": "Shopping Purple",
-        "canonical": "#9c5e9b",
+      "under-green": {
+        "role": "semantic",
+        "displayName": "Under Green",
+        "canonical": "#17623e",
         "tonalRamp": [
-          "#2f1c2f",
-          "#4e2f4e",
-          "#6d426c",
-          "#895388",
-          "#9c5e9b",
-          "#ba8eb9",
-          "#d2b7d2",
-          "#ebdfeb"
+          "#061910",
+          "#0a2c1c",
+          "#0f4028",
+          "#145335",
+          "#458165",
+          "#7fa995",
+          "#b9d0c5",
+          "#e3ece8"
+        ]
+      },
+      "food-orange": {
+        "role": "tertiary",
+        "displayName": "Food Orange",
+        "canonical": "#d9480f",
+        "tonalRamp": [
+          "#361204",
+          "#622007",
+          "#8d2f0a",
+          "#b83d0d",
+          "#e16d3f",
+          "#ea9a7b",
+          "#f4c8b7",
+          "#fae9e2"
+        ]
+      },
+      "shopping-magenta": {
+        "role": "tertiary",
+        "displayName": "Shopping Magenta",
+        "canonical": "#b83280",
+        "tonalRamp": [
+          "#2e0d20",
+          "#53163a",
+          "#782153",
+          "#9c2b6d",
+          "#c65b99",
+          "#d88eb9",
+          "#eac2d9",
+          "#f6e6f0"
         ]
       },
       "suica-green": {
-        "role": "secondary",
+        "role": "tertiary",
         "displayName": "Suica Green",
-        "canonical": "#00a260",
+        "canonical": "#0f8a5f",
         "tonalRamp": [
-          "#00311d",
-          "#005130",
-          "#007143",
-          "#008f54",
-          "#00a260",
-          "#4cbe90",
-          "#8cd5b7",
-          "#ccecdf"
+          "#042318",
+          "#073e2b",
+          "#0a5a3e",
+          "#0d7551",
+          "#3fa17f",
+          "#7bbfa7",
+          "#b7dccf",
+          "#e2f1ec"
         ]
       },
       "activities-blue": {
-        "role": "secondary",
+        "role": "tertiary",
         "displayName": "Activities Blue",
-        "canonical": "#009bbf",
+        "canonical": "#1f74c7",
         "tonalRamp": [
-          "#002f39",
-          "#004e60",
-          "#006c86",
-          "#0088a8",
-          "#009bbf",
-          "#4cb9d2",
-          "#8cd2e2",
-          "#ccebf2"
+          "#081d32",
+          "#0e345a",
+          "#144b81",
+          "#1a63a9",
+          "#4c90d2",
+          "#84b3e0",
+          "#bcd5ee",
+          "#e4eef8"
         ]
       },
-      "transport-magenta": {
-        "role": "secondary",
-        "displayName": "Transport Magenta",
-        "canonical": "#b6007a",
+      "transport-violet": {
+        "role": "tertiary",
+        "displayName": "Transport Violet",
+        "canonical": "#6b46c1",
         "tonalRamp": [
-          "#370025",
-          "#5b003d",
-          "#7f0055",
-          "#a0006b",
-          "#b6007a",
-          "#cc4ca2",
-          "#de8cc3",
-          "#f0cce4"
+          "#1b1230",
+          "#302057",
+          "#462e7d",
+          "#5b3ca4",
+          "#896bcd",
+          "#ae99dd",
+          "#d3c8ec",
+          "#ede9f8"
         ]
       },
-      "misc-silver": {
-        "role": "secondary",
-        "displayName": "Misc Silver",
-        "canonical": "#6f6f6a",
+      "misc-stone": {
+        "role": "tertiary",
+        "displayName": "Misc Stone",
+        "canonical": "#78716c",
         "tonalRamp": [
-          "#212120",
-          "#383835",
-          "#4e4e4a",
-          "#62625d",
-          "#6f6f6a",
-          "#9a9a97",
-          "#bebebc",
-          "#e2e2e1"
+          "#1e1c1b",
+          "#363331",
+          "#4e4946",
+          "#66605c",
+          "#938d89",
+          "#b5b1ae",
+          "#d7d4d3",
+          "#efeeed"
+        ]
+      },
+      "night-stone": {
+        "role": "neutral",
+        "displayName": "Night Stone",
+        "canonical": "#1b1715",
+        "tonalRamp": [
+          "#070605",
+          "#0c0a09",
+          "#120f0e",
+          "#171412",
+          "#494544",
+          "#827f7e",
+          "#bbb9b9",
+          "#e4e3e3"
+        ]
+      },
+      "night-card": {
+        "role": "neutral",
+        "displayName": "Night Card",
+        "canonical": "#28221f",
+        "tonalRamp": [
+          "#0a0908",
+          "#120f0e",
+          "#1a1614",
+          "#221d1a",
+          "#534e4c",
+          "#898584",
+          "#bfbdbc",
+          "#e5e4e4"
+        ]
+      },
+      "night-field": {
+        "role": "neutral",
+        "displayName": "Night Field",
+        "canonical": "#332b27",
+        "tonalRamp": [
+          "#0d0b0a",
+          "#171312",
+          "#211c19",
+          "#2b2521",
+          "#5c5552",
+          "#8f8a88",
+          "#c2bfbe",
+          "#e7e6e5"
+        ]
+      },
+      "night-ink": {
+        "role": "neutral",
+        "displayName": "Night Ink",
+        "canonical": "#f3ece7",
+        "tonalRamp": [
+          "#3d3b3a",
+          "#6d6a68",
+          "#9e9996",
+          "#cfc9c4",
+          "#f5f0ec",
+          "#f8f5f2",
+          "#fbf9f8",
+          "#fefdfc"
+        ]
+      },
+      "night-mute": {
+        "role": "neutral",
+        "displayName": "Night Mute",
+        "canonical": "#b1a59c",
+        "tonalRamp": [
+          "#2c2927",
+          "#504a46",
+          "#736b65",
+          "#968c85",
+          "#c1b7b0",
+          "#d4cec9",
+          "#e8e4e1",
+          "#f6f4f3"
+        ]
+      },
+      "night-hairline": {
+        "role": "neutral",
+        "displayName": "Night Hairline",
+        "canonical": "#3d3430",
+        "tonalRamp": [
+          "#0f0d0c",
+          "#1b1716",
+          "#28221f",
+          "#342c29",
+          "#645d59",
+          "#948f8d",
+          "#c5c2c1",
+          "#e8e7e6"
+        ]
+      },
+      "night-red": {
+        "role": "semantic",
+        "displayName": "Night Red",
+        "canonical": "#ff7a6b",
+        "tonalRamp": [
+          "#401f1b",
+          "#733730",
+          "#a64f46",
+          "#d9685b",
+          "#ff9589",
+          "#ffb6ae",
+          "#ffd7d3",
+          "#ffefed"
+        ]
+      },
+      "night-green": {
+        "role": "semantic",
+        "displayName": "Night Green",
+        "canonical": "#5fd39a",
+        "tonalRamp": [
+          "#183527",
+          "#2b5f45",
+          "#3e8964",
+          "#51b383",
+          "#7fdcae",
+          "#a7e7c7",
+          "#cff2e1",
+          "#ecfaf3"
+        ]
+      },
+      "night-food": {
+        "role": "tertiary",
+        "displayName": "Night Food",
+        "canonical": "#ff8a4c",
+        "tonalRamp": [
+          "#402313",
+          "#733e22",
+          "#a65a31",
+          "#d97541",
+          "#ffa170",
+          "#ffbf9d",
+          "#ffdcc9",
+          "#fff1ea"
+        ]
+      },
+      "night-shopping": {
+        "role": "tertiary",
+        "displayName": "Night Shopping",
+        "canonical": "#f06bb4",
+        "tonalRamp": [
+          "#3c1b2d",
+          "#6c3051",
+          "#9c4675",
+          "#cc5b99",
+          "#f389c3",
+          "#f7aed6",
+          "#fbd3e9",
+          "#fdedf6"
+        ]
+      },
+      "night-suica": {
+        "role": "tertiary",
+        "displayName": "Night Suica",
+        "canonical": "#3ccb8f",
+        "tonalRamp": [
+          "#0f3324",
+          "#1b5b40",
+          "#27845d",
+          "#33ad7a",
+          "#63d5a5",
+          "#94e2c1",
+          "#c5efdd",
+          "#e8f9f2"
+        ]
+      },
+      "night-activities": {
+        "role": "tertiary",
+        "displayName": "Night Activities",
+        "canonical": "#5aa9f0",
+        "tonalRamp": [
+          "#172a3c",
+          "#284c6c",
+          "#3b6e9c",
+          "#4d90cc",
+          "#7bbaf3",
+          "#a4d0f7",
+          "#cee5fb",
+          "#ebf5fd"
+        ]
+      },
+      "night-transport": {
+        "role": "tertiary",
+        "displayName": "Night Transport",
+        "canonical": "#a88bf5",
+        "tonalRamp": [
+          "#2a233d",
+          "#4c3f6e",
+          "#6d5a9f",
+          "#8f76d0",
+          "#b9a2f7",
+          "#cfbffa",
+          "#e5dcfc",
+          "#f5f1fe"
+        ]
+      },
+      "night-misc": {
+        "role": "tertiary",
+        "displayName": "Night Misc",
+        "canonical": "#b5ada6",
+        "tonalRamp": [
+          "#2d2b2a",
+          "#514e4b",
+          "#76706c",
+          "#9a938d",
+          "#c4bdb8",
+          "#d6d2ce",
+          "#e9e6e4",
+          "#f6f5f4"
         ]
       }
     },
     "typographyMeta": {
+      "hero-figure": {
+        "displayName": "Hero Figure",
+        "purpose": "Left today on the Today card; one per screen."
+      },
       "display": {
         "displayName": "Display",
-        "purpose": "The spent figure on the budget card."
+        "purpose": "The main figure of a card."
       },
       "headline": {
         "displayName": "Headline",
-        "purpose": "Trips-list band title."
+        "purpose": "Trip name in the top band; 2.1rem on the trips list."
       },
       "title": {
         "displayName": "Title",
-        "purpose": "Band titles, trip names, sheet headings."
+        "purpose": "Card headings, trip names on trip cards, sheet titles."
       },
       "body": {
         "displayName": "Body",
-        "purpose": "Rows, inputs, table cells."
+        "purpose": "Row text and figures; inputs at 17px 600."
       },
       "label": {
         "displayName": "Label",
-        "purpose": "Field labels, table heads, tab labels."
+        "purpose": "Field labels, stat captions, route dates, tab labels. Sentence case."
       }
     },
-    "shadows": [],
-    "motion": [
+    "shadows": [
       {
-        "name": "route-ease",
-        "value": "0.8s cubic-bezier(0.22, 1, 0.36, 1)",
-        "purpose": "Route fill and train ride on trip cards."
+        "name": "float",
+        "value": "0 12px 32px -10px rgba(70, 40, 20, 0.32), 0 2px 6px rgba(70, 40, 20, 0.08)",
+        "purpose": "Tab bar, sheets, undo toast only. Dark: 0 12px 32px -10px rgba(0,0,0,0.7), 0 2px 6px rgba(0,0,0,0.4)."
       },
       {
-        "name": "toast-fade",
-        "value": "opacity 0.2s",
-        "purpose": "Saved confirmation."
+        "name": "push-edge",
+        "value": "-8px 0 24px rgba(40, 20, 10, 0.25)",
+        "purpose": "Edge of the screen sliding over during the whole-screen View Transition."
+      }
+    ],
+    "motion": [
+      {
+        "name": "spring (ease-out-quint)",
+        "value": "cubic-bezier(0.22, 1, 0.36, 1)",
+        "purpose": "Press scale (160ms; buttons 0.97, chips 0.95, header buttons 0.92, trip card 0.98), meter fill (600ms), route fill and jet ride (900ms)."
+      },
+      {
+        "name": "page-push / page-pop",
+        "value": "380ms cubic-bezier(0.2, 0.8, 0.2, 1), translateX(+/-40px) with fade",
+        "purpose": "Page content entering on push or pop."
+      },
+      {
+        "name": "tab-slide",
+        "value": "300ms, translateX(+/-18px) with fade",
+        "purpose": "Switching tabs slides a short way toward the tapped tab."
+      },
+      {
+        "name": "whole-screen slide",
+        "value": "420ms cubic-bezier(0.2, 0.8, 0.2, 1); new screen from translateX(100%), old to translateX(-30%) at brightness 0.75",
+        "purpose": "View Transitions between the trips list, a trip and App settings; reversed on back."
+      },
+      {
+        "name": "sheet-up",
+        "value": "420ms cubic-bezier(0.2, 0.9, 0.25, 1), translateY(56px); from 700px translateY(16px) scale(0.98)",
+        "purpose": "Sheets rise from the bottom; backdrop fades over 260ms."
+      },
+      {
+        "name": "state",
+        "value": "160-200ms ease-out",
+        "purpose": "Background, color and border-color changes on tabs, segments, chips and inputs."
+      },
+      {
+        "name": "reduced-motion",
+        "value": "prefers-reduced-motion: reduce sets every transition and animation to none",
+        "purpose": "All motion above is off when the device asks."
       }
     ],
     "breakpoints": [
       {
-        "name": "wide",
+        "name": "two-column",
         "value": "700px"
       },
       {
-        "name": "container",
+        "name": "container-max",
         "value": "900px"
       }
     ]
@@ -236,140 +547,135 @@
       "name": "Primary Button",
       "kind": "button",
       "refersTo": "button-primary",
-      "description": "Orange shell action; one per view.",
+      "description": "Main action inside a trip; trip color with its readable text, presses in.",
       "html": "<button class=\"ds-btn-primary\">Save</button>",
-      "css": ".ds-btn-primary{min-height:52px;padding:0 16px;border-radius:10px;font-family:inherit;font-size:17px;font-weight:700;border:0;background:var(--or);color:var(--on-or)}.ds-btn-primary:active{filter:brightness(.92)}.ds-btn-primary:focus-visible{outline:3px solid var(--or);outline-offset:2px}"
+      "css": ":host{--stone:#f1edea;--sign:#fff;--field:#f4f0ed;--ink:#2b2420;--mute:#665a52;--line:#e6dfda;--or:#f39700;--on-or:#2b2420;--red:#c8322a;--good:#17623e;--spring:cubic-bezier(0.22,1,0.36,1);--float:0 12px 32px -10px rgba(70,40,20,0.32),0 2px 6px rgba(70,40,20,0.08);font-family:ui-rounded,\"SF Pro Rounded\",\"Nunito\",system-ui,-apple-system,\"Segoe UI\",Roboto,sans-serif;font-variant-numeric:tabular-nums;color:var(--ink)} .ds-btn-primary{font:inherit;min-height:54px;padding:0 18px;border:0;border-radius:16px;background:var(--or);color:var(--on-or);font-size:17px;font-weight:800;transition:transform 160ms var(--spring)} .ds-btn-primary:active{transform:scale(0.97)} .ds-btn-primary:focus-visible{outline:3px solid var(--ink);outline-offset:2px}"
     },
     {
-      "name": "Secondary Button",
+      "name": "Primary Button (outside a trip)",
+      "kind": "button",
+      "refersTo": "button-primary-outside-trip",
+      "description": "New trip on the trips list: white on stone with a hairline border.",
+      "html": "<div class=\"ds-ground\"><button class=\"ds-btn-primary-out\">New trip</button></div>",
+      "css": ":host{--stone:#f1edea;--sign:#fff;--field:#f4f0ed;--ink:#2b2420;--mute:#665a52;--line:#e6dfda;--or:#f39700;--on-or:#2b2420;--red:#c8322a;--good:#17623e;--spring:cubic-bezier(0.22,1,0.36,1);--float:0 12px 32px -10px rgba(70,40,20,0.32),0 2px 6px rgba(70,40,20,0.08);font-family:ui-rounded,\"SF Pro Rounded\",\"Nunito\",system-ui,-apple-system,\"Segoe UI\",Roboto,sans-serif;font-variant-numeric:tabular-nums;color:var(--ink)} .ds-ground{background:var(--stone);padding:16px} .ds-btn-primary-out{font:inherit;width:100%;min-height:54px;padding:0 18px;border:2px solid var(--line);border-radius:16px;background:#fff;color:var(--ink);font-size:17px;font-weight:800;transition:transform 160ms var(--spring)} .ds-btn-primary-out:active{transform:scale(0.97)} .ds-btn-primary-out:focus-visible{outline:3px solid var(--ink);outline-offset:2px}"
+    },
+    {
+      "name": "Secondary and Danger Buttons",
       "kind": "button",
       "refersTo": "button-secondary",
-      "description": "White sign with ink keyline.",
-      "html": "<button class=\"ds-btn-sec\">Discard changes</button>",
-      "css": ".ds-btn-sec{min-height:52px;padding:0 16px;border-radius:10px;font-family:inherit;font-size:17px;font-weight:700;border:2px solid var(--ink);background:var(--sign);color:var(--ink)}.ds-btn-sec:focus-visible{outline:3px solid var(--or);outline-offset:2px}"
+      "description": "Secondary is white with a hairline; danger is white with red, filling red once armed.",
+      "html": "<div class=\"ds-row\"><button class=\"ds-btn-sec\">Discard changes</button><button class=\"ds-btn-danger\">Delete</button><button class=\"ds-btn-danger armed\">Delete trip</button></div>",
+      "css": ":host{--stone:#f1edea;--sign:#fff;--field:#f4f0ed;--ink:#2b2420;--mute:#665a52;--line:#e6dfda;--or:#f39700;--on-or:#2b2420;--red:#c8322a;--good:#17623e;--spring:cubic-bezier(0.22,1,0.36,1);--float:0 12px 32px -10px rgba(70,40,20,0.32),0 2px 6px rgba(70,40,20,0.08);font-family:ui-rounded,\"SF Pro Rounded\",\"Nunito\",system-ui,-apple-system,\"Segoe UI\",Roboto,sans-serif;font-variant-numeric:tabular-nums;color:var(--ink)} .ds-row{display:flex;flex-wrap:wrap;gap:12px;background:var(--stone);padding:16px} .ds-btn-sec,.ds-btn-danger{font:inherit;min-height:54px;padding:0 18px;border-radius:16px;font-size:17px;font-weight:800;background:#fff;transition:transform 160ms var(--spring)} .ds-btn-sec{color:var(--ink);border:2px solid var(--line)} .ds-btn-danger{color:var(--red);border:2px solid color-mix(in srgb,var(--red) 40%,#fff)} .ds-btn-danger.armed{background:var(--red);color:#fff;border-color:var(--red)} .ds-btn-sec:active,.ds-btn-danger:active{transform:scale(0.97)} .ds-btn-sec:focus-visible,.ds-btn-danger:focus-visible{outline:3px solid var(--ink);outline-offset:2px}"
     },
     {
-      "name": "Danger Button",
-      "kind": "button",
-      "refersTo": "button-danger",
-      "description": "Destructive action; red keyline.",
-      "html": "<button class=\"ds-btn-danger\">Delete</button>",
-      "css": ".ds-btn-danger{min-height:52px;padding:0 16px;border-radius:10px;font-family:inherit;font-size:17px;font-weight:700;border:2px solid var(--red);background:var(--sign);color:var(--red)}.ds-btn-danger:focus-visible{outline:3px solid var(--or);outline-offset:2px}"
-    },
-    {
-      "name": "Text Input",
+      "name": "Text Field",
       "kind": "input",
-      "refersTo": "input-field",
-      "description": "48px field with ink keyline; orange focus.",
-      "html": "<label class=\"ds-field\"><span>Yen</span><input class=\"ds-input\" inputmode=\"numeric\" placeholder=\"1,600\"></label>",
-      "css": ".ds-field{display:flex;flex-direction:column;gap:5px}.ds-field span{font-size:.8rem;font-weight:700;color:var(--mute)}.ds-input{font:inherit;font-size:16px;min-height:48px;padding:8px 12px;width:100%;background:var(--sign);color:var(--ink);border:2px solid var(--ink);border-radius:8px}.ds-input:focus{border-color:var(--or);outline:3px solid var(--or);outline-offset:0}"
+      "refersTo": "input",
+      "description": "52px white field; hairline border turns the trip color on focus.",
+      "html": "<label class=\"ds-field\"><span>Yen</span><input class=\"ds-input\" inputmode=\"numeric\" placeholder=\"¥0\"></label>",
+      "css": ":host{--stone:#f1edea;--sign:#fff;--field:#f4f0ed;--ink:#2b2420;--mute:#665a52;--line:#e6dfda;--or:#f39700;--on-or:#2b2420;--red:#c8322a;--good:#17623e;--spring:cubic-bezier(0.22,1,0.36,1);--float:0 12px 32px -10px rgba(70,40,20,0.32),0 2px 6px rgba(70,40,20,0.08);font-family:ui-rounded,\"SF Pro Rounded\",\"Nunito\",system-ui,-apple-system,\"Segoe UI\",Roboto,sans-serif;font-variant-numeric:tabular-nums;color:var(--ink)} .ds-field{display:flex;flex-direction:column;gap:6px;background:var(--stone);padding:16px} .ds-field span{font-size:0.875rem;font-weight:700;color:var(--mute)} .ds-input{font:inherit;font-size:17px;font-weight:600;color:var(--ink);min-height:52px;padding:10px 14px;background:#fff;border:2px solid var(--line);border-radius:14px;caret-color:var(--or);transition:border-color 160ms ease-out} .ds-input:focus{border-color:var(--or);outline:none} .ds-input::placeholder{color:var(--mute)}"
     },
     {
-      "name": "Roundel",
-      "kind": "custom",
-      "refersTo": "roundel",
-      "description": "Category station-sign badge.",
-      "html": "<span class=\"ds-rd\" style=\"--c:var(--cat-suica)\">IC</span>",
-      "css": ".ds-rd{width:34px;height:34px;border-radius:50%;background:var(--sign);border:5px solid var(--c);color:var(--ink);display:inline-grid;place-items:center;font-size:.75rem;font-weight:700;line-height:1}"
-    },
-    {
-      "name": "Sign Panel",
-      "kind": "card",
-      "refersTo": "sign-panel",
-      "description": "Budget card: big figure, pill, ruled stats.",
-      "html": "<div class=\"ds-card\"><div class=\"ds-head\"><span class=\"ds-lbl\">Spent</span><span class=\"ds-pill\">On pace</span></div><div class=\"ds-big\">$197.33</div><div class=\"ds-rule\"><div><b>$9,802</b><span>Remaining</span></div><div><b>$400</b><span>Daily limit</span></div><div><b>$408</b><span>Left/day</span></div></div></div>",
-      "css": ".ds-card{background:var(--sign);border:3px solid var(--ink);border-radius:10px;padding:12px 14px;display:flex;flex-direction:column;gap:4px;color:var(--ink)}.ds-head{display:flex;justify-content:space-between;align-items:center}.ds-lbl{font-size:.8rem;font-weight:700;color:var(--mute)}.ds-pill{display:inline-flex;align-items:center;gap:6px;background:var(--ink);color:var(--bg);font-size:.75rem;font-weight:700;padding:3px 10px;border-radius:14px}.ds-pill::before{content:'';width:8px;height:8px;border-radius:50%;background:var(--or)}.ds-big{font-size:2.75rem;font-weight:700;line-height:1.1;letter-spacing:-.01em}.ds-rule{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:8px;padding-top:8px;border-top:2px solid var(--ink)}.ds-rule b{display:block}.ds-rule span{font-size:.8rem;color:var(--mute)}"
-    },
-    {
-      "name": "Chip",
+      "name": "Category Chips",
       "kind": "chip",
       "refersTo": "chip",
-      "description": "Category and card picker.",
-      "html": "<button class=\"ds-chip on\">Food</button> <button class=\"ds-chip\">Suica</button>",
-      "css": ".ds-chip{min-height:44px;padding:0 14px;border-radius:22px;border:2px solid var(--line);background:var(--sign);color:var(--ink);font-family:inherit;font-size:15px;font-weight:700}.ds-chip.on{background:var(--ink);border-color:var(--ink);color:var(--bg)}.ds-chip:focus-visible{outline:3px solid var(--or);outline-offset:2px}"
+      "description": "Fully round 44px chips carrying a category tile; selected fills with the main color.",
+      "html": "<div class=\"ds-chips\"><button class=\"ds-chip on\"><i class=\"ds-rd\" style=\"--c:#d9480f\">F</i>Food</button><button class=\"ds-chip\"><i class=\"ds-rd\" style=\"--c:#0f8a5f\">IC</i>Suica</button><button class=\"ds-chip\"><i class=\"ds-rd\" style=\"--c:#1f74c7\">A</i>Activities</button></div>",
+      "css": ":host{--stone:#f1edea;--sign:#fff;--field:#f4f0ed;--ink:#2b2420;--mute:#665a52;--line:#e6dfda;--or:#f39700;--on-or:#2b2420;--red:#c8322a;--good:#17623e;--spring:cubic-bezier(0.22,1,0.36,1);--float:0 12px 32px -10px rgba(70,40,20,0.32),0 2px 6px rgba(70,40,20,0.08);font-family:ui-rounded,\"SF Pro Rounded\",\"Nunito\",system-ui,-apple-system,\"Segoe UI\",Roboto,sans-serif;font-variant-numeric:tabular-nums;color:var(--ink)} .ds-rd{flex:none;width:36px;height:36px;border-radius:11px;display:grid;place-items:center;font-style:normal;font-size:0.8rem;font-weight:800;color:var(--c);background:color-mix(in srgb,var(--c) 18%,#fff)} .ds-chips{display:flex;flex-wrap:wrap;gap:8px;background:var(--stone);padding:16px} .ds-chip{font:inherit;min-height:44px;padding:0 16px 0 6px;border:0;border-radius:999px;background:#fff;color:var(--ink);font-size:15px;font-weight:700;display:inline-flex;align-items:center;gap:8px;transition:transform 160ms var(--spring)} .ds-chip:active{transform:scale(0.95)} .ds-chip.on{background:var(--or);color:var(--on-or)} .ds-chip.on .ds-rd{background:#fff} .ds-chip:focus-visible{outline:3px solid var(--ink);outline-offset:2px}"
+    },
+    {
+      "name": "Today Hero with Meter",
+      "kind": "card",
+      "refersTo": "card-hero",
+      "description": "The first thing in a trip: Left today as the hero figure over the 12px day meter.",
+      "html": "<div class=\"ds-ground\"><section class=\"ds-hero\"><span class=\"ds-mut\">Left today</span><div class=\"ds-big\">$334.67</div><div class=\"ds-meter\"><i style=\"--p:0.16\"></i></div><span class=\"ds-mut\">$65.33 spent of $400.00</span></section></div>",
+      "css": ":host{--stone:#f1edea;--sign:#fff;--field:#f4f0ed;--ink:#2b2420;--mute:#665a52;--line:#e6dfda;--or:#f39700;--on-or:#2b2420;--red:#c8322a;--good:#17623e;--spring:cubic-bezier(0.22,1,0.36,1);--float:0 12px 32px -10px rgba(70,40,20,0.32),0 2px 6px rgba(70,40,20,0.08);font-family:ui-rounded,\"SF Pro Rounded\",\"Nunito\",system-ui,-apple-system,\"Segoe UI\",Roboto,sans-serif;font-variant-numeric:tabular-nums;color:var(--ink)} .ds-ground{background:color-mix(in oklab,#f39700 8%,#f6f2ef);padding:16px} .ds-hero{background:#fff;border-radius:28px;padding:20px 20px 18px;display:flex;flex-direction:column;gap:6px} .ds-mut{color:var(--mute);font-size:0.875rem} .ds-big{font-size:3.4rem;font-weight:800;line-height:1;letter-spacing:-0.03em} .ds-meter{height:12px;border-radius:6px;background:var(--field);overflow:hidden;margin:10px 0 4px} .ds-meter i{display:block;height:100%;border-radius:6px;background:var(--or);width:calc(var(--p)*100%);min-width:12px;transition:width 600ms var(--spring)}"
     },
     {
       "name": "Entry Row",
-      "kind": "custom",
-      "refersTo": "row",
-      "description": "Entry with roundel, note, right-aligned amount.",
-      "html": "<div class=\"ds-row\"><span class=\"ds-rd2\" style=\"--c:var(--cat-food)\">F</span><div class=\"ds-main\"><strong>Food</strong><span>Apple Card</span></div><div class=\"ds-amt\">&yen;1,600<span>$10.00</span></div></div>",
-      "css": ".ds-row{min-height:58px;padding:6px 12px;display:flex;align-items:center;gap:10px;background:var(--sign);border:1px solid var(--line);border-radius:10px;color:var(--ink)}.ds-rd2{width:28px;height:28px;border-radius:50%;background:var(--sign);border:4px solid var(--c);display:grid;place-items:center;font-size:.7rem;font-weight:700}.ds-main{flex:1;display:flex;flex-direction:column}.ds-main span{font-size:.8rem;color:var(--mute)}.ds-amt{display:flex;flex-direction:column;align-items:flex-end;font-weight:700}.ds-amt span{font-size:.8rem;font-weight:400;color:var(--mute)}"
+      "kind": "card",
+      "refersTo": "entry-row",
+      "description": "White row: category tile, name over a payment and note sub line, amounts right, more button; red outline when dollars are missing.",
+      "html": "<ul class=\"ds-list\"><li class=\"ds-entry\"><i class=\"ds-rd\" style=\"--c:#d9480f\">F</i><span class=\"ds-main\"><strong>Food</strong><span class=\"ds-sub\">Apple Card · <em>Ramen</em></span></span><span class=\"ds-amt\">¥1,600<small>$10.00</small></span><button class=\"ds-more\" aria-label=\"Options\">⋮</button></li><li class=\"ds-entry missing\"><i class=\"ds-rd\" style=\"--c:#b83280\">S</i><span class=\"ds-main\"><strong>Shopping</strong><span class=\"ds-sub\">Capital One</span></span><span class=\"ds-amt\">¥8,000<small class=\"ds-need\">Add $</small></span><button class=\"ds-more\" aria-label=\"Options\">⋮</button></li></ul>",
+      "css": ":host{--stone:#f1edea;--sign:#fff;--field:#f4f0ed;--ink:#2b2420;--mute:#665a52;--line:#e6dfda;--or:#f39700;--on-or:#2b2420;--red:#c8322a;--good:#17623e;--spring:cubic-bezier(0.22,1,0.36,1);--float:0 12px 32px -10px rgba(70,40,20,0.32),0 2px 6px rgba(70,40,20,0.08);font-family:ui-rounded,\"SF Pro Rounded\",\"Nunito\",system-ui,-apple-system,\"Segoe UI\",Roboto,sans-serif;font-variant-numeric:tabular-nums;color:var(--ink)} .ds-rd{flex:none;width:36px;height:36px;border-radius:11px;display:grid;place-items:center;font-style:normal;font-size:0.8rem;font-weight:800;color:var(--c);background:color-mix(in srgb,var(--c) 18%,#fff)} .ds-list{list-style:none;margin:0;padding:16px;display:flex;flex-direction:column;gap:8px;background:var(--stone)} .ds-entry{min-height:62px;padding:8px 4px 8px 12px;display:flex;align-items:center;gap:12px;background:#fff;border:2px solid transparent;border-radius:16px} .ds-entry.missing{border-color:var(--red)} .ds-main{flex:1;min-width:0;display:flex;flex-direction:column} .ds-main strong{font-weight:800} .ds-sub{font-size:0.85rem;color:var(--mute);font-weight:600} .ds-sub em{font-style:normal;color:var(--ink);font-weight:500} .ds-amt{display:flex;flex-direction:column;align-items:flex-end;font-weight:800} .ds-amt small{font-size:0.85rem;font-weight:600;color:var(--mute)} .ds-amt small.ds-need{color:var(--red);font-weight:800} .ds-more{font:inherit;width:40px;min-height:44px;border:0;border-radius:12px;background:none;color:var(--mute);font-size:20px} .ds-more:active{background:var(--field)} .ds-more:focus-visible{outline:3px solid var(--ink);outline-offset:2px}"
     },
     {
-      "name": "Top Band",
-      "kind": "nav",
-      "refersTo": "top-band",
-      "description": "Orange shell with title.",
-      "html": "<div class=\"ds-band\"><b>Japan Trip</b><span>Day 3 of 25</span></div>",
-      "css": ".ds-band{display:flex;align-items:center;justify-content:space-between;min-height:56px;padding:6px 16px;background:var(--or);color:var(--on-or)}.ds-band b{font-size:1.2rem}.ds-band span{font-size:.8rem;font-weight:700}"
-    },
-    {
-      "name": "Tab Bar",
+      "name": "Floating Tab Bar",
       "kind": "nav",
       "refersTo": "tab-bar",
-      "description": "Fixed bottom tabs; orange bar marks active.",
-      "html": "<div class=\"ds-tabs\"><button class=\"on\">Summary</button><button>Add</button><button>Days</button></div>",
-      "css": ".ds-tabs{display:flex;background:var(--sign);border-top:3px solid var(--ink)}.ds-tabs button{position:relative;flex:1;min-height:60px;border:0;background:none;color:var(--mute);font:inherit;font-size:.8rem}.ds-tabs button.on{color:var(--ink);font-weight:700}.ds-tabs button.on::before{content:'';position:absolute;top:-3px;left:22%;right:22%;height:5px;background:var(--or)}"
+      "description": "Pill tab bar floating above the home indicator, the only nav with a shadow; active tab tinted in the trip color.",
+      "html": "<div class=\"ds-ground\"><nav class=\"ds-tabs\"><button class=\"on\"><svg viewBox=\"0 0 24 24\"><circle cx=\"12\" cy=\"12\" r=\"8\"/></svg>Summary</button><button><svg viewBox=\"0 0 24 24\"><path d=\"M12 5v14M5 12h14\"/></svg>Add</button><button><svg viewBox=\"0 0 24 24\"><path d=\"M5 7h14M5 12h14M5 17h14\"/></svg>Entries</button><button><svg viewBox=\"0 0 24 24\"><rect x=\"4\" y=\"5\" width=\"16\" height=\"15\" rx=\"3\"/><path d=\"M4 10h16\"/></svg>Days</button></nav></div>",
+      "css": ":host{--stone:#f1edea;--sign:#fff;--field:#f4f0ed;--ink:#2b2420;--mute:#665a52;--line:#e6dfda;--or:#f39700;--on-or:#2b2420;--red:#c8322a;--good:#17623e;--spring:cubic-bezier(0.22,1,0.36,1);--float:0 12px 32px -10px rgba(70,40,20,0.32),0 2px 6px rgba(70,40,20,0.08);font-family:ui-rounded,\"SF Pro Rounded\",\"Nunito\",system-ui,-apple-system,\"Segoe UI\",Roboto,sans-serif;font-variant-numeric:tabular-nums;color:var(--ink)} .ds-ground{background:color-mix(in oklab,#f39700 8%,#f6f2ef);padding:24px 12px} .ds-tabs{display:flex;padding:6px;background:#fff;border-radius:26px;box-shadow:var(--float)} .ds-tabs button{font:inherit;flex:1;min-height:58px;border:0;border-radius:20px;background:none;color:var(--mute);font-size:0.72rem;font-weight:700;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;transition:background-color 200ms ease-out,color 200ms ease-out} .ds-tabs button.on{color:var(--ink);background:color-mix(in srgb,var(--or) 16%,#fff)} .ds-tabs svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round} .ds-tabs button.on svg{color:var(--or)} .ds-tabs button:focus-visible{outline:3px solid var(--ink);outline-offset:2px}"
+    },
+    {
+      "name": "Trip Card with Route Bar",
+      "kind": "custom",
+      "refersTo": "card",
+      "description": "A trip on the list: white card outlined in its country color, the route fill showing elapsed trip days.",
+      "html": "<div class=\"ds-ground\"><div class=\"ds-trip\"><div class=\"ds-trip-main\"><span class=\"ds-title\"><span class=\"ds-flag\">🇯🇵</span><strong>Japan Trip</strong></span><span class=\"ds-route\" style=\"--p:0.4\"><u><b></b></u></span><span class=\"ds-labels\"><span>11/26</span><span>12/20</span></span><span class=\"ds-money\"><span><strong>$197.33</strong> <span class=\"ds-mut\">of $10,000.00</span></span><span class=\"ds-pill\">On pace</span></span></div></div></div>",
+      "css": ":host{--stone:#f1edea;--sign:#fff;--field:#f4f0ed;--ink:#2b2420;--mute:#665a52;--line:#e6dfda;--or:#f39700;--on-or:#2b2420;--red:#c8322a;--good:#17623e;--spring:cubic-bezier(0.22,1,0.36,1);--float:0 12px 32px -10px rgba(70,40,20,0.32),0 2px 6px rgba(70,40,20,0.08);font-family:ui-rounded,\"SF Pro Rounded\",\"Nunito\",system-ui,-apple-system,\"Segoe UI\",Roboto,sans-serif;font-variant-numeric:tabular-nums;color:var(--ink)} .ds-ground{background:var(--stone);padding:16px} .ds-trip{--or:#bc002d;background:#fff;border:2.5px solid var(--or);border-radius:24px} .ds-trip-main{padding:16px 18px;display:flex;flex-direction:column;gap:8px} .ds-title{display:flex;align-items:center;gap:10px} .ds-flag{font-size:1.6rem;line-height:1} .ds-title strong{font-size:1.25rem;font-weight:800} .ds-route{position:relative;display:block;height:30px} .ds-route u{position:absolute;left:0;right:0;bottom:4px;height:10px;border-radius:5px;background:var(--field)} .ds-route u b{position:absolute;left:0;top:0;bottom:0;border-radius:5px;width:calc(var(--p)*100%);background:var(--or)} .ds-labels{display:flex;justify-content:space-between;font-size:0.8rem;color:var(--mute);font-weight:600} .ds-money{display:flex;justify-content:space-between;align-items:center} .ds-mut{color:var(--mute)} .ds-pill{display:inline-flex;align-items:center;gap:6px;background:color-mix(in srgb,var(--good) 14%,#fff);color:var(--good);font-size:0.8rem;font-weight:800;padding:5px 11px;border-radius:999px} .ds-pill::before{content:\"\";width:7px;height:7px;border-radius:50%;background:currentColor}"
     }
   ],
   "narrative": {
-    "northStar": "Station Line",
-    "overview": "A trip is a rail line. Each day is a numbered station, each category a line color, each budget a sign panel. Surfaces are white enamel signs with heavy ink keylines set on a warm light-grey ground; the single orange line is the shell around everything (top band, primary action, the day line). The look is made for a sunlit street and one-handed use: large numerals, hard edges, full-strength color, nothing translucent or soft.\n\nThe system refuses the grey-cards-plus-one-accent finance default and the cherry-blossom-and-torii Japan costume. Japan is present only in the transit-signage grammar and in two authored SVG motifs (seigaiha wave scales on the trips-list band, a bullet train riding each trip's route bar). Dark mode is an enamel-black ground with the same line colors.",
+    "northStar": "The Warm Travel Wallet",
+    "overview": "A friendly wallet that takes on the destination's color. Soft white cards sit flat on a warm stone ground; open a trip and that ground takes a faint wash of the country's color, while the full color is spent only on what you can press and on the meters that show money moving. The first thing read in a trip is a big rounded number, how much is left today, over a thick meter. Everything else is one calm card per idea below it.\n\nDensity is phone-first and one-handed: generous 44px+ targets, one column on a phone, two columns from 700px for an unfolded foldable. The face is the system's rounded sans (SF Pro Rounded on iPhone), heavy for figures, plain for labels, with tabular numerals everywhere money appears. No font files ship; the app stays fully offline.\n\nThe system rejects the outlined enamel sign-panel look it replaced and the grey SaaS card kit: identical cards, one radius, a grey shadow on everything.",
     "keyCharacteristics": [
-      "Heavy ink keylines (3px panels, 2px controls) instead of shadows.",
-      "Category = line color + roundel code; color is never the only signal because the name and code always sit beside it.",
-      "One typeface, tabular numerals, no display face.",
-      "The one number you need today is set large (44px), like a sign band.",
-      "Running totals right-aligned and tight to the margin."
+      "Ground tinted by the trip's country; cards pure white and flat.",
+      "Main color is white outside a trip and the country color inside one (orange when no country is set).",
+      "A radius hierarchy that ranks surfaces: hero 28, cards 22, rows 16, controls 14, chips and pills full.",
+      "Shadow only on things that float: tab bar, sheets, undo toast.",
+      "Meters (today, budget, the route bar on each trip card) are the one expressive move.",
+      "Categories as soft tinted tiles with a letter in the full category color.",
+      "Red means over the limit, missing data, an error, or a destructive action; nothing else."
     ],
     "rules": [
       {
-        "name": "The Red Means Over Rule",
-        "body": "Red marks over-limit, missing data, errors and destruction only; it is never decoration and never a category.",
+        "name": "The Country Wash Rule",
+        "body": "Inside a trip the ground is the trip color mixed into stone in oklab (8% light over #f6f2ef, 9% dark over #1b1715) and the field tone takes a 6% / 8% wash. The wash is the room; the full color is reserved for action and meters.",
         "section": "colors"
       },
       {
-        "name": "The Fixed Lines Rule",
-        "body": "A category keeps its line color on every screen, every trip, in both schemes. Do not recolor categories per context.",
+        "name": "The White Outside Rule",
+        "body": "Outside a trip there is no brand color. The trips list and App settings run on white, ink and stone; each trip card brings its own country color with it as a 2.5px outline and its route fill.",
         "section": "colors"
       },
       {
-        "name": "The Ink On Orange Rule",
-        "body": "Text on the orange shell is ink, not white.",
+        "name": "The Red Means Trouble Rule",
+        "body": "Red appears only for over the limit, missing data (a card charge with no dollars, no cash rate), errors, and destructive actions. A country whose flag color is red still gets red only as its trip color, never as a warning signal on its own screens.",
         "section": "colors"
       },
       {
-        "name": "The Tabular Rule",
-        "body": "Every figure aligns on tabular numerals; amounts right-align.",
+        "name": "The Weight Carries It Rule",
+        "body": "Figures are 800; labels are 600 to 700 in mute. Hierarchy comes from weight and color before size.",
         "section": "typography"
       },
       {
-        "name": "The Sixteen Rule",
-        "body": "Inputs never fall below 16px.",
+        "name": "The No Files Rule",
+        "body": "No webfont ships. The rounded face comes from the device; Nunito is only a fallback name for machines that already have it.",
         "section": "typography"
       },
       {
-        "name": "The Keyline Not Shadow Rule",
-        "body": "Separation is a heavy ink line, never a blur.",
+        "name": "The Only Floaters Cast Rule",
+        "body": "If it scrolls with the page, it has no shadow. If it floats above the page, it gets Float, never anything heavier.",
         "section": "elevation"
       }
     ],
     "dos": [
-      "**Do** separate surfaces with a 3px ink keyline and 10px corners.",
-      "**Do** code every category with its fixed line color and roundel letter, beside its name.",
-      "**Do** put ink text on the orange shell and use orange for the primary action only once per view.",
-      "**Do** keep tap targets at 44px or more and inputs at 16px or more.",
-      "**Do** show blanks, not zeros, and flag missing data with a red border plus text.",
-      "**Do** honor `prefers-reduced-motion`; the only motion is the route fill and train ride (0.8s) and the toast fade.",
-      "**Do** draw new imagery as authored SVG in the 2px line vocabulary."
+      "Do take the main color from `--or` everywhere, so a trip's country color and the white outside a trip both flow through one variable.",
+      "Do keep cards flat white on the tinted ground; give the Float shadow only to the tab bar, sheets and undo toast.",
+      "Do rank radius by surface: hero 28, card 22, row 16, control 14, tile 11, chips full.",
+      "Do set figures at 800 in tabular numerals, and keep labels sentence case in mute.",
+      "Do show money moving with a meter in the main color, red when over.",
+      "Do outline each trip card on the list in its own country color, and show flags as system emoji.",
+      "Do keep every tap target at 44px or more and every input at 16px or larger."
     ],
     "donts": [
-      "**Don't** use red for anything but over-limit, missing data, errors or destruction.",
-      "**Don't** introduce a display face, shadows, gradients as fills, or translucent glass.",
-      "**Don't** put cherry blossom, torii or Fuji costume on any surface.",
-      "**Don't** recolor a category, or let color be the only over/under or error signal.",
-      "**Don't** add a third column to the category grid."
+      "Don't use red for anything but over the limit, missing data, errors and destructive actions.",
+      "Don't put a brand color on the trips list or App settings; the main color outside a trip is white.",
+      "Don't add shadows to cards, rows, chips or inputs.",
+      "Don't ship font files; rely on the system rounded face.",
+      "Don't return to outlined sign panels or a single-radius grey card kit.",
+      "Don't set labels in uppercase or add small headings above titles."
     ]
   }
 }

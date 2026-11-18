@@ -1,245 +1,309 @@
 ---
 name: Trip Tracker
-description: A spending tracker drawn as a rail line; enamel sign panels, line-colored roundels, an orange shell.
+description: A warm travel wallet; white cards on a ground washed in the trip's country color, with the trip color only on what you press and on the meters that show money moving.
 colors:
-  orange-line: "#f39700"
-  ink: "#1a1a1a"
-  enamel-ground: "#f4f4f1"
-  enamel-sign: "#ffffff"
-  mute: "#5c5c57"
-  hairline: "#d6d6d0"
-  over-red: "#d4261c"
-  food-orange: "#f39700"
-  shopping-purple: "#9c5e9b"
-  suica-green: "#00a260"
-  activities-blue: "#009bbf"
-  transport-magenta: "#b6007a"
-  misc-silver: "#6f6f6a"
-  night-ground: "#121212"
-  night-sign: "#1e1e1e"
-  night-ink: "#f2f2ee"
-  night-mute: "#a8a8a2"
-  night-hairline: "#3a3a37"
-  night-red: "#ff6b5e"
-  night-misc-silver: "#9a9a94"
+  warm-stone: "#f1edea"
+  card-white: "#ffffff"
+  field-stone: "#f4f0ed"
+  ink: "#2b2420"
+  mute: "#665a52"
+  hairline: "#e6dfda"
+  main-outside-trip: "#ffffff"
+  default-trip-orange: "#f39700"
+  over-red: "#c8322a"
+  under-green: "#17623e"
+  food-orange: "#d9480f"
+  shopping-magenta: "#b83280"
+  suica-green: "#0f8a5f"
+  activities-blue: "#1f74c7"
+  transport-violet: "#6b46c1"
+  misc-stone: "#78716c"
+  night-stone: "#1b1715"
+  night-card: "#28221f"
+  night-field: "#332b27"
+  night-ink: "#f3ece7"
+  night-mute: "#b1a59c"
+  night-hairline: "#3d3430"
+  night-red: "#ff7a6b"
+  night-green: "#5fd39a"
+  night-food: "#ff8a4c"
+  night-shopping: "#f06bb4"
+  night-suica: "#3ccb8f"
+  night-activities: "#5aa9f0"
+  night-transport: "#a88bf5"
+  night-misc: "#b5ada6"
 typography:
+  hero-figure:
+    fontFamily: "ui-rounded, 'SF Pro Rounded', 'Nunito', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif"
+    fontSize: "3.4rem"
+    fontWeight: 800
+    lineHeight: 1
+    letterSpacing: "-0.03em"
   display:
-    fontFamily: "'BIZ UDPGothic', 'Hiragino Sans', 'Yu Gothic', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif"
-    fontSize: "2.75rem"
-    fontWeight: 700
+    fontFamily: "ui-rounded, 'SF Pro Rounded', 'Nunito', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif"
+    fontSize: "2.2rem"
+    fontWeight: 800
     lineHeight: 1.1
-    letterSpacing: "-0.01em"
+    letterSpacing: "-0.02em"
   headline:
-    fontFamily: "'BIZ UDPGothic', 'Hiragino Sans', 'Yu Gothic', system-ui, sans-serif"
-    fontSize: "1.4rem"
-    fontWeight: 700
-    lineHeight: 1.35
+    fontFamily: "ui-rounded, 'SF Pro Rounded', 'Nunito', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif"
+    fontSize: "1.45rem"
+    fontWeight: 800
+    letterSpacing: "-0.01em"
   title:
-    fontFamily: "'BIZ UDPGothic', 'Hiragino Sans', 'Yu Gothic', system-ui, sans-serif"
-    fontSize: "1.2rem"
-    fontWeight: 700
-    lineHeight: 1.35
+    fontFamily: "ui-rounded, 'SF Pro Rounded', 'Nunito', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif"
+    fontSize: "1.05rem"
+    fontWeight: 800
   body:
-    fontFamily: "'BIZ UDPGothic', 'Hiragino Sans', 'Yu Gothic', system-ui, sans-serif"
+    fontFamily: "ui-rounded, 'SF Pro Rounded', 'Nunito', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif"
     fontSize: "16px"
     fontWeight: 400
-    lineHeight: 1.35
+    lineHeight: 1.4
+    fontFeature: "tnum"
   label:
-    fontFamily: "'BIZ UDPGothic', 'Hiragino Sans', 'Yu Gothic', system-ui, sans-serif"
+    fontFamily: "ui-rounded, 'SF Pro Rounded', 'Nunito', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif"
     fontSize: "0.8rem"
-    fontWeight: 700
-    lineHeight: 1.35
+    fontWeight: 600
 rounded:
-  sm: "8px"
-  md: "10px"
-  lg: "14px"
-  pill: "14px"
-  chip: "22px"
-  round: "50%"
+  hero: "28px"
+  card: "22px"
+  row: "16px"
+  control: "14px"
+  tile: "11px"
+  meter: "6px"
+  full: "999px"
 spacing:
-  xs: "6px"
-  sm: "8px"
-  md: "12px"
-  lg: "14px"
-  xl: "16px"
+  gutter: "16px"
+  stack: "14px"
+  card-pad: "18px"
+  hero-pad: "20px"
+  row-gap: "8px"
+  tap-min: "44px"
 components:
   button-primary:
-    backgroundColor: "{colors.orange-line}"
+    backgroundColor: "{colors.default-trip-orange}"
     textColor: "{colors.ink}"
-    rounded: "{rounded.md}"
-    padding: "0 16px"
-    height: "52px"
+    rounded: "{rounded.row}"
+    padding: "0 18px"
+    height: "54px"
+  button-primary-outside-trip:
+    backgroundColor: "{colors.main-outside-trip}"
+    textColor: "{colors.ink}"
+    rounded: "{rounded.row}"
+    height: "54px"
   button-secondary:
-    backgroundColor: "{colors.enamel-sign}"
+    backgroundColor: "{colors.card-white}"
     textColor: "{colors.ink}"
-    rounded: "{rounded.md}"
-    padding: "0 16px"
-    height: "52px"
+    rounded: "{rounded.row}"
+    height: "54px"
   button-danger:
-    backgroundColor: "{colors.enamel-sign}"
+    backgroundColor: "{colors.card-white}"
     textColor: "{colors.over-red}"
-    rounded: "{rounded.md}"
+    rounded: "{rounded.row}"
+    height: "54px"
+  button-danger-armed:
+    backgroundColor: "{colors.over-red}"
+    textColor: "{colors.card-white}"
+  card:
+    backgroundColor: "{colors.card-white}"
+    rounded: "{rounded.card}"
+    padding: "{spacing.card-pad}"
+  card-hero:
+    backgroundColor: "{colors.card-white}"
+    rounded: "{rounded.hero}"
+    padding: "20px 20px 18px"
+  entry-row:
+    backgroundColor: "{colors.card-white}"
+    textColor: "{colors.ink}"
+    rounded: "{rounded.row}"
+    height: "62px"
+  input:
+    backgroundColor: "{colors.card-white}"
+    textColor: "{colors.ink}"
+    rounded: "{rounded.control}"
+    padding: "10px 14px"
     height: "52px"
-  sign-panel:
-    backgroundColor: "{colors.enamel-sign}"
-    textColor: "{colors.ink}"
-    rounded: "{rounded.md}"
-    padding: "12px 14px"
-  input-field:
-    backgroundColor: "{colors.enamel-sign}"
-    textColor: "{colors.ink}"
-    rounded: "{rounded.sm}"
-    padding: "8px 12px"
-    height: "48px"
-  roundel:
-    backgroundColor: "{colors.enamel-sign}"
-    textColor: "{colors.ink}"
-    rounded: "{rounded.round}"
-    size: "34px"
-  status-pill:
-    backgroundColor: "{colors.ink}"
-    textColor: "{colors.enamel-ground}"
-    rounded: "{rounded.pill}"
-    padding: "3px 10px"
   chip:
-    backgroundColor: "{colors.enamel-sign}"
+    backgroundColor: "{colors.card-white}"
     textColor: "{colors.ink}"
-    rounded: "{rounded.chip}"
+    rounded: "{rounded.full}"
+    padding: "0 16px"
     height: "44px"
-  chip-selected:
-    backgroundColor: "{colors.ink}"
-    textColor: "{colors.enamel-ground}"
+  status-pill:
+    textColor: "{colors.under-green}"
+    rounded: "{rounded.full}"
+    padding: "5px 11px"
+  category-tile:
+    rounded: "{rounded.tile}"
+    size: "36px"
+  meter:
+    backgroundColor: "{colors.field-stone}"
+    rounded: "{rounded.meter}"
+    height: "12px"
   tab-bar:
-    backgroundColor: "{colors.enamel-sign}"
-    textColor: "{colors.mute}"
-    height: "60px"
-  top-band:
-    backgroundColor: "{colors.orange-line}"
-    textColor: "{colors.ink}"
-    height: "56px"
+    backgroundColor: "{colors.card-white}"
+    rounded: "26px"
+    padding: "6px"
 ---
 
 # Design System: Trip Tracker
 
 ## Overview
 
-**Creative North Star: "Station Line"**
+**Creative North Star: "The Warm Travel Wallet"**
 
-A trip is a rail line. Each day is a numbered station, each category a line color, each budget a sign panel. Surfaces are white enamel signs with heavy ink keylines set on a warm light-grey ground; the single orange line is the shell around everything (top band, primary action, the day line). The look is made for a sunlit street and one-handed use: large numerals, hard edges, full-strength color, nothing translucent or soft.
+A friendly wallet that takes on the destination's color. Soft white cards sit flat on a warm stone ground; open a trip and that ground takes a faint wash of the country's color, while the full color is spent only on what you can press and on the meters that show money moving. The first thing read in a trip is a big rounded number, how much is left today, over a thick meter. Everything else is one calm card per idea below it.
 
-The system refuses the grey-cards-plus-one-accent finance default and the cherry-blossom-and-torii Japan costume. Japan is present only in the transit-signage grammar and in two authored SVG motifs (seigaiha wave scales on the trips-list band, a bullet train riding each trip's route bar). Dark mode is an enamel-black ground with the same line colors.
+Density is phone-first and one-handed: generous 44px+ targets, one column on a phone, two columns from 700px for an unfolded foldable. The face is the system's rounded sans (SF Pro Rounded on iPhone), heavy for figures, plain for labels, with tabular numerals everywhere money appears. No font files ship; the app stays fully offline.
+
+The system rejects the outlined enamel sign-panel look it replaced and the grey SaaS card kit: identical cards, one radius, a grey shadow on everything.
 
 **Key Characteristics:**
-- Heavy ink keylines (3px panels, 2px controls) instead of shadows.
-- Category = line color + roundel code; color is never the only signal because the name and code always sit beside it.
-- One typeface, tabular numerals, no display face.
-- The one number you need today is set large (44px), like a sign band.
-- Running totals right-aligned and tight to the margin.
+- Ground tinted by the trip's country; cards pure white and flat.
+- Main color is white outside a trip and the country color inside one (orange when no country is set).
+- A radius hierarchy that ranks surfaces: hero 28, cards 22, rows 16, controls 14, chips and pills full.
+- Shadow only on things that float: tab bar, sheets, undo toast.
+- Meters (today, budget, the route bar on each trip card) are the one expressive move.
+- Categories as soft tinted tiles with a letter in the full category color.
+- Red means over the limit, missing data, an error, or a destructive action; nothing else.
 
 ## Colors
 
-A warm-grey enamel ground, white signs, ink-black type, one orange shell, six fixed line colors, and a single reserved red.
+Warm, low-chroma neutrals carry the page; one swappable trip color carries action; six fixed category hues carry data; red and green carry judgement.
 
 ### Primary
-- **Orange Line** (#f39700): the shell. Top band, primary buttons, the active tab marker, the day line and its today node, route progress, the focus ring, selection. Black ink sits on it (never white).
+- **Trip Color** (set per trip): the country's representative national color, computed by `tripTheme()` into `--brand` (light) and `--brand-dark` (dark). In light mode it is nudged toward black only until ink or white text on it reaches 4.5:1; in dark mode it is lightened until it stands 3:1 off a dark panel and carries readable text. Its text color (`--on-brand`) is whichever of ink or white reads better. Inside a trip it fills primary buttons, the selected chip, the active tab icon and its 16% tint, input focus borders, the caret, the meter fill, the day-timeline dots and line, and the jet's tail and stripe.
+- **Default Trip Orange** (#f39700): the trip color when a trip has no country.
+- **Main Outside Trip** (#ffffff light, #f3ece7 dark): the main color on the trips list and App settings. Primary buttons there are white on the stone ground with a hairline border; focused inputs take an ink border instead.
 
-### Secondary (the six category lines, fixed for every trip, same in light and dark)
-- **Food Orange** (#f39700), **Shopping Purple** (#9c5e9b), **Suica Green** (#00a260), **Activities Blue** (#009bbf), **Transport Magenta** (#b6007a): roundel rings, chart segments, legend dots.
-- **Misc Silver** (#6f6f6a light, #9a9a94 dark): Misc category and the cash-bought roundel; the one line color that shifts per scheme, for contrast against the sign.
+### Tertiary (category hues, fixed for every trip)
+- **Food Orange** (#d9480f), **Shopping Magenta** (#b83280), **Suica Green** (#0f8a5f), **Activities Blue** (#1f74c7), **Transport Violet** (#6b46c1), **Misc Stone** (#78716c). Dark mode lifts each (night-food through night-misc). Used for the letter in category tiles (on an 18% tint of the same hue) and the stacked daily chart.
 
 ### Neutral
-- **Enamel Ground** (#f4f4f1 / night #121212): page and sheet background.
-- **Enamel Sign** (#ffffff / night #1e1e1e): panels, inputs, tab bar, rows.
-- **Ink** (#1a1a1a / night #f2f2ee): text, keylines, selected states (inverted fills).
-- **Mute** (#5c5c57 / night #a8a8a2): labels, secondary text, inactive tabs.
-- **Hairline** (#d6d6d0 / night #3a3a37): row dividers, chip outlines, empty-state outlines.
-- **Over Red** (#d4261c / night #ff6b5e): over-limit, missing dollars, errors, destructive. Nothing else.
+- **Warm Stone** (#f1edea): the ground outside a trip, the theme-color and manifest background. Night Stone (#1b1715) in dark.
+- **Card White** (#ffffff): every card, row, input, chip and the tab bar. Night Card (#28221f) in dark.
+- **Field Stone** (#f4f0ed): meter tracks, route tracks, pressed states, rows nested inside a day. Night Field (#332b27).
+- **Ink** (#2b2420): all primary text and the focus ring. Night Ink (#f3ece7).
+- **Mute** (#665a52): labels, secondary figures, inactive tabs. Night Mute (#b1a59c).
+- **Hairline** (#e6dfda): input and secondary-button borders, dividers between card parts and day stops. Night Hairline (#3d3430).
+- **Over Red** (#c8322a; Night Red #ff7a6b) and **Under Green** (#17623e; Night Green #5fd39a): judgement only.
 
 ### Named Rules
-**The Red Means Over Rule.** Red marks over-limit, missing data, errors and destruction only; it is never decoration and never a category.
-**The Fixed Lines Rule.** A category keeps its line color on every screen, every trip, in both schemes. Do not recolor categories per context.
-**The Ink On Orange Rule.** Text on the orange shell is ink, not white.
+**The Country Wash Rule.** Inside a trip the ground is the trip color mixed into stone in oklab (8% light over #f6f2ef, 9% dark over #1b1715) and the field tone takes a 6% / 8% wash. The wash is the room; the full color is reserved for action and meters.
+
+**The White Outside Rule.** Outside a trip there is no brand color. The trips list and App settings run on white, ink and stone; each trip card brings its own country color with it as a 2.5px outline and its route fill.
+
+**The Red Means Trouble Rule.** Red appears only for over the limit, missing data (a card charge with no dollars, no cash rate), errors, and destructive actions. A country whose flag color is red still gets red only as its trip color, never as a warning signal on its own screens.
 
 ## Typography
 
-**Display Font:** BIZ UDPGothic (with Hiragino Sans, Yu Gothic, system-ui)
-**Body Font:** BIZ UDPGothic, same stack
-**Label/Mono Font:** none; tabular numerals on the whole page
+**Display Font:** ui-rounded / SF Pro Rounded (with Nunito if installed, then the system UI sans)
+**Body Font:** the same stack
+**Label/Mono Font:** none distinct; numerals are tabular (`font-variant-numeric: tabular-nums`) on the body
 
-**Character:** A signage-legibility gothic, bundled Latin 400 and 700 (OFL). Hierarchy comes from size and the 400/700 weight step alone; there is no display face.
+**Character:** One friendly rounded face, made assertive by weight rather than size changes. On iPhone it is SF Pro Rounded; on other platforms it falls back to the system sans, by the owner's choice to ship no font files.
 
 ### Hierarchy
-- **Display** (700, 2.75rem, 1.1, -0.01em): the spent figure on the budget card.
-- **Headline** (700, 1.4rem): the trips-list band title.
-- **Title** (700, 1.2rem): band title inside a trip, trip names, sheet headings (1.15rem).
-- **Body** (400, 16px, 1.35): rows, inputs, buttons (17px bold), table cells (0.9rem).
-- **Label** (700, 0.8rem, mute): field labels, table heads, tab labels, group headings. Sentence case, no tracking.
+- **Hero figure** (800, 3.4rem, line-height 1, -0.03em): Left today in the Today card; only one per screen.
+- **Display** (800, 2.2rem, 1.1, -0.02em): the main figure of a card (spent, total spent).
+- **Headline** (800, 1.45rem, -0.01em): the trip name in the top band; 2.1rem on the root trips list.
+- **Title** (800, 1.05rem): card headings; 1.25rem for trip names on trip cards, 1.3rem for sheet titles.
+- **Body** (400, 16px, 1.4): text and figures in rows; inputs are 17px 600 so iOS never zooms on focus.
+- **Label** (600 to 700, 0.8 to 0.875rem): field labels, stat captions, route dates, tab labels (0.72rem 700). Sentence case, never uppercase.
 
 ### Named Rules
-**The Tabular Rule.** Every figure aligns on tabular numerals; amounts right-align.
-**The Sixteen Rule.** Inputs never fall below 16px.
+**The Weight Carries It Rule.** Figures are 800; labels are 600 to 700 in mute. Hierarchy comes from weight and color before size.
+
+**The No Files Rule.** No webfont ships. The rounded face comes from the device; Nunito is only a fallback name for machines that already have it.
 
 ## Layout
 
-One column on a phone inside a 900px centered container (14px side padding plus safe-area insets, 110px bottom padding to clear the fixed tab bar). Screens stack with a 12px gap. At 700px and up, `.cols` becomes two equal columns and sheets center as dialogs (max 640px) instead of docking to the bottom. Spacing is a loose 4/6/8/12/14/16 rhythm; the category grid is two columns because "Transportation" does not fit in three.
+A single column inside a 900px max container with a 16px side gutter plus safe-area insets; screens stack cards with a 14px gap. From 700px the content splits into two columns (`1fr 1fr`, or `3fr 2fr` when the row opens with the hero card), full-width blocks span both, and the category grid goes from two to three columns. Sheets anchor to the bottom on a phone and center from 700px. Bottom padding of 120px plus the safe-area inset keeps content clear of the floating tab bar. Every tap target is at least 44px; primary buttons are 54px, inputs 52px, rows 62px, tabs 58px.
 
 ## Elevation & Depth
 
-No shadows. Depth is conveyed by keylines: a 3px ink border lifts a sign panel off the ground, 2px on controls, a 1px hairline for quiet rows. Overlays use a flat scrim (55% ink light, 70% black dark) behind sheets that carry the same 3px keyline. A pressed state is a 12% darkening or `brightness(0.92)`.
+Flat by default. Cards, rows, inputs and chips sit on the ground with no shadow; depth between them comes from white against tinted stone and from the radius rank. One warm shadow is reserved for elements that float over the page.
+
+### Shadow Vocabulary
+- **Float** (`box-shadow: 0 12px 32px -10px rgba(70, 40, 20, 0.32), 0 2px 6px rgba(70, 40, 20, 0.08)`; dark: `rgba(0,0,0,0.7)` / `rgba(0,0,0,0.4)`): the tab bar, sheets, and the undo toast.
+- **Push edge** (`box-shadow: -8px 0 24px rgba(40, 20, 10, 0.25)`): only on the incoming or outgoing screen during the whole-screen slide.
 
 ### Named Rules
-**The Keyline Not Shadow Rule.** Separation is a heavy ink line, never a blur.
+**The Only Floaters Cast Rule.** If it scrolls with the page, it has no shadow. If it floats above the page, it gets Float, never anything heavier.
 
 ## Shapes
 
-Enamel plates with softened corners: 10px on panels, buttons and rows; 8px on inputs; 14px on sheets and the pill; 22px full chips; circles for roundels, station nodes and the legend dots. The signature silhouette is the roundel: white face, 5px colored ring (4px small), one code letter (F, S, IC, A, T, M; ¥ for cash bought). Stations are rings (4px ink border, 20px) on a 6px orange line, today filled orange, empty days outlined in hairline.
+Every corner is soft and the radius ranks the surface: hero card 28px (also sheets), cards and the day timeline 22px, trip cards 24px, rows, buttons and notes 16px, inputs 14px, category tiles 11px (9px small), meters 6px, chips, pills and the day-head marker fully round, the 44px header buttons and day dots circular. Borders are rare and functional: 2px hairline on inputs and secondary buttons, 2px red on a row missing dollars, 2.5px country color around each trip card, 1.5px hairline dividers between card parts and between day stops.
 
 ## Components
 
 ### Buttons
-- **Shape:** 10px radius, 52px tall, 17px bold.
-- **Primary:** orange fill, ink text, no border; pressed brightens down 8%.
-- **Secondary:** white sign, 2px ink border. **Danger:** white sign, 2px red border and red text; armed state fills red.
-- **Focus:** 3px orange outline, 2px offset (ink outline inside the orange band).
+Tactile and plain: full-width blocks with a small press-in.
+- **Shape:** gently rounded (16px), 54px tall, 17px 800 text.
+- **Primary:** trip color with its readable text inside a trip; white with a hairline border outside one.
+- **Secondary:** card white, ink text, 2px hairline border.
+- **Danger:** card white, red text, red border at 40%; armed state fills red with white text (two-step delete).
+- **Press:** `scale(0.97)` over 160ms on the ease-out-quint curve. Focus is a 3px ink outline offset 2px across the app.
 
-### Chips and segmented control
-- Chips: 44px, 22px radius, 2px hairline border, bold 15px; selected inverts to ink fill with ground-colored text. A chip carrying a roundel pads 6px left.
-- Segmented control: one 2px ink frame, 10px radius, 46px segments; selected inverts to ink.
+### Chips
+- **Style:** card white, fully round, 44px tall, 15px 700. A chip carrying a category tile tucks its padding to 6px on the left.
+- **State:** selected fills with the main color and its text, the tile inside turns white. Press scales to 0.95.
 
-### Cards / Containers (sign panels)
-- White enamel, 3px ink border, 10px radius, 12px 14px padding, 4px internal gap. The budget card carries the 44px figure, a status pill, and a three-column ruled stat row above a 2px ink rule.
+### Segmented Control
+A soft track (ink 8% into the ground, 18px radius, 4px inset) with a raised white pill (14px) for the selected option. Card / Cash on Add and the Entries filters.
+
+### Cards / Containers
+- **Corner Style:** 22px; the Today hero 28px.
+- **Background:** card white.
+- **Shadow Strategy:** none (see Elevation).
+- **Border:** none; inner sections are split by a 1.5px hairline with 14px above and below.
+- **Internal Padding:** 18px; hero 20px 20px 18px.
 
 ### Inputs / Fields
-- 48px, 2px ink border, 8px radius, white fill, 16px text; focus swaps the border to orange with a 3px orange outline. Label above in 0.8rem bold mute. `inputmode` follows the spec.
+- **Style:** card white, 2px hairline border, 14px radius, 52px tall, 17px 600 text; numeric keypad for yen, decimal for dollars.
+- **Focus:** border turns the trip color (ink outside a trip); caret and accent take the main color.
+- **Labels:** 0.875rem 700 mute above the field, given a ground-colored backing so the background pattern never crosses them.
 
 ### Navigation
-- Top band: orange, 56px, back chevron in a 44px hit target, bold title, optional note; on the trips list a seigaiha wave-scale pattern fades in from the right at 30% ink strength.
-- Tab bar: fixed, white, 3px ink top border; tabs 60px tall with 0.8rem labels, mute inactive, ink bold active with a 5px orange bar straddling the top border.
+- **Top band:** large title (1.45rem 800; 2.1rem on the trips list), a round 44px back or gear button in card white (16% trip tint inside a trip), the flag emoji beside the trip name, and a day chip.
+- **Tab bar:** a floating pill (26px radius, card white, Float shadow) 10px above the home indicator. Each tab is 58px with icon over a 0.72rem label in mute; the active tab gets a 16% trip-color fill, ink text and a trip-color icon. Icons are 24px stroked SVGs at 2px.
 
-### Rows and the day line
-- Entry rows: 58px, white, 1px hairline, 10px radius, roundel left, amount right-aligned, a 36x44 overflow button; rows missing dollars take a 2px red border.
-- Day line (Days): a sign panel with a vertical 6px orange line; each day a station ring with a D01-style code, date, amount and over/under small text (red when over).
+### Meter (signature)
+The expressive move. A 12px track in field stone, 6px radius, filled in the main color proportional to part over whole, with a 12px minimum so a sliver always shows. Over the limit the fill turns red. The fill eases to its width over 600ms. Used on the Today hero (day spent of daily limit) and the budget card (trip spent of ceiling).
 
-### Route bar and train (signature)
-- Each trip card has a route bar (ring, 6px line, ring) whose orange fill and a drawn bullet train ride to the trip's progress; the train also sits in the empty state. Authored SVG, 2px line vocabulary.
+### Route Bar (signature)
+On each trip card: a 10px field-stone track with the trip color filling the elapsed share of the trip, and the app icon's jet (40px, ink stroke, white body, trip-color tail and stripe) riding at the fill's leading edge. Fill and jet glide in together over 900ms on first paint. Start and end dates sit beneath in 0.8rem mute. The same jet at 120px is the empty-state illustration.
 
-### Stacked bar chart
-- Plain SVG, one bar per trip day, segments in category line colors, hairline gridlines, 11px axis labels in mute, dates as `11/26`, legend of 10px colored dots.
+### Category Tile
+A 36px soft square (11px radius) filled with an 18% tint of the category hue, the category's letter (F, S, IC, A, T, M; ¥ for cash bought) in the full hue at 800. 30px small variant in rows. Always decorative beside the written category name.
+
+### Entry Row
+Card-white strip, 16px radius, 62px minimum. Category tile, then the name in 800 over a sub line (payment and date in mute, note in ink 500, truncating), amounts right-aligned (yen 800, dollars mute beneath), and a ⋮ button. A card charge missing dollars gets a 2px red outline.
+
+### Day Timeline
+Days sit in one 22px card with a 4px line in a 30% trip tint running down the left. Each day is a 28px numbered dot: white with a 3px trip-color ring, filled with the trip color for today, hairline ring and mute number for a day with no spending. Over or under shows in red or green under the day's total.
+
+### Sheets and Undo
+Sheets float clear of every edge on the ground color, 28px radius, Float shadow, rising 56px into place over 420ms (a 16px rise plus slight scale from 700px). The undo toast inverts: ink background, ground-colored text, 18px radius, with its own Undo button, sitting above the tab bar.
+
+### Motion
+Navigation is quick and directional, and all of it switches off under `prefers-reduced-motion`. Opening a trip or App settings slides the whole screen in from the right (View Transitions, 420ms, the outgoing screen drifts 30% left and dims); going back reverses it. Page content pushes 40px, tabs slide 18px toward the tapped tab (300ms). Presses scale on `cubic-bezier(0.22, 1, 0.36, 1)` (ease-out-quint). Meter and route fills ease in.
 
 ## Do's and Don'ts
 
 ### Do:
-- **Do** separate surfaces with a 3px ink keyline and 10px corners.
-- **Do** code every category with its fixed line color and roundel letter, beside its name.
-- **Do** put ink text on the orange shell and use orange for the primary action only once per view.
-- **Do** keep tap targets at 44px or more and inputs at 16px or more.
-- **Do** show blanks, not zeros, and flag missing data with a red border plus text.
-- **Do** honor `prefers-reduced-motion`; the only motion is the route fill and train ride (0.8s) and the toast fade.
-- **Do** draw new imagery as authored SVG in the 2px line vocabulary.
+- **Do** take the main color from `--or` everywhere, so a trip's country color and the white outside a trip both flow through one variable.
+- **Do** keep cards flat white on the tinted ground; give the Float shadow only to the tab bar, sheets and undo toast.
+- **Do** rank radius by surface: hero 28, card 22, row 16, control 14, tile 11, chips full.
+- **Do** set figures at 800 in tabular numerals, and keep labels sentence case in mute.
+- **Do** show money moving with a meter in the main color, red when over.
+- **Do** outline each trip card on the list in its own country color, and show flags as system emoji.
+- **Do** keep every tap target at 44px or more and every input at 16px or larger.
 
 ### Don't:
-- **Don't** use red for anything but over-limit, missing data, errors or destruction.
-- **Don't** introduce a display face, shadows, gradients as fills, or translucent glass.
-- **Don't** put cherry blossom, torii or Fuji costume on any surface.
-- **Don't** recolor a category, or let color be the only over/under or error signal.
-- **Don't** add a third column to the category grid.
+- **Don't** use red for anything but over the limit, missing data, errors and destructive actions.
+- **Don't** put a brand color on the trips list or App settings; the main color outside a trip is white.
+- **Don't** add shadows to cards, rows, chips or inputs.
+- **Don't** ship font files; rely on the system rounded face.
+- **Don't** return to outlined sign panels or a single-radius grey card kit.
+- **Don't** set labels in uppercase or add small headings above titles.
