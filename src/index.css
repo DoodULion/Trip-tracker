@@ -93,7 +93,8 @@ input, textarea, select { caret-color: var(--or); accent-color: var(--or); }
 .band { flex: none; }
 .band { position: relative; padding: env(safe-area-inset-top) env(safe-area-inset-right) 0 env(safe-area-inset-left); }
 .band-in { position: relative; max-width: 900px; margin: 0 auto; min-height: 64px; padding: 10px 14px 4px; display: flex; align-items: center; gap: 10px; }
-.band-title { flex: 1; min-width: 0; margin: 0; font-size: 1.45rem; font-weight: 800; letter-spacing: -0.01em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* the trip name is never cut off: a long one wraps onto more lines */
+.band-title { flex: 1; min-width: 0; margin: 0; font-size: 1.45rem; font-weight: 800; letter-spacing: -0.01em; line-height: 1.15; overflow-wrap: anywhere; }
 .band-in.root { padding-top: 18px; padding-left: 18px; }
 .band-in.root .band-title { font-size: 2.1rem; }
 .band-note { font-size: 0.8rem; font-weight: 700; white-space: nowrap; padding: 5px 11px; border-radius: 999px; background: var(--sign); color: var(--mute); }
@@ -287,7 +288,7 @@ input[type="date"]::-webkit-calendar-picker-indicator { margin: 0; }
 .trip-main:active { transform: scale(0.98); }
 .trip-money { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
 .trip-title { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
-.trip-title strong { font-size: 1.25rem; font-weight: 800; }
+.trip-title strong { font-size: 1.25rem; font-weight: 800; overflow-wrap: anywhere; min-width: 0; }
 .route { --p: 0; position: relative; display: block; height: 30px; }
 .route u { position: absolute; left: 0; right: 0; bottom: 4px; height: 10px; border-radius: 5px; background: var(--field); text-decoration: none; }
 .route u b { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 5px; width: calc((100% - 40px) * var(--p) + 20px * min(var(--p) * 1000, 1)); background: var(--or); animation: route-fill 0.9s cubic-bezier(0.22, 1, 0.36, 1) both; }
@@ -451,13 +452,20 @@ html[data-nav] .band-in { animation: none; } /* the whole screen is already slid
 
 /* trips list: hold and drag to reorder */
 /* ---------- Summary: Edit, custom cards, hold-and-drag ---------- */
-.sum-bar { display: flex; justify-content: flex-end; margin-bottom: -4px; }
-.sum-edit {
-  display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 0 16px; border: 0; border-radius: 999px;
-  background: var(--sign); color: var(--ink); font: inherit; font-size: 0.95rem; font-weight: 800;
-}
-.sum-edit .ic { width: 18px; height: 18px; }
+.band-slot { display: contents; }
+.band-in .band-title { flex: 1; }
+/* The trip name shrinks to stay on one line (never below a readable size, then it wraps instead of being cut) */
+.band-title.fit { container-type: inline-size; }
+.band-title.fit span { font-size: clamp(0.8rem, calc(100cqi / (var(--chars, 12) * 0.58)), 1.45rem); }
+/* trip progress ("Day 4 / 14", "Starts in 20 days") sits right above the first Summary card */
+.phase { align-self: flex-start; font-size: 0.85rem; font-weight: 800; padding: 5px 12px; border-radius: 999px; background: var(--sign); color: var(--mute); margin-bottom: -4px; }
+.sum-edit { min-height: 44px; padding: 0 18px; border: 0; border-radius: 999px; font: inherit; font-size: 0.95rem; font-weight: 800; }
 .sum-edit.on { background: var(--or); color: var(--on-or); }
+/* While a sheet is open the page behind it neither scrolls nor shows the tab bar, so the sheet's buttons are never covered. */
+.sheet-backdrop, .sheet { overscroll-behavior: contain; }
+.app:has(.sheet-backdrop) main { overflow: hidden; }
+.tabbar { transition: transform 220ms var(--spring), opacity 180ms ease-out; }
+.app:has(.sheet-backdrop) .tabbar { transform: translateY(140%); opacity: 0; pointer-events: none; }
 .head-r { display: inline-flex; align-items: center; gap: 4px; }
 .card-head .more { margin: -10px -10px -10px 0; }
 .sum-card { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; transition: transform 160ms var(--spring), box-shadow 160ms ease-out; }

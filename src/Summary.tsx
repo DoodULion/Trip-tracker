@@ -1,6 +1,7 @@
 import { useToday } from './useToday';
-import { Fragment, useMemo, useState, type ReactNode } from 'react';
-import { computeDays, computeSummary, formatDollars } from './calc';
+import { Fragment, useEffect, useMemo, useState, type ReactNode } from 'react';
+import { createPortal } from 'react-dom';
+import { computeDays, computeSummary, formatDollars, tripPhase } from './calc';
 import { Bars, DailyChart, Donut, Tiles, type ChartRow } from './CardCharts';
 import CardSheet from './CardSheet';
 import SheetBackdrop from './SheetBackdrop';
@@ -43,6 +44,9 @@ export default function Summary({ store }: { store: Store }) {
   // The cards: the same set and order on every trip, chosen by the owner (Edit, top right).
   const [layout, setLayout] = useSummaryLayout();
   const [editing, setEditing] = useState(false);
+  // The Edit button lives in the trip header (next to the day count), so it takes no room on the page.
+  const [slot, setSlot] = useState<HTMLElement | null>(null);
+  useEffect(() => setSlot(document.getElementById('band-slot')), []);
   const [sheet, setSheet] = useState<Sheet>(null);
   const { order, dragId, listRef, bind } = useHoldDrag(
     layout.map((c) => c.id),
@@ -264,14 +268,23 @@ export default function Summary({ store }: { store: Store }) {
   return (
     <div className="screen">
       <h1>Summary</h1>
+      {slot &&
+        createPortal(
+          <button
+            type="button"
+            className={editing ? 'sum-edit on' : 'hit sum-edit-icon'}
+            aria-pressed={editing}
+            aria-label={editing ? 'Done editing cards' : 'Edit cards'}
+            onClick={() => setEditing(!editing)}
+          >
+            {editing ? 'Done' : <Icon name="edit" />}
+          </button>,
+          slot,
+        )}
 
       {showCashBanner && <p className="banner">Add the cash you bought. Cash dollars stay blank until you do.</p>}
 
-      <div className="sum-bar">
-        <button type="button" className={`sum-edit${editing ? ' on' : ''}`} aria-pressed={editing} onClick={() => setEditing(!editing)}>
-          {editing ? 'Done' : (<><Icon name="edit" />Edit</>)}
-        </button>
-      </div>
+      <span className="phase">{tripPhase(settings, today)}</span>
 
       <div className={`cols${editing ? ' editing' : ''}${dragId ? ' dragging' : ''}`} ref={(el) => { listRef.current = el; }}>
         {order.map((id) => {

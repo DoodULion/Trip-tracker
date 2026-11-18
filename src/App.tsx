@@ -9,9 +9,8 @@ import Summary from './Summary';
 import { tripStore, useApp, type App as AppState } from './store';
 import Backdrop from './Backdrop';
 import { UndoProvider } from './undo';
-import { tripPhase, type Trip } from './calc';
+import { type Trip } from './calc';
 import { findCountry, flagEmoji, tripTheme } from './countries';
-import { useToday } from './useToday';
 import { todayLocal } from './money';
 import { navigate } from './navMotion';
 
@@ -80,7 +79,6 @@ export default function App() {
 
 function TripView({ app, trip, enter, onBack }: { app: AppState; trip: Trip; enter: Enter; onBack: () => void }) {
   const store = tripStore(app, trip);
-  const today = useToday();
   const [tab, setTab] = useState<Tab>('summary');
   // The first page slides in with the trip; later tab changes slide toward the tab that was tapped.
   const motion = useRef<string>(enter);
@@ -108,8 +106,10 @@ function TripView({ app, trip, enter, onBack }: { app: AppState; trip: Trip; ent
               {flagEmoji(trip.country)}
             </span>
           )}
-          <p className="band-title">{trip.name}</p>
-          <span className="band-note">{tripPhase(trip, today)}</span>
+          <p className="band-title fit" style={{ ['--chars' as string]: Math.max(trip.name.length, 4) }}>
+            <span>{trip.name}</span>
+          </p>
+          <span id="band-slot" className="band-slot" />
         </div>
       </header>
       <main>
