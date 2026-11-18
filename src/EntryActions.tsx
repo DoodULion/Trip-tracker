@@ -1,6 +1,7 @@
 import { useMemo, useState, type ReactNode } from 'react';
 import { formatDollars, formatYen } from './calc';
-import EditSheet, { type Row } from './EditSheet';
+import EditSheet, { restoreRow, type Row } from './EditSheet';
+import { useUndo } from './undo';
 import Icon from './icons';
 import { dayLabel } from './money';
 import type { Store } from './store';
@@ -30,6 +31,7 @@ export function useEntryActions(store: Store): {
   overlay: ReactNode;
 } {
   const [state, setState] = useState<{ step: Step; kind: Row['kind']; id: string } | null>(null);
+  const { offer } = useUndo();
 
   const rows = useMemo<Row[]>(
     () => [
@@ -52,7 +54,9 @@ export function useEntryActions(store: Store): {
 
   async function remove() {
     if (!row) return;
+    const gone = row;
     await store.removeEntry(STORES[row.kind], row.e.id);
+    offer(`Deleted ${describe(gone)}`, () => restoreRow(store, gone));
     close();
   }
 

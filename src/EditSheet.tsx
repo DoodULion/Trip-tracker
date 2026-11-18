@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { CATEGORIES, type CardCharge, type CashBought, type CashPurchase, type Category } from './calc';
 import { centsToInput, parseCents, parseYen } from './money';
 import { Roundel } from './Roundel';
+import { useUndo } from './undo';
 import type { Store } from './store';
 
 export type Row =
@@ -14,6 +15,7 @@ const TITLES = { card: 'Card charge', cash: 'Cash purchase', bought: 'Cash bough
 export default function EditSheet({ row, store, onClose }: { row: Row; store: Store; onClose: () => void }) {
   const { kind } = row;
   const e = row.e;
+  const { offer } = useUndo();
   const [date, setDate] = useState(e.date);
   const [yen, setYen] = useState(e.yen !== undefined ? String(e.yen) : '');
   const [dollars, setDollars] = useState('cents' in e ? centsToInput(e.cents) : '');
@@ -51,6 +53,7 @@ export default function EditSheet({ row, store, onClose }: { row: Row; store: St
       if (c === undefined || c <= 0) return setError('Enter the dollars you paid, including fees.');
       await store.addCashBought({ id: e.id, date, yen: y, cents: c, where: where.trim() || undefined });
     }
+    offer('Changes saved', () => restoreRow(store, row)); // row still holds the entry as it was before this edit
     onClose();
   }
 
@@ -128,4 +131,11 @@ export default function EditSheet({ row, store, onClose }: { row: Row; store: St
       </form>
     </div>
   );
+}
+
+/** Put an entry back exactly as the given row holds it (used by Undo for edits and deletes). */
+export async function restoreRow(store: Store, row: Row): Promise<void> {
+  if (row.kind === 'card') await store.addCardCharge(row.e);
+  else if (row.kind === 'cash') await store.addCashPurchase(row.e);
+  else await store.addCashBought(row.e);
 }

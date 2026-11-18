@@ -1,10 +1,13 @@
 import { useState, type FormEvent } from 'react';
 import { clampDate, newId, parseCents, parseYen, todayLocal } from './money';
+import { formatDollars, formatYen } from './calc';
+import { useUndo } from './undo';
 import type { Store } from './store';
 
 /** Log yen received from an ATM or exchange, and the dollars paid including fees. Nothing is focused automatically. */
 export default function CashBoughtSheet({ store, onClose }: { store: Store; onClose: () => void }) {
   const { settings } = store;
+  const { offer } = useUndo();
   const [yen, setYen] = useState('');
   const [dollars, setDollars] = useState('');
   const [date, setDate] = useState(() => clampDate(todayLocal(), settings.tripStart, settings.tripEnd));
@@ -18,7 +21,9 @@ export default function CashBoughtSheet({ store, onClose }: { store: Store; onCl
     const c = parseCents(dollars);
     if (y === undefined || y <= 0) return setError('Enter the yen you received, as a whole number.');
     if (c === undefined || c <= 0) return setError('Enter the dollars you paid, including fees, like 200.00.');
-    await store.addCashBought({ id: newId(), date, yen: y, cents: c, where: where.trim() || undefined });
+    const id = newId();
+    await store.addCashBought({ id, date, yen: y, cents: c, where: where.trim() || undefined });
+    offer(`Saved cash bought ${formatYen(y)} for ${formatDollars(c)}`, () => store.removeEntry('cashBought', id));
     onClose();
   }
 

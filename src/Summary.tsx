@@ -18,6 +18,7 @@ export default function Summary({ store }: { store: Store }) {
   const totals = Object.fromEntries(CATEGORIES.map((c) => [c, days.reduce((t, d) => t + d.yenByCategory[c], 0)]));
   const totalYen = days.reduce((t, d) => t + d.totalYen, 0);
   const pillClass = s.status === 'Over pace' ? 'red' : s.status === 'On pace' ? '' : 'idle';
+  const finished = today > settings.tripEnd;
   const showCashBanner = s.cashRateMissing && data.cashPurchases.length > 0;
 
   return (
@@ -27,6 +28,31 @@ export default function Summary({ store }: { store: Store }) {
       {showCashBanner && <p className="banner">Add the cash you bought. Cash dollars stay blank until you do.</p>}
 
       <div className="cols">
+        {finished && (
+          <section className="card" aria-label="Trip summary">
+            <div className="card-head">
+              <span className="muted small">Trip complete · {s.tripLength} days</span>
+            </div>
+            <div className="big">{formatDollars(s.totalSpentCents)}</div>
+            <span className="muted small">Total spent of {formatDollars(settings.budgetCeilingCents)}</span>
+            <div className="rule">
+              <div>
+                <b>{formatDollars(s.tripAverageCents)}</b>
+                <span>Average per day</span>
+              </div>
+              <div>
+                <b>{s.biggestDay ? formatDollars(s.biggestDay.cents) : '—'}</b>
+                <span>Most spent{s.biggestDay ? ` · ${dayLabel(s.biggestDay.date)}` : ''}</span>
+              </div>
+              <div>
+                <b>{s.smallestDay ? formatDollars(s.smallestDay.cents) : '—'}</b>
+                <span>Least spent{s.smallestDay ? ` · ${dayLabel(s.smallestDay.date)}` : ''}</span>
+              </div>
+            </div>
+          </section>
+        )}
+
+        {!finished && (
         <section className="card" aria-label="Today">
           <div className="card-head">
             <span className="muted small">
@@ -50,6 +76,7 @@ export default function Summary({ store }: { store: Store }) {
             </div>
           </div>
         </section>
+        )}
 
         <section className="card" aria-label="Budget">
           <div className="card-head">
@@ -59,21 +86,25 @@ export default function Summary({ store }: { store: Store }) {
           <div className="big">{formatDollars(s.totalSpentCents)}</div>
           <div className="part">
             <h3>{s.leftTodayCents !== undefined ? 'Rest of the trip' : 'Whole trip'}</h3>
-            <div className="rule">
+            <div className={finished ? 'rule one' : 'rule'}>
               <div>
                 <b className={s.remainingCents < 0 ? 'bad-text' : ''}>{formatDollars(s.remainingCents)}</b>
                 <span>Remaining</span>
               </div>
-              <div>
-                <b>{s.leftPerDayCents === undefined ? '—' : formatDollars(s.leftPerDayCents)}</b>
-                <span>Left per day</span>
-              </div>
-              <div>
-                <b>
-                  {s.daysLeft} of {s.tripLength}
-                </b>
-                <span>Days left</span>
-              </div>
+              {!finished && (
+                <>
+                  <div>
+                    <b>{s.leftPerDayCents === undefined ? '—' : formatDollars(s.leftPerDayCents)}</b>
+                    <span>Left per day</span>
+                  </div>
+                  <div>
+                    <b>
+                      {s.daysLeft} of {s.tripLength}
+                    </b>
+                    <span>Days left</span>
+                  </div>
+                </>
+              )}
             </div>
           </div>
         </section>

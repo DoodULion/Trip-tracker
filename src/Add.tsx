@@ -1,7 +1,9 @@
-import { useRef, useState, type FormEvent } from 'react';
+import { useState, type FormEvent } from 'react';
 import { CATEGORIES, formatDollars, formatYen, type Category } from './calc';
 import { Roundel } from './Roundel';
+import type { EntryStore } from './db';
 import { clampDate, newId, parseCents, parseYen, todayLocal } from './money';
+import { useUndo } from './undo';
 import type { Store } from './store';
 
 type Mode = 'card' | 'cash';
@@ -30,8 +32,7 @@ export default function Add({ store }: { store: Store }) {
   const [dollars, setDollars] = useState('');
   const [note, setNote] = useState('');
   const [error, setError] = useState('');
-  const [saved, setSaved] = useState('');
-  const savedTimer = useRef<number>(0);
+  const { offer } = useUndo();
 
   async function submit(ev: FormEvent) {
     ev.preventDefault();
@@ -43,6 +44,7 @@ export default function Add({ store }: { store: Store }) {
     const id = newId();
     const n = note.trim() || undefined;
     let msg: string;
+    let undoStore: EntryStore = 'cardCharges';
 
     if (mode === 'card') {
       if (y === undefined && c === undefined) return setError('Enter yen, dollars, or both.');
@@ -52,6 +54,7 @@ export default function Add({ store }: { store: Store }) {
     } else {
       if (y === undefined || y <= 0) return setError('Enter the yen amount.');
       await store.addCashPurchase({ id, date, category, yen: y, note: n });
+      undoStore = 'cashPurchases';
       await store.setPrefs({ lastCategory: category });
       msg = `Saved ${formatYen(y)}`;
     }
@@ -59,9 +62,7 @@ export default function Add({ store }: { store: Store }) {
     setYen('');
     setDollars('');
     setNote('');
-    setSaved(msg);
-    window.clearTimeout(savedTimer.current);
-    savedTimer.current = window.setTimeout(() => setSaved(''), 2000);
+    offer(msg, () => store.removeEntry(undoStore, id));
   }
 
   return (
@@ -137,7 +138,6 @@ export default function Add({ store }: { store: Store }) {
 
       {error && <p className="error" role="alert">{error}</p>}
       <button type="submit" className="primary">Save</button>
-      <p className={`toast ${saved ? 'show' : ''}`} role="status">{saved}</p>
     </form>
   );
 }

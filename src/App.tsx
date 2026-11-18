@@ -7,6 +7,7 @@ import Icon, { type IconName } from './icons';
 import Summary from './Summary';
 import { tripStore, useApp, type App as AppState, type Store } from './store';
 import TripForm from './TripForm';
+import { UndoProvider } from './undo';
 import { tripPhase, type Trip } from './calc';
 import { findCountry, flagEmoji, tripTheme } from './countries';
 import { todayLocal } from './money';
@@ -38,6 +39,7 @@ function TripView({ app, trip, onBack }: { app: AppState; trip: Trip; onBack: ()
 
   return (
     <div className="app themed" style={tripTheme(trip.country)}>
+      <UndoProvider>
       <header className="band">
         <div className="band-in">
           <button type="button" className="hit" onClick={onBack} aria-label="Back to all trips">
@@ -73,6 +75,7 @@ function TripView({ app, trip, onBack }: { app: AppState; trip: Trip; onBack: ()
           </button>
         ))}
       </nav>
+      </UndoProvider>
     </div>
   );
 }

@@ -228,6 +228,15 @@ describe('status of a finished trip', () => {
   });
 });
 
+describe('trip average', () => {
+  it('is the total over every day of the trip', () => {
+    expect(formatDollars(sum.tripAverageCents)).toBe('$7.89'); // $197.33 / 25 days
+  });
+  it('is zero with nothing logged', () => {
+    expect(computeSummary({ cardCharges: [], cashPurchases: [], cashBought: [] }, S, '2027-01-02').tripAverageCents).toBe(0);
+  });
+});
+
 describe('left today', () => {
   it('is the daily limit minus today\'s spending, during the trip only', () => {
     expect(formatDollars(computeSummary(data, S, '2026-11-28').leftTodayCents!)).toBe('$389.33'); // $400.00 - $10.67

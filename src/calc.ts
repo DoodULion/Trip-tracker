@@ -225,6 +225,8 @@ export interface Summary {
   tripLength: number;
   dailyLimitCents: number;
   totalSpentCents: number;
+  /** Total spent divided by every day of the trip (used by the completed-trip summary). */
+  tripAverageCents: number;
   totalYen: number;
   remainingCents: number;
   daysLeft: number;
@@ -368,6 +370,7 @@ export function computeSummary(data: Data, s: Settings, today: string): Summary 
     tripLength: length,
     dailyLimitCents: limit,
     totalSpentCents,
+    tripAverageCents: totalSpentCents / length,
     totalYen: cardYen + cashYen,
     remainingCents,
     daysLeft: left,
