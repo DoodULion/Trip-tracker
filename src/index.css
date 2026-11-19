@@ -343,7 +343,7 @@ input[type="date"]::-webkit-calendar-picker-indicator { margin: 0; }
 
 /* days: a timeline with numbered day dots */
 .map { position: relative; background: var(--sign); border-radius: var(--r-card); padding: 6px 16px 6px 60px; list-style: none; margin: 0; }
-.map::before { content: ''; position: absolute; left: 33px; top: 30px; bottom: 30px; width: 4px; border-radius: 999px; background: color-mix(in srgb, var(--or) 30%, var(--field)); }
+.map::before { content: ''; position: absolute; left: 29px; top: 30px; bottom: 30px; width: 4px; border-radius: 999px; background: color-mix(in srgb, var(--or) 30%, var(--field)); }
 .st { position: relative; border-bottom: 1.5px solid var(--line); }
 .st:last-child { border-bottom: 0; }
 .st .node {

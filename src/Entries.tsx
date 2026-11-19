@@ -70,7 +70,7 @@ export default function Entries({ store }: { store: Store }) {
           type="search"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="Search category, note, card, amount…"
+          placeholder="Search"
           aria-label="Search entries"
           enterKeyHint="search"
           autoComplete="off"

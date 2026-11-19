@@ -133,6 +133,9 @@ export default function FilterSheet({ filters, categories, cards, hasNoCard, onA
           >
             Clear filters
           </button>
+          <button type="button" className="secondary" onClick={onClose}>
+            Cancel
+          </button>
         </div>
       </form>
     </SheetBackdrop>
