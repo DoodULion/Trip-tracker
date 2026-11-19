@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { DEFAULT_SETTINGS as S, computeDays, computeSummary, type Data } from './calc';
-import { DEFAULT_LAYOUT, dailySeries, formatStat, formulaLabel, formulaUnit, formulaValue, parseLayout, statCatalog, statValue } from './summaryCards';
+import { DEFAULT_LAYOUT, builtinAsCustom, dailySeries, formatStat, formulaLabel, formulaUnit, formulaValue, parseLayout, statCatalog, statValue } from './summaryCards';
 
 // The spec's test data (CLAUDE.md).
 const data: Data = {
@@ -116,5 +116,20 @@ describe('daily series', () => {
     expect(out[0]).toMatchObject({ display: 'daily', series: 'daySpend' });
     expect(out[1]).not.toHaveProperty('display');
     expect(out[1]).not.toHaveProperty('series');
+  });
+});
+
+describe('built-in cards opened for editing', () => {
+  it('become a custom card with the same figures', () => {
+    const budget = builtinAsCustom('budget', ['Food'], 'x1');
+    expect(budget).toMatchObject({ id: 'x1', kind: 'custom', title: 'Budget' });
+    expect(budget.items).toContainEqual({ stat: 'remaining' });
+    const cats = builtinAsCustom('categories', ['Food', 'Suica'], 'x2');
+    expect(cats.items).toEqual([{ stat: 'cat:Food' }, { stat: 'cat:Suica' }]);
+    // Every figure it names exists for the trip.
+    for (const it of [...budget.items, ...builtinAsCustom('today', [], 'x3').items]) expect('stat' in it && statCatalog(['Food'], []).some((d) => d.id === (it as { stat: string }).stat)).toBe(true);
+  });
+  it('keeps at most 8 categories (a card holds 8 figures)', () => {
+    expect(builtinAsCustom('categories', Array.from({ length: 10 }, (_, i) => `C${i}`), 'x').items).toHaveLength(8);
   });
 });

@@ -8,6 +8,7 @@ import CardSheet from './CardSheet';
 import SheetBackdrop from './SheetBackdrop';
 import {
   BUILTIN_CARDS,
+  builtinAsCustom,
   formatStat,
   formulaLabel,
   formulaValue,
@@ -168,7 +169,10 @@ export default function Summary({ store }: { store: Store }) {
           <div className={finished ? 'rule one' : 'rule'}>
             <div>
               <Fig className={s.remainingCents < 0 ? 'bad-text' : ''}>{formatDollars(s.remainingCents)}</Fig>
-              <span>Remaining</span>
+              <span className={s.remainingCents < 0 ? 'warn' : ''}>
+                {s.remainingCents < 0 && <Icon name="alert" />}
+                Remaining
+              </span>
             </div>
             {!finished && (
               <>
@@ -329,16 +333,17 @@ export default function Summary({ store }: { store: Store }) {
         />
       )}
 
-      {target?.kind === 'custom' && sheet?.step === 'edit' && (
+      {target && sheet?.step === 'edit' && (
         <CardSheet
-          initial={target}
+          initial={target.kind === 'custom' ? target : builtinAsCustom(target.id, store.categories, `c${Date.now().toString(36)}`)}
+          fromBuiltin={target.kind === 'builtin'}
           catalog={catalog}
           series={series}
           unitOf={unitOf}
           valueOf={itemValue}
           missingBuiltins={[]}
           onAddBuiltin={() => {}}
-          onSave={(card) => setLayout(layout.map((c) => (c.id === card.id ? card : c)))}
+          onSave={(card) => setLayout(layout.map((c) => (c.id === target.id ? card : c)))}
           onClose={closeSheet}
         />
       )}
@@ -347,9 +352,7 @@ export default function Summary({ store }: { store: Store }) {
         <SheetBackdrop onClose={closeSheet}>
           <div className="sheet menu" role="dialog" aria-modal="true" aria-label="Card options">
             <p className="menu-title">{target.kind === 'custom' ? target.title : BUILTIN_CARDS.find((b) => b.id === target.id)?.label}</p>
-            {target.kind === 'custom' && (
-              <button type="button" className="secondary" onClick={() => setSheet({ step: 'edit', id: target.id })}>Edit card</button>
-            )}
+            <button type="button" className="secondary" onClick={() => setSheet({ step: 'edit', id: target.id })}>Edit card</button>
             {layout.length > 1 && (
               <div className="menu-pair">
                 <button type="button" className="secondary" disabled={targetIndex <= 0} onClick={() => { move(target.id, -1); closeSheet(); }}>Move up</button>

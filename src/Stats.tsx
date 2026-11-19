@@ -3,6 +3,7 @@ import { useMemo } from 'react';
 import { computeSummary, formatDollars, formatRateUnit, formatYen } from './calc';
 import { Bars, type ChartRow } from './CardCharts';
 import { Big, Fig } from './Figures';
+import Icon from './icons';
 import { dayLabel } from './money';
 import type { Store } from './store';
 
@@ -37,7 +38,7 @@ export default function Stats({ store }: { store: Store }) {
 
   return (
     <div className="screen">
-      <h1>Stats</h1>
+      <h1 className="page-title">Stats</h1>
 
       {cashMissing && <p className="banner">Add the cash you bought. Cash dollars stay blank until you do.</p>}
 
@@ -94,6 +95,7 @@ export default function Stats({ store }: { store: Store }) {
         <section className="card" aria-label="By payment">
           <h2>By payment</h2>
           <Bars rows={payRows} />
+          <p className="muted small">Each bar is sized against the largest of these, not as a share of the total.</p>
           {estimatedCards.size > 0 && <p className="muted small">≈ includes an estimate at the market rate for a charge still missing dollars.</p>}
         </section>
 
@@ -106,7 +108,10 @@ export default function Stats({ store }: { store: Store }) {
             </div>
             <div>
               <Fig className={s.daysOver > 0 ? 'bad-text' : ''}>{String(s.daysOver)}</Fig>
-              <span>Over the limit</span>
+              <span className={s.daysOver > 0 ? 'warn' : ''}>
+                {s.daysOver > 0 && <Icon name="alert" />}
+                Over the limit
+              </span>
             </div>
             <div>
               <Fig>{String(s.daysUnder)}</Fig>

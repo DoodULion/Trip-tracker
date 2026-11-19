@@ -26,6 +26,13 @@ const PATHS = {
   close: <path d="M6 6l12 12M18 6L6 18" />,
   down: <path d="M6 9l6 6 6-6" />,
   edit: <path d="M4 20h4L19 9l-4-4L4 16v4zM13.5 6.5l4 4" />,
+  search: (
+    <>
+      <circle cx="11" cy="11" r="6.5" />
+      <path d="M16 16l4.5 4.5" />
+    </>
+  ),
+  filter: <path d="M4 7h16M7 12h10M10 17h4" />,
   alert: (
     <>
       <path d="M12 3.5L2.5 20h19L12 3.5z" />

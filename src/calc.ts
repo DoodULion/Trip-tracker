@@ -491,13 +491,24 @@ export function computeSummary(data: Data, s: Settings, today: string, categorie
  * `spot` maps YYYY-MM-DD to yen per $.
  */
 export function estimateRateFor(date: string, spot: Record<string, number>, fallback: number | undefined): number | undefined {
-  if (spot[date]) return spot[date];
+  return estimateInfo(date, spot, fallback)?.rate;
+}
+
+/** The rate an estimate for `date` uses and where it came from: a market day's rate (with that day), or the owner's own card rate. */
+export function estimateInfo(
+  date: string,
+  spot: Record<string, number>,
+  fallback: number | undefined,
+): { rate: number; source: 'market'; day: string } | { rate: number; source: 'card' } | undefined {
   const days = Object.keys(spot).sort();
   let best: string | undefined;
-  for (const d of days) if (d <= date) best = d;
-  if (best) return spot[best];
-  if (days.length) return spot[days[days.length - 1]];
-  return fallback;
+  if (spot[date]) best = date;
+  else {
+    for (const d of days) if (d <= date) best = d;
+    if (!best && days.length) best = days[days.length - 1];
+  }
+  if (best && spot[best]) return { rate: spot[best], source: 'market', day: best };
+  return fallback ? { rate: fallback, source: 'card' } : undefined;
 }
 
 /**

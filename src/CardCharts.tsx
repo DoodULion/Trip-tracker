@@ -1,5 +1,6 @@
 import { useState, type PointerEvent as ReactPointerEvent } from 'react';
 import { formatDollars, formatRateUnit, formatYen } from './calc';
+import Icon from './icons';
 import { dayLabel } from './money';
 import type { SeriesDef, SeriesPoint, StatValue } from './summaryCards';
 
@@ -238,7 +239,7 @@ export function DailyChart({ def, points, today }: { def: SeriesDef; points: Ser
         <p className="daily-key">
           <span><i className="k-main" aria-hidden="true" />{def.id === 'running' ? 'Running total' : 'Spent'}</span>
           <span><i className="k-ref" aria-hidden="true" />{def.id === 'running' ? 'Running limit' : 'Daily limit'}</span>
-          {def.id === 'daySpend' && <span><i className="k-over" aria-hidden="true" />Over the limit</span>}
+          {def.id === 'daySpend' && <span><i className="k-over" aria-hidden="true" /><Icon name="alert" />Over the limit</span>}
         </p>
       )}
       <table className="sr-only">

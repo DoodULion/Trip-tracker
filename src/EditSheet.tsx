@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react';
-import { type CardCharge, type CashBought, type CashPurchase, type Category } from './calc';
+import { cardRate, estimateInfo, formatDollars, formatRateUnit, type CardCharge, type Category } from './calc';
 import { centsToInput, parseCents, parseYen } from './money';
 import { amountHint, getCurrency, minorToInput } from './currency';
 import { Roundel } from './Roundel';
@@ -7,10 +7,8 @@ import SheetBackdrop from './SheetBackdrop';
 import { useUndo } from './undo';
 import type { Store } from './store';
 
-export type Row =
-  | { kind: 'card'; e: CardCharge }
-  | { kind: 'cash'; e: CashPurchase }
-  | { kind: 'bought'; e: CashBought };
+export type { Row } from './entryFilter';
+import type { Row } from './entryFilter';
 
 const TITLES = { card: 'Card charge', cash: 'Cash purchase', bought: 'Cash bought' } as const;
 
@@ -36,6 +34,21 @@ export default function EditSheet({ row, store, onClose }: { row: Row; store: St
   }, [missingDollars]);
 
   const cur = getCurrency();
+
+  // A card charge with no dollars typed is counted as an estimate: say at what rate and where it came from.
+  let estimateNote = '';
+  if (kind === 'card' && dollars.trim() === '') {
+    const y = parseYen(yen);
+    if (y) {
+      const info = estimateInfo(date, store.spot, cardRate(store.data.cardCharges));
+      if (!info) estimateNote = 'No rate to estimate with yet. Add the real dollars when the card posts.';
+      else {
+        const [, m, d] = (info.source === 'market' ? info.day : date).split('-').map(Number);
+        const from = info.source === 'market' ? `market rate, ${m}/${d}` : 'your card rate';
+        estimateNote = `Counted as ≈ ${formatDollars(Math.round((y * 100) / info.rate))} at ${formatRateUnit(info.rate)} (${from}) until you add the real dollars.`;
+      }
+    }
+  }
 
   async function submit(ev: FormEvent) {
     ev.preventDefault();
@@ -79,6 +92,8 @@ export default function EditSheet({ row, store, onClose }: { row: Row; store: St
             </label>
           )}
         </div>
+
+        {estimateNote && <p className="muted small est-line">{estimateNote}</p>}
 
         {kind !== 'bought' && (
           <div className="field">

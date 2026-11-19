@@ -16,6 +16,7 @@ import {
   suggestCategories,
   tripCategories,
   applyEstimates,
+  estimateInfo,
   estimateRateFor,
   type Data,
 } from './calc';
@@ -390,5 +391,14 @@ describe('categories per trip', () => {
     expect(ordered[ordered.length - 1]).toBe('Misc');
     expect(usual).not.toContain('Misc');
     expect(suggestCategories(library, {}).usual).toEqual([]);
+  });
+});
+
+describe('estimateInfo', () => {
+  it('says where the rate came from', () => {
+    expect(estimateInfo('2026-11-27', { '2026-11-27': 150 }, 160)).toEqual({ rate: 150, source: 'market', day: '2026-11-27' });
+    expect(estimateInfo('2026-11-28', { '2026-11-26': 149, '2026-11-27': 151 }, 160)).toEqual({ rate: 151, source: 'market', day: '2026-11-27' });
+    expect(estimateInfo('2026-11-28', {}, 160)).toEqual({ rate: 160, source: 'card' });
+    expect(estimateInfo('2026-11-28', {}, undefined)).toBeUndefined();
   });
 });

@@ -146,7 +146,7 @@ export default function Add({ store }: { store: Store }) {
 
       {preview && (
         <p className={`live-left${preview.left < 0 ? ' over' : ''}`} aria-live="polite">
-          <span>{preview.typed ? 'After this, ' : ''}{preview.left < 0 ? (preview.typed ? 'over the limit' : 'Over the limit') : preview.typed ? 'left' : 'Left'} {isToday ? 'today' : `on ${dayLabel(date)}`}</span>
+          <span>{preview.left < 0 && <Icon name="alert" />}{preview.typed ? 'After this, ' : ''}{preview.left < 0 ? (preview.typed ? 'over the limit' : 'Over the limit') : preview.typed ? 'left' : 'Left'} {isToday ? 'today' : `on ${dayLabel(date)}`}</span>
           <b>
             {preview.estimated ? '≈' : ''}
             {formatDollars(Math.abs(preview.left))}

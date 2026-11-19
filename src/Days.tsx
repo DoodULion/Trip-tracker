@@ -37,7 +37,7 @@ export default function Days({ store }: { store: Store }) {
 
   return (
     <div className="screen">
-      <h1>Days</h1>
+      <h1 className="page-title">Days</h1>
       <ol className="map" ref={listRef}>
         {days.map((d, i) => {
           const isOpen = open === d.date && d.hasEntries;
@@ -51,6 +51,12 @@ export default function Days({ store }: { store: Store }) {
                 <span>
                   <b>{dayLabel(d.date)}</b>
                   {d.date === today && <em>today</em>}
+                  {d.hasEntries && d.totalYen > 0 && (
+                    <small className="st-sub">
+                      {formatYen(d.totalYen)}
+                      {d.rate !== undefined && ` at ${formatRateUnit(d.rate)}`}
+                    </small>
+                  )}
                 </span>
                 <span className="st-amt">
                   {d.hasEntries ? `${estimatedDays.has(d.date) ? '≈' : ''}${formatDollars(d.totalCents)}` : ''}

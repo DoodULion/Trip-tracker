@@ -28,8 +28,10 @@ const itemLabel = (it: CardItem) => ('stat' in it ? statLabel(it.stat) : it.labe
  * (one figure +, −, × or ÷ another figure or a number). Each pick shows its current value for this trip.
  * A new card can also bring back a built-in card that was removed.
  */
-export default function CardSheet({ initial, catalog, series, unitOf, valueOf, missingBuiltins, onAddBuiltin, onSave, onClose }: {
+export default function CardSheet({ initial, fromBuiltin, catalog, series, unitOf, valueOf, missingBuiltins, onAddBuiltin, onSave, onClose }: {
   initial?: Custom;
+  /** The card being edited is a built-in one: saving turns it into the card shown here. */
+  fromBuiltin?: boolean;
   catalog: StatDef[];
   series: SeriesDef[];
   unitOf: (id: string) => StatValue['unit'];
@@ -95,6 +97,7 @@ export default function CardSheet({ initial, catalog, series, unitOf, valueOf, m
     <SheetBackdrop onClose={onClose} role="dialog" aria-modal="true" aria-label={initial ? 'Edit card' : 'New card'}>
       <form className="sheet card-sheet" onSubmit={submit}>
         <h2>{initial ? 'Edit card' : 'New card'}</h2>
+        {fromBuiltin && <p className="muted small">This is a built-in card. Saving turns it into your own card with the numbers below; you can bring the original back from Add card.</p>}
         <p className="muted small">A card shows numbers from this trip: pick ready-made ones (like Remaining or Food), or combine two, such as Remaining ÷ Days left. Then choose how it looks.</p>
 
         {!initial && missingBuiltins.length > 0 && (

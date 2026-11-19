@@ -288,6 +288,17 @@ export const BUILTIN_CARDS: { id: 'today' | 'budget' | 'categories'; label: stri
   { id: 'categories', label: 'By category' },
 ];
 
+/**
+ * A built-in card as the custom card with the same figures, so it can be opened in the card editor.
+ * Saving the result replaces the built-in (which can be brought back from Add card).
+ */
+export function builtinAsCustom(id: 'today' | 'budget' | 'categories', categories: readonly string[], newId: string): Extract<SummaryCard, { kind: 'custom' }> {
+  const stats = (ids: string[]): CardItem[] => ids.map((stat) => ({ stat }));
+  if (id === 'today') return { id: newId, kind: 'custom', title: 'Today', items: stats(['leftToday', 'spentToday', 'dailyLimit']) };
+  if (id === 'budget') return { id: newId, kind: 'custom', title: 'Budget', items: stats(['totalSpent', 'remaining', 'leftPerDay', 'daysLeft', 'status']) };
+  return { id: newId, kind: 'custom', title: 'By category', display: 'tiles', items: stats(categories.slice(0, 8).map((c) => `cat:${c}`)) };
+}
+
 export const DEFAULT_LAYOUT: SummaryCard[] = BUILTIN_CARDS.map((b) => ({ id: b.id, kind: 'builtin' }));
 
 /** Read a stored layout, dropping anything malformed; falls back to the default cards. */
