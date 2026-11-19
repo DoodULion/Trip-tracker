@@ -5,9 +5,8 @@ import NameSheet from './NameSheet';
 import CashBoughtSheet from './CashBoughtSheet';
 import { Roundel } from './Roundel';
 import type { EntryStore } from './db';
-import { centsToInput, clampDate, dayLabel, newId, parseCents, parseYen, todayLocal } from './money';
-import { amountHint, getCurrency, minorToInput } from './currency';
-import { parsePayment } from './paymentPaste';
+import { clampDate, dayLabel, newId, parseCents, parseYen, todayLocal } from './money';
+import { amountHint, getCurrency } from './currency';
 import { useUndo } from './undo';
 import type { Store } from './store';
 
@@ -21,8 +20,7 @@ const MODES: { id: Mode; label: string }[] = [
 /**
  * Add a card charge or a cash purchase. No field is focused automatically (not on opening,
  * not when switching Card / Cash, not after saving): the keyboard opens only when a field is tapped.
- * Cash bought (ATM / exchange) is logged from Add cash in Cash mode; Paste payment (Card mode) fills a charge
- * from the text the owner's Apple Pay Shortcut copies.
+ * Cash bought (ATM / exchange) is logged from the Entries tab.
  */
 export default function Add({ store }: { store: Store }) {
   const { settings, prefs } = store;
@@ -41,47 +39,9 @@ export default function Add({ store }: { store: Store }) {
   const [error, setError] = useState('');
   const [more, setMore] = useState(false);
   const [addingCash, setAddingCash] = useState(false);
-  /** What Paste payment filled in, shown under its row until the entry is saved. */
-  const [pasted, setPasted] = useState('');
   const { offer } = useUndo();
 
   const cur = getCurrency();
-
-  /** Fill a card charge from the payment the Apple Pay Shortcut copied (iOS asks to allow the paste). */
-  async function pastePayment() {
-    setError('');
-    setPasted('');
-    let text: string;
-    try {
-      if (!navigator.clipboard?.readText) throw new Error('no clipboard');
-      text = await navigator.clipboard.readText();
-    } catch {
-      return setError("Couldn't read the clipboard. Allow the paste when your phone asks.");
-    }
-    const r = parsePayment(text, cur, settings.cards);
-    if (!r.ok) {
-      return setError(
-        r.reason === 'none'
-          ? 'No payment on the clipboard. Pay with Apple Pay so the Shortcut copies it, then try again.'
-          : r.reason === 'currency'
-            ? `That payment isn't in ${cur.name.toLowerCase()} or dollars. Enter it by hand.`
-            : "Couldn't read the payment's amount. Enter it by hand.",
-      );
-    }
-    const p = r.payment;
-    setMode('card');
-    setYen(p.yen !== undefined ? minorToInput(p.yen, cur) : '');
-    setDollars(p.cents !== undefined ? centsToInput(p.cents) : '');
-    if (p.card) setCard(p.card);
-    if (p.merchant) setNote(p.merchant);
-    if (p.date) setDate(clampDate(p.date, settings.tripStart, settings.tripEnd));
-    const parts = [p.merchant, p.card].filter(Boolean).join(', ');
-    setPasted(
-      p.walletCard && !p.card
-        ? `Filled in${p.merchant ? ` from ${p.merchant}` : ''}. "${p.walletCard}" isn't one of this trip's cards: pick one below.`
-        : `Filled in${parts ? ` from ${parts}` : ''}. Pick a category and save.`,
-    );
-  }
 
   async function submit(ev: FormEvent) {
     ev.preventDefault();
@@ -118,7 +78,6 @@ export default function Add({ store }: { store: Store }) {
     setYen('');
     setDollars('');
     setNote('');
-    setPasted('');
     offer(msg, () => store.removeEntry(undoStore, id));
   }
 
@@ -194,16 +153,6 @@ export default function Add({ store }: { store: Store }) {
           </b>
         </p>
       )}
-
-      {/* Card: fill the charge from the payment the Apple Pay Shortcut copied. */}
-      {mode === 'card' && (
-        <button type="button" className="more-row add-cash" onClick={pastePayment}>
-          <Icon name="paste" />
-          <span>Paste payment</span>
-          <span className="muted">from Apple Pay</span>
-        </button>
-      )}
-      {mode === 'card' && pasted && <p className="muted small paste-note" role="status">{pasted}</p>}
 
       {/* Cash: getting cash (ATM or exchange) lives here too, beside spending it. */}
       {mode === 'cash' && (
