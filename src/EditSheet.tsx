@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react';
+import { haptic } from './haptics';
 import { cardRate, estimateInfo, formatDollars, formatRateUnit, type CardCharge, type Category } from './calc';
 import { centsToInput, parseCents, parseYen } from './money';
 import { amountHint, getCurrency, minorToInput } from './currency';
@@ -24,6 +25,11 @@ export default function EditSheet({ row, store, onClose }: { row: Row; store: St
   const [note, setNote] = useState('note' in e ? (e.note ?? '') : '');
   const [where, setWhere] = useState('where' in e ? (e.where ?? '') : '');
   const [error, setError] = useState('');
+  /** Show a form error with an error haptic. */
+  const fail = (m: string) => {
+    haptic('error');
+    setError(m);
+  };
   const yenRef = useRef<HTMLInputElement>(null);
   const dollarsRef = useRef<HTMLInputElement>(null);
 
@@ -55,22 +61,23 @@ export default function EditSheet({ row, store, onClose }: { row: Row; store: St
     setError('');
     const y = parseYen(yen);
     const c = parseCents(dollars);
-    if (yen.trim() !== '' && y === undefined) return setError(`${cur.name} must be ${amountHint(cur)}.`);
-    if (dollars.trim() !== '' && c === undefined) return setError('Dollars must look like 10.50.');
+    if (yen.trim() !== '' && y === undefined) return fail(`${cur.name} must be ${amountHint(cur)}.`);
+    if (dollars.trim() !== '' && c === undefined) return fail('Dollars must look like 10.50.');
     const n = note.trim() || undefined;
 
     if (kind === 'card') {
-      if (y === undefined && c === undefined) return setError(`Enter ${cur.name.toLowerCase()}, dollars, or both.`);
+      if (y === undefined && c === undefined) return fail(`Enter ${cur.name.toLowerCase()}, dollars, or both.`);
       await store.addCardCharge({ id: e.id, date, category, card, yen: y, cents: c, note: n });
     } else if (kind === 'cash') {
-      if (y === undefined || y <= 0) return setError(`Enter the amount in ${cur.name.toLowerCase()}.`);
-      if (c !== undefined && c <= 0) return setError('Leave USD paid blank, or enter more than $0.');
+      if (y === undefined || y <= 0) return fail(`Enter the amount in ${cur.name.toLowerCase()}.`);
+      if (c !== undefined && c <= 0) return fail('Leave USD paid blank, or enter more than $0.');
       await store.addCashPurchase({ id: e.id, date, category, yen: y, ...(c !== undefined ? { cents: c } : {}), note: n });
     } else {
-      if (y === undefined || y <= 0) return setError(`Enter the ${cur.name.toLowerCase()} you received.`);
-      if (c === undefined || c <= 0) return setError('Enter the dollars you paid, including fees.');
+      if (y === undefined || y <= 0) return fail(`Enter the ${cur.name.toLowerCase()} you received.`);
+      if (c === undefined || c <= 0) return fail('Enter the dollars you paid, including fees.');
       await store.addCashBought({ id: e.id, date, yen: y, cents: c, where: where.trim() || undefined });
     }
+    haptic('success');
     offer('Changes saved', () => restoreRow(store, row)); // row still holds the entry as it was before this edit
     onClose();
   }

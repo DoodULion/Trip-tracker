@@ -1,3 +1,4 @@
+import { haptic } from './haptics';
 import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from 'react';
 
 const SHOW_MS = 7000;
@@ -42,6 +43,7 @@ export function UndoProvider({ children }: { children: ReactNode }) {
 
   async function undoNow() {
     if (!current || busy) return;
+    haptic('tap');
     setBusy(true);
     try {
       await current.undo();

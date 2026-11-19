@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from 'react';
+import { haptic } from './haptics';
 import { type EntryFilters, type Kind, NO_FILTERS } from './entryFilter';
 import { amountHint, getCurrency, minorToInput } from './currency';
 import { parseYen } from './money';
@@ -27,13 +28,18 @@ export default function FilterSheet({ filters, categories, cards, hasNoCard, onA
   const [min, setMin] = useState(minorToInput(filters.minMinor));
   const [max, setMax] = useState(minorToInput(filters.maxMinor));
   const [error, setError] = useState('');
+  /** Show a form error with an error haptic. */
+  const fail = (m: string) => {
+    haptic('error');
+    setError(m);
+  };
 
   function submit(ev: FormEvent) {
     ev.preventDefault();
     const lo = min.trim() === '' ? undefined : parseYen(min);
     const hi = max.trim() === '' ? undefined : parseYen(max);
-    if ((min.trim() !== '' && lo === undefined) || (max.trim() !== '' && hi === undefined)) return setError(`Prices must be ${amountHint(cur)}.`);
-    if (lo !== undefined && hi !== undefined && lo > hi) return setError('The lowest price is above the highest.');
+    if ((min.trim() !== '' && lo === undefined) || (max.trim() !== '' && hi === undefined)) return fail(`Prices must be ${amountHint(cur)}.`);
+    if (lo !== undefined && hi !== undefined && lo > hi) return fail('The lowest price is above the highest.');
     let { from, to } = f;
     if (from && to && from > to) [from, to] = [to, from];
     onApply({ ...f, minMinor: lo, maxMinor: hi, from: from || undefined, to: to || undefined });

@@ -4,11 +4,13 @@ import { registerSW } from 'virtual:pwa-register';
 import App from './App';
 import './index.css';
 import { watchSystemTheme } from './theme';
+import { installTapHaptics } from './haptics';
 
 // Offline support: the service worker caches the app after the first visit and
 // updates itself in the background the next time the phone is online. (Production builds only.)
 registerSW({ immediate: true });
 watchSystemTheme();
+installTapHaptics();
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

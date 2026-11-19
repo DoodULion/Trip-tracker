@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from 'react';
+import { haptic } from './haptics';
 import SheetBackdrop from './SheetBackdrop';
 import { clampDate, newId, parseCents, parseYen, todayLocal } from './money';
 import { amountHint, getCurrency } from './currency';
@@ -15,6 +16,11 @@ export default function CashBoughtSheet({ store, onClose }: { store: Store; onCl
   const [date, setDate] = useState(() => clampDate(todayLocal(), settings.tripStart, settings.tripEnd));
   const [where, setWhere] = useState('');
   const [error, setError] = useState('');
+  /** Show a form error with an error haptic. */
+  const fail = (m: string) => {
+    haptic('error');
+    setError(m);
+  };
 
   const cur = getCurrency();
 
@@ -23,10 +29,11 @@ export default function CashBoughtSheet({ store, onClose }: { store: Store; onCl
     setError('');
     const y = parseYen(yen);
     const c = parseCents(dollars);
-    if (y === undefined || y <= 0) return setError(`Enter the ${cur.name.toLowerCase()} you received, as ${amountHint(cur)}.`);
-    if (c === undefined || c <= 0) return setError('Enter the dollars you paid, including fees, like 200.00.');
+    if (y === undefined || y <= 0) return fail(`Enter the ${cur.name.toLowerCase()} you received, as ${amountHint(cur)}.`);
+    if (c === undefined || c <= 0) return fail('Enter the dollars you paid, including fees, like 200.00.');
     const id = newId();
     await store.addCashBought({ id, date, yen: y, cents: c, where: where.trim() || undefined });
+    haptic('success');
     offer(`Saved cash bought ${formatYen(y)} for ${formatDollars(c)}`, () => store.removeEntry('cashBought', id));
     onClose();
   }

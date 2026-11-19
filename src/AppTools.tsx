@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { haptic } from './haptics';
 import { buildBackup, parseBackup, toCsv, type Backup, type BackupTrip } from './backup';
 import { CATEGORIES } from './calc';
 import { getLastExport, setLastExport } from './db';
@@ -73,6 +74,7 @@ export default function AppTools({ app }: { app: App }) {
   }
 
   async function deleteAll() {
+    haptic('warning');
     await app.deleteAll();
     setConfirmText('');
     setMsg('All data deleted.');

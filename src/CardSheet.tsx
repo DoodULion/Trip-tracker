@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from 'react';
+import { haptic } from './haptics';
 import Icon from './icons';
 import SheetBackdrop from './SheetBackdrop';
 import {
@@ -48,6 +49,11 @@ export default function CardSheet({ initial, fromBuiltin, catalog, series, unitO
   const [seriesId, setSeriesId] = useState(initial?.series ?? '');
   const daily = display === 'daily';
   const [error, setError] = useState('');
+  /** Show a form error with an error haptic. */
+  const fail = (m: string) => {
+    haptic('error');
+    setError(m);
+  };
   const [building, setBuilding] = useState(false);
   const [a, setA] = useState('');
   const [op, setOp] = useState<Op>('/');
@@ -79,9 +85,9 @@ export default function CardSheet({ initial, fromBuiltin, catalog, series, unitO
   function submit(e: FormEvent) {
     e.preventDefault();
     const t = title.trim();
-    if (t === '') return setError('Give the card a name.');
-    if (daily && !seriesId) return setError('Pick what the daily chart shows.');
-    if (!daily && items.length === 0) return setError('Add at least one number or calculation.');
+    if (t === '') return fail('Give the card a name.');
+    if (daily && !seriesId) return fail('Pick what the daily chart shows.');
+    if (!daily && items.length === 0) return fail('Add at least one number or calculation.');
     onSave({
       id: initial?.id ?? `c${Date.now().toString(36)}`,
       kind: 'custom',

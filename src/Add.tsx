@@ -1,4 +1,5 @@
 import { useMemo, useState, type FormEvent } from 'react';
+import { haptic } from './haptics';
 import { applyEstimates, computeDays, dailyLimitCents, formatDollars, formatYen, type Category, type Data } from './calc';
 import Icon from './icons';
 import NameSheet from './NameSheet';
@@ -37,6 +38,11 @@ export default function Add({ store }: { store: Store }) {
   const [dollars, setDollars] = useState('');
   const [note, setNote] = useState('');
   const [error, setError] = useState('');
+  /** Show a form error with an error haptic. */
+  const fail = (m: string) => {
+    haptic('error');
+    setError(m);
+  };
   const [more, setMore] = useState(false);
   const [addingCash, setAddingCash] = useState(false);
   const { offer } = useUndo();
@@ -48,8 +54,8 @@ export default function Add({ store }: { store: Store }) {
     setError('');
     const y = parseYen(yen);
     const c = parseCents(dollars);
-    if (yen.trim() !== '' && y === undefined) return setError(`${cur.name} must be ${amountHint(cur)}.`);
-    if (dollars.trim() !== '' && c === undefined) return setError('Dollars must look like 10.50.');
+    if (yen.trim() !== '' && y === undefined) return fail(`${cur.name} must be ${amountHint(cur)}.`);
+    if (dollars.trim() !== '' && c === undefined) return fail('Dollars must look like 10.50.');
     const id = newId();
     const n = note.trim() || undefined;
     let msg: string;
@@ -57,15 +63,15 @@ export default function Add({ store }: { store: Store }) {
 
     let after: Data;
     if (mode === 'card') {
-      if (y === undefined && c === undefined) return setError(`Enter ${cur.name.toLowerCase()}, dollars, or both.`);
+      if (y === undefined && c === undefined) return fail(`Enter ${cur.name.toLowerCase()}, dollars, or both.`);
       const entry = { id, date, category, card, yen: y, cents: c, note: n };
       after = { ...store.data, cardCharges: [...store.data.cardCharges, entry] };
       await store.addCardCharge(entry);
       await store.setPrefs({ lastCard: card, lastCategory: category });
       msg = `Saved ${y !== undefined ? formatYen(y) : ''}${y !== undefined && c !== undefined ? ` (${formatDollars(c)})` : c !== undefined ? formatDollars(c) : ''}.`;
     } else {
-      if (y === undefined || y <= 0) return setError(`Enter the amount in ${cur.name.toLowerCase()}.`);
-      if (c !== undefined && c <= 0) return setError('Leave USD paid blank, or enter more than $0.');
+      if (y === undefined || y <= 0) return fail(`Enter the amount in ${cur.name.toLowerCase()}.`);
+      if (c !== undefined && c <= 0) return fail('Leave USD paid blank, or enter more than $0.');
       const entry = { id, date, category, yen: y, ...(c !== undefined ? { cents: c } : {}), note: n };
       after = { ...store.data, cashPurchases: [...store.data.cashPurchases, entry] };
       await store.addCashPurchase(entry);
@@ -73,7 +79,9 @@ export default function Add({ store }: { store: Store }) {
       await store.setPrefs({ lastCategory: category });
       msg = `Saved ${formatYen(y)}${c !== undefined ? ` (${formatDollars(c)})` : ''}.`;
     }
-    msg += leftAfter(after, date);
+    const left = leftAfter(after, date);
+    msg += left;
+    haptic(left.includes('over the limit') ? 'warning' : 'success');
 
     setYen('');
     setDollars('');

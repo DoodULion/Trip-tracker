@@ -1,3 +1,4 @@
+import { haptic } from './haptics';
 import { useEffect, useLayoutEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react';
 
 const HOLD_MS = 400;
@@ -126,7 +127,7 @@ export function useHoldDrag(ids: string[], onReorder: (ids: string[]) => void, i
         } catch {
           /* pointer already gone */
         }
-        navigator.vibrate?.(12);
+        haptic('tap'); // lifted
       }, HOLD_MS),
     };
     startPoint.current = { x: e.clientX, y: e.clientY };
@@ -154,12 +155,12 @@ export function useHoldDrag(ids: string[], onReorder: (ids: string[]) => void, i
         : e.clientY > r.top + r.height / 2;
       if (before) index++;
     }
-    setDraft((cur) => {
-      const base = cur ?? order;
-      const next = base.filter((x) => x !== dragId);
-      next.splice(index, 0, dragId);
-      return next.join('\u0000') === base.join('\u0000') ? cur : next;
-    });
+    const base = draft ?? order;
+    const next = base.filter((x) => x !== dragId);
+    next.splice(index, 0, dragId);
+    if (next.join('\u0000') === base.join('\u0000')) return;
+    haptic('tick'); // moved to a new slot
+    setDraft(next);
   }
 
   function onPointerUp() {
@@ -176,6 +177,7 @@ export function useHoldDrag(ids: string[], onReorder: (ids: string[]) => void, i
           el.style.transition = '';
         }, 300);
       }
+      haptic('tap'); // dropped
       if (draft && draft.join('\u0000') !== ids.join('\u0000')) onReorder(draft);
       setDragId(null);
       // Keep the dragged order on screen until the saved order arrives.

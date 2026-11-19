@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from 'react';
+import { haptic } from './haptics';
 import SheetBackdrop from './SheetBackdrop';
 
 /**
@@ -16,13 +17,18 @@ export default function NameSheet({ title, label, hint, existing, onSave, onClos
 }) {
   const [name, setName] = useState('');
   const [error, setError] = useState('');
+  /** Show a form error with an error haptic. */
+  const fail = (m: string) => {
+    haptic('error');
+    setError(m);
+  };
 
   async function submit(e: FormEvent) {
     e.preventDefault();
     const n = name.trim();
-    if (n === '') return setError('Type a name.');
-    if (n.length > 24) return setError('Keep it to 24 characters or fewer.');
-    if (existing.some((x) => x.toLowerCase() === n.toLowerCase())) return setError(`"${n}" is already there.`);
+    if (n === '') return fail('Type a name.');
+    if (n.length > 24) return fail('Keep it to 24 characters or fewer.');
+    if (existing.some((x) => x.toLowerCase() === n.toLowerCase())) return fail(`"${n}" is already there.`);
     await onSave(n);
     onClose();
   }
