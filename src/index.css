@@ -197,6 +197,7 @@ input[type="date"]::-webkit-calendar-picker-indicator { margin: 0; }
 .more-row.add-cash { border-style: dashed; }
 .more-row.add-cash .muted { flex: 1; }
 .more-row.add-cash .ic { color: var(--ink); }
+.paste-note { margin: -4px 4px 0; }
 .chips button {
   min-height: 44px; padding: 0 16px; border-radius: 999px;
   border: 0; background: var(--sign); color: var(--ink); font: inherit; font-size: 0.95rem; font-weight: 700;

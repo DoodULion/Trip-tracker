@@ -31,3 +31,7 @@ The PNG icons in `public/icons/` were rendered from `scripts/icon.svg` (see the 
 ## Font
 
 No font files ship: the app uses the device's rounded system face (SF Pro Rounded on iPhone), so it works offline. See `DESIGN.md`.
+
+## Apple Pay Shortcut
+
+To fill card charges from Apple Pay taps, set up the iPhone Shortcut in `SHORTCUT.md`.
