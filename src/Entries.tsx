@@ -148,6 +148,7 @@ export default function Entries({ store }: { store: Store }) {
           categories={categoryChoices}
           cards={cardChoices}
           hasNoCard={data.cardCharges.some((c) => !c.card)}
+          domestic={store.domestic}
           onApply={setFilters}
           onClose={() => setFilterOpen(false)}
         />
@@ -168,7 +169,7 @@ export function RowBody({ r, store }: { r: Row; store: Store }) {
           <Sub note={e.note} pay={e.card || 'No card'} />
         </span>
         <span className="row-amt">
-          <span>{e.yen !== undefined ? formatYen(e.yen) : '—'}</span>
+          {!store.domestic && <span>{e.yen !== undefined ? formatYen(e.yen) : '—'}</span>}
           {e.cents !== undefined ? (
             <span>{formatDollars(e.cents)}</span>
           ) : (
@@ -189,8 +190,14 @@ export function RowBody({ r, store }: { r: Row; store: Store }) {
           <Sub note={e.note} pay="Cash" />
         </span>
         <span className="row-amt">
-          <span>{formatYen(e.yen)}</span>
-          <span className="muted">{cents !== undefined ? formatDollars(cents) : ''}</span>
+          {store.domestic ? (
+            <span>{cents !== undefined ? formatDollars(cents) : ''}</span>
+          ) : (
+            <>
+              <span>{formatYen(e.yen)}</span>
+              <span className="muted">{cents !== undefined ? formatDollars(cents) : ''}</span>
+            </>
+          )}
         </span>
       </>
     );

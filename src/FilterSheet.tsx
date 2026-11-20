@@ -14,8 +14,10 @@ const KINDS: { id: Kind; label: string }[] = [
 const toggle = <T,>(list: T[], v: T): T[] => (list.includes(v) ? list.filter((x) => x !== v) : [...list, v]);
 
 /** The filters for the Entries list: payment type, category, card, price, dates and a few more. */
-export default function FilterSheet({ filters, categories, cards, hasNoCard, onApply, onClose }: {
+export default function FilterSheet({ filters, categories, cards, hasNoCard, domestic, onApply, onClose }: {
   filters: EntryFilters;
+  /** Domestic trip: no cash bought or missing dollars to filter by, and prices are in dollars. */
+  domestic: boolean;
   categories: string[];
   cards: string[];
   /** Whether any charge has no card picked (then "No card" is offered as a choice). */
@@ -42,7 +44,7 @@ export default function FilterSheet({ filters, categories, cards, hasNoCard, onA
     if (lo !== undefined && hi !== undefined && lo > hi) return fail('The lowest price is above the highest.');
     let { from, to } = f;
     if (from && to && from > to) [from, to] = [to, from];
-    onApply({ ...f, minMinor: lo, maxMinor: hi, from: from || undefined, to: to || undefined });
+    onApply({ ...f, minMinor: lo, maxMinor: hi, ...(domestic ? { dollarPrices: true } : {}), from: from || undefined, to: to || undefined });
     onClose();
   }
 
@@ -54,7 +56,7 @@ export default function FilterSheet({ filters, categories, cards, hasNoCard, onA
         <div className="field">
           <span>Payment type</span>
           <div className="chips">
-            {KINDS.map((k) => (
+            {KINDS.filter((k) => !domestic || k.id !== 'bought').map((k) => (
               <button key={k.id} type="button" className={f.kinds.includes(k.id) ? 'on' : ''} aria-pressed={f.kinds.includes(k.id)} onClick={() => setF({ ...f, kinds: toggle(f.kinds, k.id) })}>
                 {k.label}
               </button>
@@ -116,9 +118,11 @@ export default function FilterSheet({ filters, categories, cards, hasNoCard, onA
         <div className="field">
           <span>More</span>
           <div className="chips">
-            <button type="button" className={f.missingOnly ? 'on' : ''} aria-pressed={f.missingOnly} onClick={() => setF({ ...f, missingOnly: !f.missingOnly })}>
-              Missing dollars
-            </button>
+            {!domestic && (
+              <button type="button" className={f.missingOnly ? 'on' : ''} aria-pressed={f.missingOnly} onClick={() => setF({ ...f, missingOnly: !f.missingOnly })}>
+                Missing dollars
+              </button>
+            )}
             <button type="button" className={f.hasNote ? 'on' : ''} aria-pressed={f.hasNote} onClick={() => setF({ ...f, hasNote: !f.hasNote })}>
               Has a note
             </button>

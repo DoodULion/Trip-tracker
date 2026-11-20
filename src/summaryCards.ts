@@ -60,14 +60,38 @@ const FIXED: StatDef[] = [
   { id: 'cardSpent', label: 'All cards ($)', group: 'By payment' },
 ];
 
-/** Every figure on offer for a trip: the fixed ones, one per category, one per card. */
-export function statCatalog(categories: readonly string[], cards: readonly string[]): StatDef[] {
-  return [
+/** Figures that only mean something with a local currency: local totals, cash on hand and exchange rates. */
+const LOCAL_STATS = new Set(['totalYen', 'cashOnHand', 'overallRate', 'cashRate', 'cardRate', 'bestDayRate', 'worstDayRate']);
+
+/** True for a figure a domestic (dollars-only) trip doesn't have. */
+export const isLocalStat = (id: string): boolean => LOCAL_STATS.has(id) || id.startsWith('catyen:');
+
+/** True for a card item built on such a figure. */
+export function isLocalItem(it: CardItem): boolean {
+  if ('stat' in it) return isLocalStat(it.stat);
+  return isLocalStat(it.formula.a) || (typeof it.formula.b === 'string' && isLocalStat(it.formula.b));
+}
+
+/**
+ * A custom card as a domestic trip shows it: without its local-currency and rate items. Undefined when nothing
+ * is left (every item was local, or its daily chart is in local currency or rates), so the card is hidden there.
+ */
+export function domesticCard(c: Extract<SummaryCard, { kind: 'custom' }>): Extract<SummaryCard, { kind: 'custom' }> | undefined {
+  if (c.display === 'daily') return c.series && seriesDef(c.series)?.unit === 'usd' ? c : undefined;
+  const items = c.items.filter((it) => !isLocalItem(it));
+  if (items.length === 0 && c.items.length > 0) return undefined;
+  return items.length === c.items.length ? c : { ...c, items };
+}
+
+/** Every figure on offer for a trip: the fixed ones, one per category, one per card. A domestic trip gets dollar figures only. */
+export function statCatalog(categories: readonly string[], cards: readonly string[], domestic = false): StatDef[] {
+  const all: StatDef[] = [
     ...FIXED.map((d) => (d.id === 'totalYen' ? { ...d, label: `Total spent (${sym()})` } : d)),
     ...categories.map((c): StatDef => ({ id: `cat:${c}`, label: `${c} ($)`, group: 'By category' })),
     ...categories.map((c): StatDef => ({ id: `catyen:${c}`, label: `${c} (${sym()})`, group: 'By category' })),
     ...cards.map((c): StatDef => ({ id: `card:${c}`, label: `${c} ($)`, group: 'By payment' })),
   ];
+  return domestic ? all.filter((d) => !isLocalStat(d.id)) : all;
 }
 
 /** The label for a stat id, also for a category or card the trip no longer has. */
@@ -247,9 +271,10 @@ const series = (): SeriesDef[] => [
   { id: 'dayRate', label: `Day rate (${sym()} per $)`, unit: 'rate', mark: 'line' },
 ];
 
-/** The daily series on offer: the fixed ones plus yen per day for each category. */
-export function seriesCatalog(categories: readonly string[]): SeriesDef[] {
-  return [...series(), ...categories.map((c): SeriesDef => ({ id: `catday:${c}`, label: `${c} each day (${sym()})`, unit: 'yen', mark: 'bar' }))];
+/** The daily series on offer: the fixed ones plus yen per day for each category. A domestic trip gets the dollar series only. */
+export function seriesCatalog(categories: readonly string[], domestic = false): SeriesDef[] {
+  const all = [...series(), ...categories.map((c): SeriesDef => ({ id: `catday:${c}`, label: `${c} each day (${sym()})`, unit: 'yen', mark: 'bar' }))];
+  return domestic ? all.filter((d) => d.unit === 'usd') : all;
 }
 
 export function seriesDef(id: string): SeriesDef | undefined {

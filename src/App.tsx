@@ -10,8 +10,8 @@ import { tripStore, useApp, type App as AppState } from './store';
 import Backdrop from './Backdrop';
 import { UndoProvider } from './undo';
 import { type Trip } from './calc';
-import { currencyFor, setCurrency } from './currency';
-import { findCountry, flagEmoji, tripTheme } from './countries';
+import { setCurrency, tripCurrency } from './currency';
+import { tripPlace, tripThemeOf } from './countries';
 import { todayLocal } from './money';
 import { navigate } from './navMotion';
 
@@ -81,7 +81,8 @@ export default function App() {
 function TripView({ app, trip, enter, onBack }: { app: AppState; trip: Trip; enter: Enter; onBack: () => void }) {
   const store = tripStore(app, trip);
   // Every amount on this trip's screens is shown in its currency (see currency.ts).
-  setCurrency(currencyFor(trip.country));
+  setCurrency(tripCurrency(trip));
+  const place = tripPlace(trip);
   const [tab, setTab] = useState<Tab>('summary');
   // The first page slides in with the trip; later tab changes slide toward the tab that was tapped.
   const motion = useRef<string>(enter);
@@ -96,7 +97,7 @@ function TripView({ app, trip, enter, onBack }: { app: AppState; trip: Trip; ent
   }
 
   return (
-    <div className="app themed" style={tripTheme(trip.country)}>
+    <div className="app themed" style={tripThemeOf(trip)}>
       <UndoProvider>
       <Backdrop />
       <header className="band">
@@ -104,9 +105,9 @@ function TripView({ app, trip, enter, onBack }: { app: AppState; trip: Trip; ent
           <button type="button" className="hit" onClick={onBack} aria-label="Back to all trips">
             <Icon name="back" />
           </button>
-          {trip.country && (
-            <span className="flag" role="img" aria-label={findCountry(trip.country)?.name ?? 'Flag'}>
-              {flagEmoji(trip.country)}
+          {place && (
+            <span className="flag" role="img" aria-label={place.label}>
+              {place.flag}
             </span>
           )}
           <p className="band-title fit" style={{ ['--chars' as string]: Math.max(trip.name.length, 4) }}>

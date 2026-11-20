@@ -10,7 +10,7 @@ import { dayLabel } from './money';
 import type { Store } from './store';
 
 export default function Days({ store }: { store: Store }) {
-  const { data, settings } = store;
+  const { data, settings, domestic } = store;
   const today = useToday();
   const days = useMemo(() => computeDays(store.calcData, settings), [store.calcData, settings]);
   const [open, setOpen] = useState<string | null>(null);
@@ -51,7 +51,7 @@ export default function Days({ store }: { store: Store }) {
                 <span>
                   <b>{dayLabel(d.date)}</b>
                   {d.date === today && <em>today</em>}
-                  {d.hasEntries && d.totalYen > 0 && (
+                  {!domestic && d.hasEntries && d.totalYen > 0 && (
                     <small className="st-sub">
                       {formatYen(d.totalYen)}
                       {d.rate !== undefined && ` at ${formatRateUnit(d.rate)}`}
@@ -75,14 +75,18 @@ export default function Days({ store }: { store: Store }) {
               {isOpen && (
                 <div className="st-body">
                   <dl className="kv">
-                    <dt>Total {getCurrency().symbol.trim()}</dt>
-                    <dd>{formatYen(d.totalYen)}</dd>
-                    <dt>Day rate</dt>
-                    <dd>{formatRateUnit(d.rate) || '—'}</dd>
+                    {!domestic && (
+                      <>
+                        <dt>Total {getCurrency().symbol.trim()}</dt>
+                        <dd>{formatYen(d.totalYen)}</dd>
+                        <dt>Day rate</dt>
+                        <dd>{formatRateUnit(d.rate) || '—'}</dd>
+                      </>
+                    )}
                     <dt>Card</dt>
-                    <dd>{d.cardYen || d.cardCents ? `${formatYen(d.cardYen)} (${formatDollars(d.cardCents)})` : '—'}</dd>
+                    <dd>{d.cardYen || d.cardCents ? (domestic ? formatDollars(d.cardCents) : `${formatYen(d.cardYen)} (${formatDollars(d.cardCents)})`) : '—'}</dd>
                     <dt>Cash</dt>
-                    <dd>{d.cashYen ? `${formatYen(d.cashYen)}${cashMissing ? '' : ` (${formatDollars(d.cashCents ?? 0)})`}` : '—'}</dd>
+                    <dd>{d.cashYen ? (domestic ? formatDollars(d.cashCents ?? 0) : `${formatYen(d.cashYen)}${cashMissing ? '' : ` (${formatDollars(d.cashCents ?? 0)})`}`) : '—'}</dd>
                     <dt>Running total</dt>
                     <dd>{formatDollars(d.runningCents)}</dd>
                     <dt>Running limit</dt>

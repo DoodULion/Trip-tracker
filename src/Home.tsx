@@ -3,7 +3,7 @@ import { useHoldDrag } from './useHoldDrag';
 import { categoryUsage, computeSummary, formatDollars, tripFraction, tripPhase, type Trip } from './calc';
 import AppTools from './AppTools';
 import Backdrop from './Backdrop';
-import { findCountry, flagEmoji, tripTheme } from './countries';
+import { tripPlace, tripThemeOf } from './countries';
 import Icon from './icons';
 import Jet from './Jet';
 import { dayLabel, todayLocal } from './money';
@@ -261,7 +261,7 @@ function TripList({ trips, app, today, onOpen, onMenu, onReorder }: {
             key={t.id}
             {...bind(t.id)}
             className={`trip themed${dragId === t.id ? ' lifted' : ''}`}
-            style={tripTheme(t.country)}
+            style={tripThemeOf(t)}
           >
             <button
               type="button"
@@ -271,9 +271,9 @@ function TripList({ trips, app, today, onOpen, onMenu, onReorder }: {
               }}
             >
               <span className="trip-title">
-                {t.country && (
-                  <span className="flag" role="img" aria-label={findCountry(t.country)?.name ?? 'Flag'}>
-                    {flagEmoji(t.country)}
+                {tripPlace(t) && (
+                  <span className="flag" role="img" aria-label={tripPlace(t)!.label}>
+                    {tripPlace(t)!.flag}
                   </span>
                 )}
                 <strong>{t.name}</strong>

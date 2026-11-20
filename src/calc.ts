@@ -46,7 +46,15 @@ export interface Trip extends Settings {
   createdAt?: number;
   /** The categories this trip offers on Add, in order (chosen in its trip settings). Older trips lack it: they offer the whole list. */
   categories?: string[];
+  /** "domestic" for a trip within the US: everything is in dollars, so there are no local amounts, exchange rates
+   * or cash bought. Absent (older trips) means international. */
+  scope?: 'domestic' | 'international';
+  /** USPS code of the state a domestic trip is in (sets its main color). Optional. */
+  state?: string;
 }
+
+/** A trip within the US, kept in dollars only (see Trip.scope). */
+export const isDomestic = (t: Pick<Trip, 'scope'>): boolean => t.scope === 'domestic';
 
 /**
  * The categories a trip offers for new entries: its own choice, limited to categories that still exist

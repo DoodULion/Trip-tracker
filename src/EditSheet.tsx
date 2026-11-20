@@ -36,14 +36,16 @@ export default function EditSheet({ row, store, onClose }: { row: Row; store: St
   // Card charge missing dollars: jump straight to the dollars box.
   const missingDollars = kind === 'card' && (e as CardCharge).cents === undefined;
   useEffect(() => {
-    (missingDollars ? dollarsRef : yenRef).current?.focus();
-  }, [missingDollars]);
+    (missingDollars || store.domestic ? dollarsRef : yenRef).current?.focus();
+  }, [missingDollars, store.domestic]);
 
   const cur = getCurrency();
+  // A domestic trip has one amount, in dollars (a cash purchase keeps it as both its amount and its dollars).
+  const dom = store.domestic && kind !== 'bought';
 
   // A card charge with no dollars typed is counted as an estimate: say at what rate and where it came from.
   let estimateNote = '';
-  if (kind === 'card' && dollars.trim() === '') {
+  if (kind === 'card' && !dom && dollars.trim() === '') {
     const y = parseYen(yen);
     if (y) {
       const info = estimateInfo(date, store.spot, cardRate(store.data.cardCharges));
@@ -59,10 +61,11 @@ export default function EditSheet({ row, store, onClose }: { row: Row; store: St
   async function submit(ev: FormEvent) {
     ev.preventDefault();
     setError('');
-    const y = parseYen(yen);
     const c = parseCents(dollars);
-    if (yen.trim() !== '' && y === undefined) return fail(`${cur.name} must be ${amountHint(cur)}.`);
-    if (dollars.trim() !== '' && c === undefined) return fail('Dollars must look like 10.50.');
+    const y = dom ? (kind === 'cash' ? c : undefined) : parseYen(yen);
+    if (!dom && yen.trim() !== '' && y === undefined) return fail(`${cur.name} must be ${amountHint(cur)}.`);
+    if (dollars.trim() !== '' && c === undefined) return fail(dom ? 'The amount must look like 12.50.' : 'Dollars must look like 10.50.');
+    if (dom && (c === undefined || c <= 0)) return fail('Enter the amount, like 12.50.');
     const n = note.trim() || undefined;
 
     if (kind === 'card') {
@@ -87,6 +90,12 @@ export default function EditSheet({ row, store, onClose }: { row: Row; store: St
       <form className="sheet" onSubmit={submit}>
         <h2>Edit {TITLES[kind].toLowerCase()}</h2>
 
+        {dom ? (
+          <label className="field">
+            <span>Amount</span>
+            <input ref={dollarsRef} value={dollars} onChange={(ev) => setDollars(ev.target.value)} inputMode="decimal" placeholder="$" autoComplete="off" />
+          </label>
+        ) : (
         <div className="grid2">
           <label className="field">
             <span>{kind === 'bought' ? `${cur.name} received` : cur.name}</span>
@@ -99,6 +108,7 @@ export default function EditSheet({ row, store, onClose }: { row: Row; store: St
             </label>
           )}
         </div>
+        )}
 
         {estimateNote && <p className="muted small est-line">{estimateNote}</p>}
 

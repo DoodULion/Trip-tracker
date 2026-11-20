@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { CATEGORIES, applyEstimates, tripCategories, type CardCharge, type CashBought, type CashPurchase, type Data, type Settings, type Trip } from './calc';
+import { CATEGORIES, applyEstimates, isDomestic, tripCategories, type CardCharge, type CashBought, type CashPurchase, type Data, type Settings, type Trip } from './calc';
 import * as db from './db';
 import { todayLocal } from './money';
-import { currencyFor, scaleOf } from './currency';
+import { scaleOf, tripCurrency } from './currency';
 import { fetchSpotRate, hasMarketRate } from './rates';
 import type { EntryMap, EntryStore, Prefs, TripWithData } from './db';
 
@@ -23,7 +23,7 @@ export interface App {
   /** Market rates fetched for days with card charges still missing dollars (currency code → YYYY-MM-DD → local currency per $). */
   spot: Record<string, Record<string, number>>;
   /** The market rates for one trip's currency, on the scale its amounts are stored in (see scaleOf), for estimates. */
-  spotFor(trip: Pick<Trip, 'country'>): Record<string, number>;
+  spotFor(trip: Pick<Trip, 'country' | 'scope'>): Record<string, number>;
   /** A trip's entries with estimated dollars filled in for card charges still missing them (for totals only). */
   calcData(tripId: string): Data;
   saveEntry<S extends EntryStore>(store: S, tripId: string, entry: EntryMap[S]): Promise<void>;
@@ -39,6 +39,8 @@ export interface App {
 /** The slice of the app that the trip screens (Add, Entries, Summary, Days, Settings) see. */
 export interface Store {
   trip: Trip;
+  /** A trip within the US, in dollars only: screens hide local amounts, rates and cash bought. */
+  domestic: boolean;
   settings: Settings;
   /** The entries exactly as entered. Use this for lists and editing. */
   data: Data;
@@ -90,7 +92,7 @@ export function useApp(): App {
     const today = todayLocal();
     const wanted = new Set<string>(); // "CODE|date"
     for (const t of trips) {
-      const code = currencyFor(t.country).code;
+      const code = tripCurrency(t).code;
       if (!hasMarketRate(code)) continue; // no published rate: such charges use your own card rate instead
       for (const c of data[t.id]?.cardCharges ?? []) {
         const date = c.date > today ? today : c.date;
@@ -112,8 +114,8 @@ export function useApp(): App {
   }, [ready, data, spot, trips]);
 
   const spotFor = useCallback(
-    (trip: Pick<Trip, 'country'>) => {
-      const cur = currencyFor(trip.country);
+    (trip: Pick<Trip, 'country' | 'scope'>) => {
+      const cur = tripCurrency(trip);
       const scale = scaleOf(cur);
       return Object.fromEntries(Object.entries(spot[cur.code] ?? {}).map(([d, r]) => [d, r * scale]));
     },
@@ -207,6 +209,7 @@ export function tripStore(app: App, trip: Trip): Store {
   const id = trip.id;
   return {
     trip,
+    domestic: isDomestic(trip),
     settings: trip,
     data: app.data[id] ?? EMPTY_DATA,
     calcData: app.calcData(id),

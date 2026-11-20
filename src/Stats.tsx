@@ -17,7 +17,9 @@ export default function Stats({ store }: { store: Store }) {
   const s = useMemo(() => computeSummary(store.calcData, settings, today), [store.calcData, settings, today]);
   // Cards with a charge still missing dollars have an estimate inside their total.
   const estimatedCards = new Set(store.calcData.cardCharges.filter((c) => c.estimated).map((c) => c.card ?? ''));
-  const cashMissing = s.cashRateMissing && data.cashPurchases.length > 0;
+  // A domestic trip is all dollars: no exchange rates or cash bought, so only payments and days are shown.
+  const dom = store.domestic;
+  const cashMissing = !dom && s.cashRateMissing && data.cashPurchases.length > 0;
   const boughtYen = data.cashBought.reduce((t, b) => t + b.yen, 0);
   const boughtCents = data.cashBought.reduce((t, b) => t + b.cents, 0);
   const cardRates = Object.entries(s.cardRateByCard);
@@ -43,6 +45,7 @@ export default function Stats({ store }: { store: Store }) {
       {cashMissing && <p className="banner">Add the cash you bought. Cash dollars stay blank until you do.</p>}
 
       <div className="stats-grid">
+        {!dom && (
         <section className="card" aria-label="Rates">
           <h2>Rates</h2>
           <Big>{rate(s.overallRate)}</Big>
@@ -71,7 +74,9 @@ export default function Stats({ store }: { store: Store }) {
             </dl>
           )}
         </section>
+        )}
 
+        {!dom && (
         <section className="card" aria-label="Cash">
           <h2>Cash</h2>
           <Big>{formatYen(s.cashOnHandYen)}</Big>
@@ -91,6 +96,7 @@ export default function Stats({ store }: { store: Store }) {
             </div>
           </div>
         </section>
+        )}
 
         <section className="card" aria-label="By payment">
           <h2>By payment</h2>

@@ -88,6 +88,11 @@ export function currencyFor(country: string | undefined): Currency {
   return CURRENCIES[(country && BY_COUNTRY[country]) || 'JPY'] ?? DEFAULT_CURRENCY;
 }
 
+/** The currency a trip's local amounts are in: dollars for a domestic trip, otherwise from its country. */
+export function tripCurrency(trip: { country?: string; scope?: string }): Currency {
+  return trip.scope === 'domestic' ? CURRENCIES.USD : currencyFor(trip.country);
+}
+
 /** Local amounts are held ×10^decimals; rates are held on the same scale (see formatRate). */
 export const scaleOf = (cur: Currency) => 10 ** cur.decimals;
 

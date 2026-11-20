@@ -1,5 +1,5 @@
 /** Backup (JSON) and CSV export/import for all trips. Pure functions, no UI or storage. */
-import { currencyFor, minorToInput } from './currency';
+import { minorToInput, tripCurrency } from './currency';
 import { CATEGORIES, type CardCharge, type CashBought, type CashPurchase, type Category, type Data, type Trip } from './calc';
 import { centsToInput, newId } from './money';
 
@@ -93,6 +93,8 @@ function parseTripFields(v: Obj, id: string, name: string, where: string): Trip 
     ...(order !== undefined ? { order } : {}),
     ...(createdAt !== undefined ? { createdAt } : {}),
     ...(categories ? { categories } : {}),
+    ...(v.scope === 'domestic' ? { scope: 'domestic' as const } : {}),
+    ...(v.scope === 'domestic' && typeof v.state === 'string' && /^[A-Z]{2}$/.test(v.state) ? { state: v.state } : {}),
   };
 }
 
@@ -183,7 +185,7 @@ export function toCsv(items: BackupTrip[]): string {
   type R = { date: string; id: string; cols: (string | number | undefined)[] };
   const lines: string[] = [CSV_HEADER.map(cell).join(',')];
   for (const { trip, data } of items) {
-    const cur = currencyFor(trip.country);
+    const cur = tripCurrency(trip);
     // The local amount in the trip's own currency, in whole units (1600 yen, 12.50 euros), with its code beside it.
     const amt = (minor: number) => [minorToInput(minor, cur), cur.code];
     const amtOpt = (minor: number | undefined) => (minor === undefined ? ['', cur.code] : amt(minor));
@@ -191,7 +193,8 @@ export function toCsv(items: BackupTrip[]): string {
       ...data.cardCharges.map((e) => ({
         date: e.date,
         id: e.id,
-        cols: ['Card', e.date, e.category, e.card, ...amtOpt(e.yen), e.cents === undefined ? undefined : centsToInput(e.cents), e.note],
+        // A domestic trip's charges are in dollars only: the Amount is their dollars.
+        cols: ['Card', e.date, e.category, e.card, ...amtOpt(e.yen ?? (trip.scope === 'domestic' ? e.cents : undefined)), e.cents === undefined ? undefined : centsToInput(e.cents), e.note],
       })),
       ...data.cashPurchases.map((e) => ({ date: e.date, id: e.id, cols: ['Cash', e.date, e.category, '', ...amt(e.yen), e.cents === undefined ? undefined : centsToInput(e.cents), e.note] })),
       ...data.cashBought.map((e) => ({ date: e.date, id: e.id, cols: ['Cash bought', e.date, '', '', ...amt(e.yen), centsToInput(e.cents), e.where] })),

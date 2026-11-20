@@ -18,6 +18,8 @@ export interface EntryFilters {
   /** Price range in the trip's local currency, in minor units (inclusive). An entry with no local amount is hidden. */
   minMinor?: number;
   maxMinor?: number;
+  /** Domestic trip: the price range is in dollars (cents), matched against each entry's dollars. */
+  dollarPrices?: boolean;
   /** Date range, inclusive, YYYY-MM-DD. The same day twice means one day. */
   from?: string;
   to?: string;
@@ -69,7 +71,7 @@ export function matchesRow(
   if (f.categories.length && (r.kind === 'bought' || !f.categories.includes(r.e.category))) return false;
   if (f.cards.length && (r.kind !== 'card' || !f.cards.includes(r.e.card))) return false;
   if (f.minMinor !== undefined || f.maxMinor !== undefined) {
-    const y = r.e.yen;
+    const y = f.dollarPrices ? ('cents' in r.e ? r.e.cents : undefined) : r.e.yen;
     if (y === undefined) return false;
     if (f.minMinor !== undefined && y < f.minMinor) return false;
     if (f.maxMinor !== undefined && y > f.maxMinor) return false;

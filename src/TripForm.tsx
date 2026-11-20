@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { suggestCategories, type Trip } from './calc';
+import { isDomestic, suggestCategories, type Trip } from './calc';
 import { Roundel } from './Roundel';
-import { COUNTRIES, flagEmoji } from './countries';
+import { COUNTRIES, US_STATES, flagEmoji } from './countries';
 import { currencyFor } from './currency';
 import { centsToAmountInput, formatAmountInput, newId, parseCents } from './money';
 
@@ -32,6 +32,11 @@ interface Props {
 export default function TripForm({ initial, saveLabel, discardLabel = 'Discard changes', onSave, onDiscard, confirmSaved, entryCount = 0, library, usage }: Props) {
   const [name, setName] = useState(initial?.name ?? '');
   const [country, setCountry] = useState(initial?.country ?? '');
+  // Domestic (within the US) trips are kept in dollars only. The type is fixed once a trip has entries,
+  // since its entries are stored differently.
+  const [domestic, setDomestic] = useState(initial ? isDomestic(initial) : false);
+  const typeLocked = !!initial && entryCount > 0;
+  const [state, setState] = useState(initial?.state ?? '');
   const [start, setStart] = useState(initial?.tripStart ?? '');
   const [end, setEnd] = useState(initial?.tripEnd ?? '');
   const [budget, setBudget] = useState(initial ? centsToAmountInput(initial.budgetCeilingCents) : '');
@@ -71,7 +76,7 @@ export default function TripForm({ initial, saveLabel, discardLabel = 'Discard c
         budgetCeilingCents: cents,
         cards: names,
         categories: ordered.filter((c) => cats.includes(c)),
-        ...(country ? { country } : {}),
+        ...(domestic ? { country: 'US', scope: 'domestic' as const, ...(state ? { state } : {}) } : country ? { country } : {}),
         // Keep the trip's place on the list when it is edited.
         ...(initial?.order !== undefined ? { order: initial.order } : {}),
         ...(initial?.createdAt !== undefined ? { createdAt: initial.createdAt } : {}),
@@ -94,23 +99,68 @@ export default function TripForm({ initial, saveLabel, discardLabel = 'Discard c
         <span>Trip name</span>
         <input value={name} onChange={(e) => setName(e.target.value)} autoComplete="off" />
       </label>
-      <label className="field">
-        <span>Country (sets the flag, main color and currency)</span>
-        <select value={country} onChange={(e) => setCountry(e.target.value)}>
-          <option value="">No country (neutral, yen)</option>
-          {COUNTRIES.map((c) => (
-            <option key={c.code} value={c.code}>
-              {flagEmoji(c.code)} {c.name}
-            </option>
+      <div className="field">
+        <span>Trip type</span>
+        <div className="seg" role="radiogroup" aria-label="Trip type">
+          {([['international', 'International'], ['domestic', 'Domestic (US)']] as const).map(([id, label]) => (
+            <button
+              key={id}
+              type="button"
+              role="radio"
+              aria-checked={(id === 'domestic') === domestic}
+              className={(id === 'domestic') === domestic ? 'on' : ''}
+              disabled={typeLocked && (id === 'domestic') !== domestic}
+              onClick={() => {
+                setDomestic(id === 'domestic');
+                if (id === 'international' && domestic && country === 'US') setCountry(''); // pick a country afresh
+              }}
+            >
+              {label}
+            </button>
           ))}
-        </select>
-      </label>
-      <p className="muted small">
-        Amounts are entered in {currencyFor(country || undefined).name.toLowerCase()} ({currencyFor(country || undefined).code}); dollars stay the base currency.
-        {initial && entryCount > 0 && currencyFor(country || undefined).code !== currencyFor(initial.country).code && (
-          <> The {entryCount} entries already in this trip will read as {currencyFor(country || undefined).name.toLowerCase()}, not {currencyFor(initial.country).name.toLowerCase()}.</>
+        </div>
+        {(domestic || typeLocked) && (
+          <p className="muted small">
+            {domestic && 'Everything is in dollars: no local currency, exchange rates or cash bought.'}
+            {domestic && typeLocked && ' '}
+            {typeLocked && 'The type can’t change once a trip has entries.'}
+          </p>
         )}
-      </p>
+      </div>
+      {domestic && (
+        <label className="field">
+          <span>State (sets the main color)</span>
+          <select value={state} onChange={(e) => setState(e.target.value)}>
+            <option value="">No state (US colors)</option>
+            {US_STATES.map((s) => (
+              <option key={s.code} value={s.code}>
+                {s.name}
+              </option>
+            ))}
+          </select>
+        </label>
+      )}
+      {!domestic && (
+        <>
+        <label className="field">
+          <span>Country (sets the flag, main color and currency)</span>
+          <select value={country} onChange={(e) => setCountry(e.target.value)}>
+            <option value="">No country (neutral, yen)</option>
+            {COUNTRIES.map((c) => (
+              <option key={c.code} value={c.code}>
+                {flagEmoji(c.code)} {c.name}
+              </option>
+            ))}
+          </select>
+        </label>
+        <p className="muted small">
+          Amounts are entered in {currencyFor(country || undefined).name.toLowerCase()} ({currencyFor(country || undefined).code}); dollars stay the base currency.
+          {initial && entryCount > 0 && currencyFor(country || undefined).code !== currencyFor(initial.country).code && (
+            <> The {entryCount} entries already in this trip will read as {currencyFor(country || undefined).name.toLowerCase()}, not {currencyFor(initial.country).name.toLowerCase()}.</>
+          )}
+        </p>
+        </>
+      )}
       <div className="grid2">
         <label className="field">
           <span>Start</span>

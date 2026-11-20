@@ -48,14 +48,21 @@ export default function Add({ store }: { store: Store }) {
   const { offer } = useUndo();
 
   const cur = getCurrency();
+  // A domestic trip has one amount, in dollars. A cash purchase keeps it as both its amount and its dollars.
+  const dom = store.domestic;
+  function amounts(): { y: number | undefined; c: number | undefined } {
+    const c = parseCents(dollars);
+    if (dom) return { y: mode === 'cash' ? c : undefined, c };
+    return { y: parseYen(yen), c };
+  }
 
   async function submit(ev: FormEvent) {
     ev.preventDefault();
     setError('');
-    const y = parseYen(yen);
-    const c = parseCents(dollars);
-    if (yen.trim() !== '' && y === undefined) return fail(`${cur.name} must be ${amountHint(cur)}.`);
-    if (dollars.trim() !== '' && c === undefined) return fail('Dollars must look like 10.50.');
+    const { y, c } = amounts();
+    if (!dom && yen.trim() !== '' && y === undefined) return fail(`${cur.name} must be ${amountHint(cur)}.`);
+    if (dollars.trim() !== '' && c === undefined) return fail(dom ? 'The amount must look like 12.50.' : 'Dollars must look like 10.50.');
+    if (dom && (c === undefined || c <= 0)) return fail('Enter the amount, like 12.50.');
     const id = newId();
     const n = note.trim() || undefined;
     let msg: string;
@@ -68,7 +75,7 @@ export default function Add({ store }: { store: Store }) {
       after = { ...store.data, cardCharges: [...store.data.cardCharges, entry] };
       await store.addCardCharge(entry);
       await store.setPrefs({ lastCard: card, lastCategory: category });
-      msg = `Saved ${y !== undefined ? formatYen(y) : ''}${y !== undefined && c !== undefined ? ` (${formatDollars(c)})` : c !== undefined ? formatDollars(c) : ''}.`;
+      msg = dom ? `Saved ${formatDollars(c!)}.` : `Saved ${y !== undefined ? formatYen(y) : ''}${y !== undefined && c !== undefined ? ` (${formatDollars(c)})` : c !== undefined ? formatDollars(c) : ''}.`;
     } else {
       if (y === undefined || y <= 0) return fail(`Enter the amount in ${cur.name.toLowerCase()}.`);
       if (c !== undefined && c <= 0) return fail('Leave USD paid blank, or enter more than $0.');
@@ -77,7 +84,7 @@ export default function Add({ store }: { store: Store }) {
       await store.addCashPurchase(entry);
       undoStore = 'cashPurchases';
       await store.setPrefs({ lastCategory: category });
-      msg = `Saved ${formatYen(y)}${c !== undefined ? ` (${formatDollars(c)})` : ''}.`;
+      msg = dom ? `Saved ${formatDollars(c!)}.` : `Saved ${formatYen(y)}${c !== undefined ? ` (${formatDollars(c)})` : ''}.`;
     }
     const left = leftAfter(after, date);
     msg += left;
@@ -91,8 +98,7 @@ export default function Add({ store }: { store: Store }) {
 
   // Live answer to "can I buy this?": what is left for the entry's day if this amount is saved.
   const preview = useMemo(() => {
-    const y = parseYen(yen);
-    const c = parseCents(dollars);
+    const { y, c } = amounts();
     const typed = y !== undefined || c !== undefined;
     const tmp = { id: '__preview', date, category, note: undefined };
     const after: Data = !typed
@@ -107,7 +113,8 @@ export default function Add({ store }: { store: Store }) {
     if (!row) return undefined;
     // A card amount with no dollars typed counts at an estimated rate, so it is marked ≈.
     return { left: dailyLimitCents(settings) - row.totalCents, typed, estimated: typed && mode === 'card' && c === undefined };
-  }, [yen, dollars, date, category, card, mode, store.data, store.spot, settings]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [yen, dollars, date, category, card, mode, dom, store.data, store.spot, settings]);
   const isToday = date === todayLocal();
 
   /** " $266.61 left today." (or for the entry's day, or how far over), from the entries including the new one. */
@@ -141,16 +148,23 @@ export default function Add({ store }: { store: Store }) {
         ))}
       </div>
 
-      <div className="grid2">
+      {dom ? (
         <label className="field">
-          <span>{cur.name}</span>
-          <input value={yen} onChange={(e) => setYen(e.target.value)} inputMode={cur.decimals ? 'decimal' : 'numeric'} placeholder={cur.symbol.trim()} autoComplete="off" />
-        </label>
-        <label className="field">
-          <span>{mode === 'card' ? 'Dollars (optional)' : 'USD paid (optional)'}</span>
+          <span>Amount</span>
           <input value={dollars} onChange={(e) => setDollars(e.target.value)} inputMode="decimal" placeholder="$" autoComplete="off" />
         </label>
-      </div>
+      ) : (
+        <div className="grid2">
+          <label className="field">
+            <span>{cur.name}</span>
+            <input value={yen} onChange={(e) => setYen(e.target.value)} inputMode={cur.decimals ? 'decimal' : 'numeric'} placeholder={cur.symbol.trim()} autoComplete="off" />
+          </label>
+          <label className="field">
+            <span>{mode === 'card' ? 'Dollars (optional)' : 'USD paid (optional)'}</span>
+            <input value={dollars} onChange={(e) => setDollars(e.target.value)} inputMode="decimal" placeholder="$" autoComplete="off" />
+          </label>
+        </div>
+      )}
 
       {preview && (
         <p className={`live-left${preview.left < 0 ? ' over' : ''}`} aria-live="polite">
@@ -163,7 +177,7 @@ export default function Add({ store }: { store: Store }) {
       )}
 
       {/* Cash: getting cash (ATM or exchange) lives here too, beside spending it. */}
-      {mode === 'cash' && (
+      {mode === 'cash' && !dom && (
         <button type="button" className="more-row add-cash" onClick={() => setAddingCash(true)}>
           <Icon name="add" />
           <span>Add cash</span>

@@ -17,6 +17,7 @@ import {
   statValue,
   dailySeries,
   seriesCatalog,
+  domesticCard,
   seriesDef,
   type CardItem,
   type SummaryCard,
@@ -41,7 +42,7 @@ export default function Summary({ store }: { store: Store }) {
   const finished = today > settings.tripEnd;
   const over = s.focusDay.leftCents < 0;
   const estimatedToday = store.calcData.cardCharges.filter((c) => c.estimated && c.date === s.focusDay.date);
-  const showCashBanner = s.cashRateMissing && data.cashPurchases.length > 0;
+  const showCashBanner = !store.domestic && s.cashRateMissing && data.cashPurchases.length > 0;
 
   // The cards: the same set and order on every trip, chosen by the owner (Edit, top right).
   const [layout, setLayout] = useSummaryLayout();
@@ -56,8 +57,8 @@ export default function Summary({ store }: { store: Store }) {
     '[data-id]',
   );
   const ceiling = settings.budgetCeilingCents;
-  const catalog = statCatalog(store.categories, store.trip.cards);
-  const series = seriesCatalog(store.categories);
+  const catalog = statCatalog(store.categories, store.trip.cards, store.domestic);
+  const series = seriesCatalog(store.categories, store.domestic);
   const days = useMemo(() => computeDays(store.calcData, settings), [store.calcData, settings]);
   const unitOf = (id: string) => statValue(id, s, ceiling).unit;
   const itemValue = (it: CardItem) => formatStat('stat' in it ? statValue(it.stat, s, ceiling) : formulaValue(it.formula, s, ceiling));
@@ -265,7 +266,11 @@ export default function Summary({ store }: { store: Store }) {
   }
 
   function renderCard(c: SummaryCard): ReactNode {
-    if (c.kind === 'custom') return customCard(c);
+    if (c.kind === 'custom') {
+      // A domestic trip leaves out local-currency and rate figures (and a card made only of them).
+      const shown = store.domestic ? domesticCard(c) : c;
+      return shown ? customCard(shown) : null;
+    }
     if (c.id === 'today') return todayCard();
     if (c.id === 'budget') return budgetCard();
     return categoriesCard();

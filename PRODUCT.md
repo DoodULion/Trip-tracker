@@ -21,6 +21,7 @@ Every rate shown (cash, each card, per day, overall) is worked out from the loca
 ## Operating Context
 
 - Used mostly offline or on poor roaming data, in daylight and indoors, frequently one-handed.
+- A trip is International (local currency from its country) or Domestic (a US state, dollars only: currency fields, exchange rates and cash bought are hidden).
 - Each trip has its own dates, dollar budget ceiling (a ceiling, not a target), country, cards, categories, entries, and cash rate. The app opens on a trips list (tabs for Current & upcoming and Past), or straight into a trip's Summary when today falls within its dates.
 - Dollars are always the base currency. A trip's country sets its local currency (yen, euros, pounds, kroner and so on, with that currency's sign and decimals), used for every local amount on that trip's screens and in the CSV. A trip with no country uses yen. Local amounts are stored as integer minor units, so changing a trip's country re-reads its entries in the new currency.
 - Three entry kinds per trip: card charges (local amount and/or dollars; dollars may be filled in a day or two later once the card posts), cash purchases (local amount; dollars from the cash rate, or the USD actually paid when entered), and cash bought (local currency received, dollars paid including fees).

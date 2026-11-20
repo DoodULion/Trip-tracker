@@ -75,6 +75,69 @@ export const COUNTRIES: Country[] = [
 
 const BY_CODE = new Map(COUNTRIES.map((c) => [c.code, c]));
 
+/**
+ * The 50 states, for domestic trips. Each color comes from the state's flag or official colors and becomes
+ * the trip's main color (nudged for readable text, like country colors).
+ */
+export const US_STATES: Country[] = [
+  { code: 'AL', name: 'Alabama', color: '#9E1B32' },
+  { code: 'AK', name: 'Alaska', color: '#FFB81C' },
+  { code: 'AZ', name: 'Arizona', color: '#CE5C17' },
+  { code: 'AR', name: 'Arkansas', color: '#C8102E' },
+  { code: 'CA', name: 'California', color: '#C0362C' },
+  { code: 'CO', name: 'Colorado', color: '#35618F' },
+  { code: 'CT', name: 'Connecticut', color: '#1E4D8C' },
+  { code: 'DE', name: 'Delaware', color: '#6CACE4' },
+  { code: 'FL', name: 'Florida', color: '#F47321' },
+  { code: 'GA', name: 'Georgia', color: '#F28C6B' },
+  { code: 'HI', name: 'Hawaii', color: '#00A19B' },
+  { code: 'ID', name: 'Idaho', color: '#8B1A2B' },
+  { code: 'IL', name: 'Illinois', color: '#13294B' },
+  { code: 'IN', name: 'Indiana', color: '#002D72' },
+  { code: 'IA', name: 'Iowa', color: '#4C7A2A' },
+  { code: 'KS', name: 'Kansas', color: '#FBC02D' },
+  { code: 'KY', name: 'Kentucky', color: '#0033A0' },
+  { code: 'LA', name: 'Louisiana', color: '#5B2A86' },
+  { code: 'ME', name: 'Maine', color: '#0B6E4F' },
+  { code: 'MD', name: 'Maryland', color: '#B22234' },
+  { code: 'MA', name: 'Massachusetts', color: '#14558F' },
+  { code: 'MI', name: 'Michigan', color: '#1E6FA6' },
+  { code: 'MN', name: 'Minnesota', color: '#2E6F95' },
+  { code: 'MS', name: 'Mississippi', color: '#7A1F3D' },
+  { code: 'MO', name: 'Missouri', color: '#A6192E' },
+  { code: 'MT', name: 'Montana', color: '#4A90C2' },
+  { code: 'NE', name: 'Nebraska', color: '#D00000' },
+  { code: 'NV', name: 'Nevada', color: '#8A8D8F' },
+  { code: 'NH', name: 'New Hampshire', color: '#8E6AAE' },
+  { code: 'NJ', name: 'New Jersey', color: '#4A79B5' },
+  { code: 'NM', name: 'New Mexico', color: '#FFD100' },
+  { code: 'NY', name: 'New York', color: '#0039A6' },
+  { code: 'NC', name: 'North Carolina', color: '#7BAFD4' },
+  { code: 'ND', name: 'North Dakota', color: '#9B7B2C' },
+  { code: 'OH', name: 'Ohio', color: '#BB0000' },
+  { code: 'OK', name: 'Oklahoma', color: '#5DA9D6' },
+  { code: 'OR', name: 'Oregon', color: '#154733' },
+  { code: 'PA', name: 'Pennsylvania', color: '#203864' },
+  { code: 'RI', name: 'Rhode Island', color: '#2A7F9E' },
+  { code: 'SC', name: 'South Carolina', color: '#1B365D' },
+  { code: 'SD', name: 'South Dakota', color: '#1D74B9' },
+  { code: 'TN', name: 'Tennessee', color: '#FF8200' },
+  { code: 'TX', name: 'Texas', color: '#BF5700' },
+  { code: 'UT', name: 'Utah', color: '#C1502E' },
+  { code: 'VT', name: 'Vermont', color: '#2E7D32' },
+  { code: 'VA', name: 'Virginia', color: '#1A3668' },
+  { code: 'WA', name: 'Washington', color: '#00843D' },
+  { code: 'WV', name: 'West Virginia', color: '#002855' },
+  { code: 'WI', name: 'Wisconsin', color: '#C5050C' },
+  { code: 'WY', name: 'Wyoming', color: '#6E4B2A' },
+];
+
+const STATE_BY_CODE = new Map(US_STATES.map((s) => [s.code, s]));
+
+export function findState(code: string | undefined): Country | undefined {
+  return code ? STATE_BY_CODE.get(code) : undefined;
+}
+
 export function findCountry(code: string | undefined): Country | undefined {
   return code ? BY_CODE.get(code) : undefined;
 }
@@ -178,8 +241,24 @@ export function isReddish(hex: string): boolean {
  * country gets the neutral main color.
  */
 export function tripTheme(code: string | undefined): CSSProperties {
-  const country = findCountry(code);
-  if (!country) {
+  return themeFor(findCountry(code)?.color);
+}
+
+/** The theme for a trip: a domestic trip takes its state's color (the US color when no state is set), others their country's. */
+export function tripThemeOf(trip: { country?: string; scope?: string; state?: string }): CSSProperties {
+  if (trip.scope === 'domestic') return themeFor(findState(trip.state)?.color ?? findCountry('US')?.color);
+  return tripTheme(trip.country);
+}
+
+/** Flag and its label for a trip's header and list card: the US flag (named by its state) for a domestic trip. */
+export function tripPlace(trip: { country?: string; scope?: string; state?: string }): { flag: string; label: string } | undefined {
+  if (trip.scope === 'domestic') return { flag: flagEmoji('US'), label: findState(trip.state)?.name ?? 'United States' };
+  if (!trip.country) return undefined;
+  return { flag: flagEmoji(trip.country), label: findCountry(trip.country)?.name ?? 'Flag' };
+}
+
+function themeFor(color: string | undefined): CSSProperties {
+  if (!color) {
     // No country: the neutral main color of the home page (near-black in light mode, warm white in dark mode).
     return {
       '--brand': NEUTRAL_LIGHT,
@@ -188,7 +267,7 @@ export function tripTheme(code: string | undefined): CSSProperties {
       '--on-brand-dark': '#1b1715',
     } as CSSProperties;
   }
-  const base = country.color;
+  const base = color;
   const light = forLight(base);
   const dark = forDark(base);
   return {
